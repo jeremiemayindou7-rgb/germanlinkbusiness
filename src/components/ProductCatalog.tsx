@@ -1,0 +1,354 @@
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { supabase } from '../lib/supabase';
+import { ProductCard } from './ProductCard';
+import { ProductDetail } from './ProductDetail';
+import { AuthModal } from './AuthModal';
+import { getProductField } from '../lib/translateProduct';
+import { getIconComponent } from '../lib/categoryIcons';
+
+interface Product {
+  id: string;
+  name: string;
+  name_de?: string;
+  name_fr?: string;
+  name_ln?: string;
+  description: string;
+  description_de?: string;
+  description_fr?: string;
+  description_ln?: string;
+  category: string;
+  category_de?: string;
+  category_fr?: string;
+  category_ln?: string;
+  category_id?: string;
+  sale_price: number;
+  condition: string;
+  image_url: string;
+  stock_status: string;
+}
+
+interface Category {
+  id: string;
+  name_de: string;
+  name_fr: string;
+  name_ln: string;
+  parent_id: string | null;
+  icon: string;
+  sort_order: number;
+  subcategories?: Category[];
+}
+
+export const ProductCatalog: React.FC = () => {
+  const { t, language } = useLanguage();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [sortBy, setSortBy] = useState('newest');
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    filterAndSortProducts();
+  }, [products, searchQuery, selectedCategory, sortBy]);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+
+      const categoryMap = new Map<string, Category>();
+      const rootCategories: Category[] = [];
+
+      (data || []).forEach((cat) => {
+        categoryMap.set(cat.id, { ...cat, subcategories: [] });
+      });
+
+      categoryMap.forEach((cat) => {
+        if (cat.parent_id) {
+          const parent = categoryMap.get(cat.parent_id);
+          if (parent) {
+            parent.subcategories = parent.subcategories || [];
+            parent.subcategories.push(cat);
+          }
+        } else {
+          rootCategories.push(cat);
+        }
+      });
+
+      setCategories(rootCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('stock_status', 'available')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filterAndSortProducts = () => {
+    let filtered = [...products];
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((p) => {
+        const searchFields = [
+          p.name,
+          p.name_de,
+          p.name_fr,
+          p.name_ln,
+          p.description,
+          p.description_de,
+          p.description_fr,
+          p.description_ln
+        ].filter(Boolean);
+
+        return searchFields.some(field =>
+          field?.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter((p) => {
+        if (p.category_id === selectedCategory) return true;
+
+        const category = findCategoryById(selectedCategory);
+        if (category?.subcategories) {
+          return category.subcategories.some(sub => sub.id === p.category_id);
+        }
+
+        const categoryField = getProductField(p, 'category', language);
+        return p.category === selectedCategory || categoryField === t(selectedCategory);
+      });
+    }
+
+    switch (sortBy) {
+      case 'price_low_high':
+        filtered.sort((a, b) => a.sale_price - b.sale_price);
+        break;
+      case 'price_high_low':
+        filtered.sort((a, b) => b.sale_price - a.sale_price);
+        break;
+      case 'newest':
+        break;
+    }
+
+    setFilteredProducts(filtered);
+  };
+
+  const findCategoryById = (id: string): Category | undefined => {
+    for (const cat of categories) {
+      if (cat.id === id) return cat;
+      if (cat.subcategories) {
+        const found = cat.subcategories.find(sub => sub.id === id);
+        if (found) return cat;
+      }
+    }
+    return undefined;
+  };
+
+  const toggleCategory = (categoryId: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoryId)) {
+      newExpanded.delete(categoryId);
+    } else {
+      newExpanded.add(categoryId);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
+  const getCategoryName = (category: Category): string => {
+    switch (language) {
+      case 'de': return category.name_de;
+      case 'fr': return category.name_fr;
+      case 'ln': return category.name_ln;
+      default: return category.name_de;
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-6">
+      <div className="mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder={t('search_placeholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] focus:border-transparent"
+            />
+          </div>
+
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="md:hidden flex items-center justify-center space-x-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+          >
+            <Filter className="w-5 h-5" />
+            <span>{t('categories')}</span>
+          </button>
+        </div>
+
+        <div className={`mt-4 ${showFilters ? 'block' : 'hidden md:block'}`}>
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-bold text-[#1C1C1C] mb-3">
+                {t('categories')}
+              </label>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setSelectedCategory('all')}
+                  className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition flex items-center space-x-2 ${
+                    selectedCategory === 'all'
+                      ? 'bg-[#0A5EB0] text-white'
+                      : 'bg-[#E5E5E5] text-[#1C1C1C] hover:bg-[#F4B400] hover:text-[#1C1C1C]'
+                  }`}
+                >
+                  {getIconComponent('package') && React.createElement(getIconComponent('package'), { className: 'w-4 h-4' })}
+                  <span className="flex-1 text-left">{t('all_categories') || 'Alle Kategorien'}</span>
+                </button>
+
+                {categories.map((cat) => {
+                  const Icon = getIconComponent(cat.icon);
+                  const isExpanded = expandedCategories.has(cat.id);
+                  const hasSubcategories = cat.subcategories && cat.subcategories.length > 0;
+
+                  return (
+                    <div key={cat.id} className="space-y-1">
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => setSelectedCategory(cat.id)}
+                          className={`flex-1 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center space-x-2 ${
+                            selectedCategory === cat.id
+                              ? 'bg-[#0A5EB0] text-white'
+                              : 'bg-[#E5E5E5] text-[#1C1C1C] hover:bg-[#F4B400] hover:text-[#1C1C1C]'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span className="flex-1 text-left">{getCategoryName(cat)}</span>
+                        </button>
+                        {hasSubcategories && (
+                          <button
+                            onClick={() => toggleCategory(cat.id)}
+                            className="px-2 py-2 hover:bg-[#E5E5E5] rounded-lg transition"
+                          >
+                            {isExpanded ? (
+                              <ChevronUp className="w-4 h-4 text-[#1C1C1C]" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4 text-[#1C1C1C]" />
+                            )}
+                          </button>
+                        )}
+                      </div>
+
+                      {hasSubcategories && isExpanded && (
+                        <div className="ml-6 space-y-1">
+                          {cat.subcategories!.map((subcat) => {
+                            const SubIcon = getIconComponent(subcat.icon);
+                            return (
+                              <button
+                                key={subcat.id}
+                                onClick={() => setSelectedCategory(subcat.id)}
+                                className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition flex items-center space-x-2 ${
+                                  selectedCategory === subcat.id
+                                    ? 'bg-[#0099CC] text-white'
+                                    : 'bg-white border border-[#E5E5E5] text-[#1C1C1C] hover:bg-[#F4B400] hover:text-[#1C1C1C]'
+                                }`}
+                              >
+                                <SubIcon className="w-4 h-4" />
+                                <span className="flex-1 text-left">{getCategoryName(subcat)}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="md:w-48">
+              <label className="block text-sm font-bold text-[#1C1C1C] mb-2">
+                {t('sort_by')}
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] focus:border-transparent"
+              >
+                <option value="newest">{t('newest')}</option>
+                <option value="price_low_high">{t('price_low_high')}</option>
+                <option value="price_high_low">{t('price_high_low')}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#0A5EB0] border-t-transparent"></div>
+          <p className="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-600 text-lg">{t('no_products')}</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onViewDetails={setSelectedProductId}
+              onAuthRequired={() => setShowAuthModal(true)}
+            />
+          ))}
+        </div>
+      )}
+
+      {selectedProductId && (
+        <ProductDetail
+          productId={selectedProductId}
+          onClose={() => setSelectedProductId(null)}
+        />
+      )}
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
+    </div>
+  );
+};
