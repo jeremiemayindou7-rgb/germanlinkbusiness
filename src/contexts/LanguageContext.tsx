@@ -675,7 +675,7 @@ const translations: Translations = {
     de: 'Zu viele Versuche. Bitte warten Sie 5 Minuten.',
     fr: 'Trop de tentatives. Attendez 5 minutes.',
     ln: 'Osalelaki mingi. Linga tii 5 miniti.'
-  }
+  },
   seller_apply_title: {
     de: 'Als Verkäufer bewerben',
     fr: 'Devenir vendeur',
