@@ -43,7 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
   const productDesc = getProductField(product, 'description', language);
   const productCategory = getCategoryTranslation(product.category, language);
 
-  const fallbackImage = 'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg';
+  const fallbackImage = '/glblogo.png';
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();

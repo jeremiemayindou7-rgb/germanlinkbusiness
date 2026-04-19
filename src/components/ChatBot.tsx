@@ -21,7 +21,7 @@ interface Message {
   };
 }
 
-const CHATBOT_AVATAR_URL = "/ChatGPT_Image_20._Feb._2026,_17_23_36.png";
+const CHATBOT_AVATAR_URL = "/glb_suport.png";
 
 const QUICK_REPLIES = {
   de: [

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Grid3x3, Package, ShoppingBag, Users, MessageCircle, Settings, Search } from 'lucide-react';
+import { Home, Grid3x3, Package, ShoppingBag, Users, MessageCircle, Settings, Search, Store } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface SidebarProps {
@@ -27,15 +27,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) =>
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeView === item.id;
-
           return (
             <button
               key={item.id}
               onClick={() => onViewChange(item.id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                isActive
-                  ? 'bg-[#0A5EB0] text-white shadow-md'
-                  : 'text-gray-700 hover:bg-[#E5E5E5]'
+                isActive ? 'bg-[#0A5EB0] text-white shadow-md' : 'text-gray-700 hover:bg-[#E5E5E5]'
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -43,6 +40,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) =>
             </button>
           );
         })}
+
+        {/* Seller-Bereich – visuell getrennt */}
+        <div className="pt-3 mt-3 border-t border-[#E5E5E5]">
+          <button
+            onClick={() => onViewChange('seller')}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+              activeView === 'seller'
+                ? 'bg-[#FF6F00] text-white shadow-md'
+                : 'text-[#FF6F00] border border-[#FF6F00] hover:bg-orange-50'
+            }`}
+          >
+            <Store className="w-5 h-5" />
+            <span className="font-medium">{t('become_seller') || 'Verkäufer werden'}</span>
+          </button>
+        </div>
       </nav>
     </aside>
   );

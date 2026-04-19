@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Grid3x3, PlusSquare, MessageCircle, User, Search } from 'lucide-react';
+import { Home, PlusSquare, MessageCircle, User, Search, Store } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface BottomNavigationProps {
@@ -11,11 +11,11 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, o
   const { t } = useLanguage();
 
   const tabs = [
-    { id: 'home', icon: Home, label: t('home') || 'Home' },
-    { id: 'marketplace', icon: Search, label: 'Marktplatz' },
-    { id: 'upload', icon: PlusSquare, label: t('upload_product') || 'Hochladen' },
-    { id: 'messages', icon: MessageCircle, label: t('messages') || 'Nachrichten' },
-    { id: 'profile', icon: User, label: t('profile') || 'Profil' },
+    { id: 'home',        icon: Home,          label: t('home') || 'Home' },
+    { id: 'marketplace', icon: Search,         label: 'Marktplatz' },
+    { id: 'upload',      icon: PlusSquare,     label: t('upload_product') || 'Hochladen' },
+    { id: 'seller',      icon: Store,          label: t('become_seller') || 'Seller' },
+    { id: 'profile',     icon: User,           label: t('profile') || 'Profil' },
   ];
 
   return (
@@ -24,13 +24,16 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, o
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
+          const isSeller = tab.id === 'seller';
 
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-                isActive ? 'text-[#0A5EB0]' : 'text-gray-500'
+                isActive
+                  ? isSeller ? 'text-[#FF6F00]' : 'text-[#0A5EB0]'
+                  : 'text-gray-500'
               }`}
             >
               <Icon className={`w-6 h-6 ${isActive ? 'stroke-2' : 'stroke-1.5'}`} />

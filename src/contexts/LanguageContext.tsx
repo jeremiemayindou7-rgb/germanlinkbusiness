@@ -141,6 +141,21 @@ const translations: Translations = {
     fr: 'Ajouter au panier',
     ln: 'Tyá na panier'
   },
+  contact_seller: {
+    de: 'Verkäufer kontaktieren',
+    fr: 'Contacter le vendeur',
+    ln: 'Benga moteki'
+  },
+  loading: {
+    de: 'Lädt...',
+    fr: 'Chargement...',
+    ln: 'Ezali kotanga...'
+  },
+  added_to_cart: {
+    de: 'In den Warenkorb gelegt!',
+    fr: 'Ajouté au panier!',
+    ln: 'Ebakisami na panier!'
+  },
   view_details: {
     de: 'Details ansehen',
     fr: 'Voir détails',
@@ -661,6 +676,133 @@ const translations: Translations = {
     fr: 'Trop de tentatives. Attendez 5 minutes.',
     ln: 'Osalelaki mingi. Linga tii 5 miniti.'
   }
+  seller_apply_title: {
+    de: 'Als Verkäufer bewerben',
+    fr: 'Devenir vendeur',
+    ln: 'Bimela kobika'
+  },
+  seller_apply_desc: {
+    de: 'Verkaufe deine Produkte nach Afrika – GLB übernimmt die Lieferung',
+    fr: 'Vendez vos produits en Afrique – GLB gère la livraison',
+    ln: 'Teka biloko na Afrika – GLB ezali ko-livrer'
+  },
+  seller_apply_btn: {
+    de: 'Bewerbung senden',
+    fr: 'Envoyer la candidature',
+    ln: 'Tinda candidature'
+  },
+  seller_germany_required: {
+    de: 'Nur für Verkäufer in Deutschland. GLB übernimmt Versand & Lieferung nach Afrika.',
+    fr: 'Réservé aux vendeurs en Allemagne. GLB gère l\'expédition vers l\'Afrique.',
+    ln: 'Pona bateki na Allemagne. GLB ezali ko-tinda na Afrika.'
+  },
+  seller_city: {
+    de: 'Stadt (in Deutschland)',
+    fr: 'Ville (en Allemagne)',
+    ln: 'Ville (na Allemagne)'
+  },
+  seller_business_type: {
+    de: 'Art des Verkäufers',
+    fr: 'Type de vendeur',
+    ln: 'Type ya moteki'
+  },
+  seller_private: { de: 'Privatperson', fr: 'Particulier', ln: 'Personne privée' },
+  seller_business: { de: 'Unternehmen', fr: 'Entreprise', ln: 'Entreprise' },
+  seller_message_placeholder: {
+    de: 'Was möchtest du verkaufen? (optional)',
+    fr: 'Que souhaitez-vous vendre? (optionnel)',
+    ln: 'Olingi koteka nini? (soki olingi)'
+  },
+  seller_applied_title: {
+    de: 'Bewerbung eingereicht!',
+    fr: 'Candidature envoyée!',
+    ln: 'Candidature etindelami!'
+  },
+  seller_applied_desc: {
+    de: 'Wir prüfen deine Bewerbung und melden uns per E-Mail.',
+    fr: 'Nous examinerons votre candidature et vous contacterons par email.',
+    ln: 'Tozo-tala candidature na yo, tokobenga yo na email.'
+  },
+  seller_already_applied: {
+    de: 'Du hast bereits eine Bewerbung eingereicht.',
+    fr: 'Vous avez déjà soumis une candidature.',
+    ln: 'Osimbi candidature kala.'
+  },
+  seller_pending_title: {
+    de: 'Bewerbung wird geprüft',
+    fr: 'Candidature en cours d\'examen',
+    ln: 'Candidature ezali kotaliama'
+  },
+  seller_pending_desc: {
+    de: 'Unser Team prüft deine Anfrage. Du erhältst eine E-Mail.',
+    fr: 'Notre équipe examine votre demande. Vous recevrez un email.',
+    ln: 'Bato na biso bazali ko-tala. Okozwa email.'
+  },
+  seller_rejected_title: {
+    de: 'Bewerbung abgelehnt',
+    fr: 'Candidature refusée',
+    ln: 'Candidature eboyami'
+  },
+  seller_rejected_desc: {
+    de: 'Leider können wir deine Bewerbung nicht genehmigen.',
+    fr: 'Nous ne pouvons malheureusement pas approuver votre candidature.',
+    ln: 'Tolingi te, tokoki te kozua candidature na yo.'
+  },
+  seller_approved_badge: {
+    de: 'Genehmigter Verkäufer',
+    fr: 'Vendeur approuvé',
+    ln: 'Moteki azuami'
+  },
+  seller_dashboard_title: {
+    de: 'Mein Verkäufer-Bereich',
+    fr: 'Mon espace vendeur',
+    ln: 'Esika na ngai ya moteki'
+  },
+  seller_dashboard_desc: {
+    de: 'Verwalte deine Inserate für den afrikanischen Markt',
+    fr: 'Gérez vos annonces pour le marché africain',
+    ln: 'Leka ba-annonces na yo pona marché ya Afrique'
+  },
+  seller_no_products: {
+    de: 'Noch keine Produkte inseriert',
+    fr: 'Aucun produit encore annoncé',
+    ln: 'Eloko moko te elongami'
+  },
+  seller_no_application: {
+    de: 'Keine Bewerbung gefunden',
+    fr: 'Aucune candidature trouvée',
+    ln: 'Candidature moko te'
+  },
+  seller_new_product: {
+    de: 'Neues Produkt inserieren',
+    fr: 'Ajouter une nouvelle annonce',
+    ln: 'Bakisa eloko ya sika'
+  },
+  seller_shipping_notice: {
+    de: 'GLB übernimmt die Lieferung nach Kinshasa/Brazzaville. Keine Direktzahlung an dich.',
+    fr: 'GLB gère la livraison vers Kinshasa/Brazzaville. Pas de paiement direct.',
+    ln: 'GLB ezali ko-livrer na Kinshasa/Brazzaville. Mbongo na biso.'
+  },
+  seller_image_hint: {
+    de: 'Link zu einem Bild deines Produkts (z.B. aus Google Drive, Dropbox)',
+    fr: 'Lien vers une image de votre produit',
+    ln: 'Lien ya image ya eloko na yo'
+  },
+  seller_publish: {
+    de: 'Inserat veröffentlichen',
+    fr: 'Publier l\'annonce',
+    ln: 'Longola annonce'
+  },
+  become_seller: {
+    de: 'Verkäufer werden',
+    fr: 'Devenir vendeur',
+    ln: 'Koma moteki'
+  },
+  my_seller_area: {
+    de: 'Mein Verkäufer-Bereich',
+    fr: 'Mon espace vendeur',
+    ln: 'Esika ya moteki'
+  },
 };
 
 interface LanguageContextType {
