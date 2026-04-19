@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, Ship,
-  BarChart3, X, TrendingUp, DollarSign, Clock, Calendar
+  BarChart3, X
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { DashboardOverview } from './DashboardOverview';
 import { ProductManagement } from './ProductManagement';
@@ -21,10 +22,59 @@ type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics'
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose }) => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        setCheckingAdmin(false);
+        return;
+      }
+      const { data } = await supabase
+        .from('profiles')
+        .select('is_admin, role')
+        .eq('id', user.id)
+        .single();
+      setIsAdmin(data?.is_admin === true || data?.role === 'admin');
+      setCheckingAdmin(false);
+    };
+    if (isOpen) checkAdmin();
+  }, [user, isOpen]);
 
   if (!isOpen) return null;
+
+  if (checkingAdmin) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl p-8 text-center shadow-2xl">
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-[#009543] border-t-transparent"/>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
+          <div className="text-6xl mb-4">🔒</div>
+          <h2 className="text-xl font-bold text-[#1C1C1C] mb-2">Zugriff verweigert</h2>
+          <p className="text-gray-500 mb-6">Dieser Bereich ist nur für Administratoren.</p>
+          <button
+            onClick={onClose}
+            className="w-full py-3 bg-[#0A5EB0] text-white rounded-xl font-bold hover:bg-[#094da0] transition"
+          >
+            Schließen
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const menuItems = [
     { id: 'dashboard' as TabType, icon: LayoutDashboard, label: 'Dashboard' },
