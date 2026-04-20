@@ -65,7 +65,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({ onCodeSent }) => {
             setValidationError('');
             clearError();
           }}
-          placeholder={t('phone_placeholder')}
+          placeholder="+243 XXX XXX XXX (WhatsApp)"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#009543] focus:border-transparent"
           disabled={loading}
         />

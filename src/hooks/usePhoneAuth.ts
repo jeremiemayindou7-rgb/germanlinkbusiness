@@ -20,14 +20,10 @@ export const usePhoneAuth = () => {
           body: JSON.stringify({ phone }),
         }
       );
-
       if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error('rate_limit_exceeded');
-        }
+        if (response.status === 429) throw new Error('rate_limit_exceeded');
         throw new Error('rate_limit_check_failed');
       }
-
       return true;
     } catch (err: any) {
       throw err;
@@ -41,11 +37,25 @@ export const usePhoneAuth = () => {
     try {
       await checkRateLimit(phone);
 
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        phone,
-      });
+      // WhatsApp OTP statt SMS
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-whatsapp-otp`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ phone }),
+        }
+      );
 
-      if (otpError) throw otpError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Fehler beim Senden des WhatsApp-Codes');
+      }
+
     } catch (err: any) {
       setError(err.message || 'Failed to send OTP');
       throw err;
@@ -59,13 +69,43 @@ export const usePhoneAuth = () => {
     setError(null);
 
     try {
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        phone,
-        token,
-        type: 'sms',
-      });
+      // WhatsApp OTP verifizieren
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-whatsapp-otp`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ phone, code: token }),
+        }
+      );
 
-      if (verifyError) throw verifyError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.error === 'invalid_code') {
+          throw new Error('Code ungültig oder abgelaufen');
+        }
+        throw new Error(data.error || 'Verifizierung fehlgeschlagen');
+      }
+
+      // Magic Link einlösen um Session zu erstellen
+      if (data.link) {
+        const url = new URL(data.link);
+        const token_hash = url.searchParams.get('token_hash') ||
+                           new URLSearchParams(url.hash.substring(1)).get('access_token');
+
+        if (token_hash) {
+          const { error: sessionError } = await supabase.auth.verifyOtp({
+            token_hash,
+            type: 'magiclink',
+          });
+          if (sessionError) throw sessionError;
+        }
+      }
+
     } catch (err: any) {
       setError(err.message || 'Failed to verify OTP');
       throw err;
