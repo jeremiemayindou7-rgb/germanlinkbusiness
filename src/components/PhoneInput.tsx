@@ -15,12 +15,11 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({ onCodeSent }) => {
   const validatePhone = (phoneNumber: string): boolean => {
     const cleaned = phoneNumber.replace(/\s/g, '');
 
-    const isValid = /^\+[1-9]\d{7,14}$/.test(cleaned);
-
+    const isValid = /^\+[1-9]\d{6,14}$/.test(cleaned);
     if (!isValid) {
-      setValidationError("Ungültige Nummer. Beispiel: +4917612345678");
+      setValidationError("Ungültige Nummer. Format: +242XXXXXXXXX");
       return false;
-    }
+  }
 
     return true;
   };
