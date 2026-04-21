@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, Ship,
-  BarChart3, X
+  BarChart3, X, Store
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -12,13 +12,14 @@ import { OrderManagement } from './OrderManagement';
 import { ContainerManagement } from './ContainerManagement';
 import { Statistics } from './Statistics';
 import { CustomerManagement } from './CustomerManagement';
+import { SellerApplicationsManagement } from './SellerApplicationsManagement';
 
 interface AdminDashboardProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics' | 'customers';
+type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics' | 'customers' | 'sellers';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose }) => {
   const { t } = useLanguage();
@@ -27,14 +28,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
     const checkAdmin = async () => {
-      if (!user) {
-        setIsAdmin(false);
-        setCheckingAdmin(false);
-        return;
-      }
+      if (!user) { setIsAdmin(false); setCheckingAdmin(false); return; }
       const { data } = await supabase
         .from('profiles')
         .select('is_admin, role')
@@ -45,6 +43,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
     };
     if (isOpen) checkAdmin();
   }, [user, isOpen]);
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      const { count } = await supabase
+        .from('seller_applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+      setPendingCount(count || 0);
+    };
+    if (isAdmin) fetchPending();
+  }, [isAdmin]);
 
   if (!isOpen) return null;
 
@@ -65,10 +74,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
           <div className="text-6xl mb-4">🔒</div>
           <h2 className="text-xl font-bold text-[#1C1C1C] mb-2">Zugriff verweigert</h2>
           <p className="text-gray-500 mb-6">Dieser Bereich ist nur für Administratoren.</p>
-          <button
-            onClick={onClose}
-            className="w-full py-3 bg-[#0A5EB0] text-white rounded-xl font-bold hover:bg-[#094da0] transition"
-          >
+          <button onClick={onClose} className="w-full py-3 bg-[#0A5EB0] text-white rounded-xl font-bold hover:bg-[#094da0] transition">
             Schließen
           </button>
         </div>
@@ -83,23 +89,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
     { id: 'containers' as TabType, icon: Ship, label: 'Containers' },
     { id: 'statistics' as TabType, icon: BarChart3, label: 'Statistiques' },
     { id: 'customers' as TabType, icon: Users, label: 'Clients' },
+    { id: 'sellers' as TabType, icon: Store, label: 'Seller-Bewerbungen', badge: pendingCount },
   ];
 
   return (
     <div className="fixed inset-0 bg-gray-900 z-50 flex">
-      <div
-        className={`bg-[#009543] text-white transition-all duration-300 ${
-          sidebarCollapsed ? 'w-20' : 'w-64'
-        } flex-shrink-0`}
-      >
+      <div className={`bg-[#009543] text-white transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'} flex-shrink-0`}>
         <div className="p-4 border-b border-white border-opacity-20 flex items-center justify-between">
-          {!sidebarCollapsed && (
-            <h2 className="text-xl font-bold">Admin Dashboard</h2>
-          )}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition"
-          >
+          {!sidebarCollapsed && <h2 className="text-xl font-bold">Admin Dashboard</h2>}
+          <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition">
             {sidebarCollapsed ? '→' : '←'}
           </button>
         </div>
@@ -112,13 +110,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition mb-1 ${
-                  activeTab === item.id
-                    ? 'bg-white bg-opacity-20'
-                    : 'hover:bg-white hover:bg-opacity-10'
+                  activeTab === item.id ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-10'
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                {!sidebarCollapsed && <span>{item.label}</span>}
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                {!sidebarCollapsed && (
+                  <span className="flex-1 text-left">{item.label}</span>
+                )}
+                {!sidebarCollapsed && item.badge && item.badge > 0 ? (
+                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    {item.badge}
+                  </span>
+                ) : null}
+                {sidebarCollapsed && item.badge && item.badge > 0 ? (
+                  <span className="absolute ml-6 mt-[-24px] bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {item.badge}
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -130,10 +138,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
           <h1 className="text-2xl font-bold text-gray-900">
             {menuItems.find(item => item.id === activeTab)?.label}
           </h1>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
-          >
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -145,6 +150,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
           {activeTab === 'containers' && <ContainerManagement />}
           {activeTab === 'statistics' && <Statistics />}
           {activeTab === 'customers' && <CustomerManagement />}
+          {activeTab === 'sellers' && <SellerApplicationsManagement />}
         </div>
       </div>
     </div>
