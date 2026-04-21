@@ -40,7 +40,11 @@ interface Category {
   subcategories?: Category[];
 }
 
-export const ProductCatalog: React.FC = () => {
+interface ProductCatalogProps {
+  onCartOpen?: () => void;
+}
+
+export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) => {
   const { t, language } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -333,6 +337,7 @@ export const ProductCatalog: React.FC = () => {
               product={product}
               onViewDetails={setSelectedProductId}
               onAuthRequired={() => setShowAuthModal(true)}
+              onCartOpen={onCartOpen}
             />
           ))}
         </div>

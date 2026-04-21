@@ -29,9 +29,15 @@ interface ProductCardProps {
   product: Product;
   onViewDetails?: (productId: string) => void;
   onAuthRequired?: () => void;
+  onCartOpen?: () => void;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails, onAuthRequired }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onViewDetails,
+  onAuthRequired,
+  onCartOpen
+}) => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const { addToCart } = useCart();
@@ -40,29 +46,35 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
   const [imageError, setImageError] = useState(false);
 
   const productName = getProductField(product, 'name', language);
-  const productDesc = getProductField(product, 'description', language);
-  const productCategory = getCategoryTranslation(product.category, language);
-
   const fallbackImage = '/glblogo.png';
 
+  // "Acheter" – in Warenkorb + Warenkorb öffnen
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    if (!user) {
-      onAuthRequired?.();
-      return;
-    }
-
+    if (!user) { onAuthRequired?.(); return; }
     setAdding(true);
     try {
       await addToCart(product.id);
       setShowAdded(true);
-      setTimeout(() => setShowAdded(false), 2000);
+      setTimeout(() => {
+        setShowAdded(false);
+        onCartOpen?.(); // Warenkorb automatisch öffnen
+      }, 800);
     } catch (error: any) {
       alert(error.message || 'Erreur lors de l\'ajout au panier');
     } finally {
       setAdding(false);
     }
+  };
+
+  // "Contacter le vendeur" – WhatsApp öffnen
+  const handleContactSeller = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) { onAuthRequired?.(); return; }
+    const message = encodeURIComponent(
+      `Bonjour, je suis intéressé par: *${productName}* (${product.sale_price.toFixed(2)} €) sur GermanLink Business.`
+    );
+    window.open(`https://wa.me/4917622896160?text=${message}`, '_blank');
   };
 
   return (
@@ -79,17 +91,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
             loading="lazy"
             onError={() => setImageError(true)}
           />
-        ) : imageError ? (
+        ) : (
           <img
             src={fallbackImage}
             alt={productName}
-            className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
           />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-300">
-            <ShoppingCart className="w-16 h-16" />
-          </div>
         )}
         <div className="absolute top-3 right-3">
           <span className="bg-[#F4B400] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
@@ -119,18 +127,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
 
         {showAdded && (
           <div className="mb-3 bg-green-50 text-green-600 p-2 rounded-lg text-sm text-center font-medium">
-            {t('added_to_cart') || 'Ajouté au panier!'}
+            ✅ {t('added_to_cart') || 'Ajouté au panier!'}
           </div>
         )}
 
-        <button
-          onClick={handleAddToCart}
-          disabled={adding}
-          className="w-full flex items-center justify-center space-x-2 py-3 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-        >
-          <MessageCircle className="w-5 h-5" />
-          <span>{adding ? t('loading') || 'Chargement...' : t('contact_seller') || 'Kontaktieren'}</span>
-        </button>
+        {/* Zwei Buttons */}
+        <div className="flex gap-2">
+          {/* Contacter le vendeur – WhatsApp */}
+          <button
+            onClick={handleContactSeller}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#1ebe5d] text-white rounded-lg font-bold text-sm transition-all shadow-md hover:shadow-lg"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>{t('contact_seller') || 'Contacter'}</span>
+          </button>
+
+          {/* Acheter – Warenkorb */}
+          <button
+            onClick={handleAddToCart}
+            disabled={adding}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg font-bold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            <span>{adding ? '...' : t('add_to_cart') || 'Acheter'}</span>
+          </button>
+        </div>
       </div>
     </div>
   );

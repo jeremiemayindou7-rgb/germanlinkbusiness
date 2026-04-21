@@ -108,7 +108,7 @@ function AppContent() {
         <SellerDashboard />
       </div>
     );
-    return <ProductCatalog />;
+    return <ProductCatalog onCartOpen={() => setCartOpen(true)} />;
   };
 
   return (
