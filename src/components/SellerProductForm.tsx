@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Upload, ImageIcon } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,29 +13,96 @@ interface Props { onClose: () => void; onSuccess: () => void; }
 
 export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, session } = useAuth(); // ← session hinzugefügt
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [uploadProgress, setUploadProgress] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [form, setForm] = useState({
     name: '', category: CATEGORIES[0], sale_price: '',
-    condition: 'good', description: '', image_url: ''
+    condition: 'good', description: ''
   });
 
+  // Bild auswählen & Vorschau anzeigen
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Maximale Größe: 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Bild zu groß! Maximal 5MB erlaubt.');
+      return;
+    }
+
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  // Bild zu Supabase Storage hochladen
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile || !user) return null;
+
+    setUploadProgress(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, imageFile, { upsert: true });
+
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      return urlData.publicUrl;
+    } catch (err: any) {
+      console.error('Image upload error:', err);
+      alert('Bild-Upload fehlgeschlagen: ' + err.message);
+      return null;
+    } finally {
+      setUploadProgress(false);
+    }
+  };
+
   const handleSubmit = async () => {
-    if (!user || !form.name || !form.sale_price) return;
+    // ← Sicherheitscheck: user UND session prüfen
+    if (!user || !session) {
+      alert('Bitte erst einloggen!');
+      return;
+    }
+    if (!form.name || !form.sale_price) return;
+
     setLoading(true);
     try {
+      // Bild hochladen falls ausgewählt
+      let imageUrl: string | null = null;
+      if (imageFile) {
+        imageUrl = await uploadImage();
+      }
+
       const { error } = await supabase.from('products').insert({
         name: form.name,
         name_de: form.name,
+        title: form.name,           // ← title auch setzen
         category: form.category,
         sale_price: parseFloat(form.sale_price),
         condition: form.condition,
         description: form.description,
-        image_url: form.image_url || null,
+        image_url: imageUrl,
         stock_status: 'available',
-        seller_id: user.id,
-        is_seller_product: true
+        seller_id: user.id,         // ← wird jetzt korrekt gesetzt
+        is_seller_product: true,
+        location: 'Deutschland',
       });
+
       if (error) throw error;
       onSuccess();
     } catch (err: any) {
@@ -56,6 +123,43 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
         </div>
 
         <div className="p-6 space-y-4">
+
+          {/* Bild Upload */}
+          <div>
+            <label className="block text-sm font-bold text-[#1C1C1C] mb-1">
+              Produktbild
+            </label>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full h-40 border-2 border-dashed border-[#E5E5E5] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[#0A5EB0] hover:bg-blue-50 transition overflow-hidden"
+            >
+              {imagePreview ? (
+                <img src={imagePreview} alt="Vorschau" className="w-full h-full object-cover" />
+              ) : (
+                <>
+                  <ImageIcon className="w-10 h-10 text-gray-300 mb-2" />
+                  <p className="text-sm text-gray-500">Bild auswählen</p>
+                  <p className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP · max. 5MB</p>
+                </>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+            {imagePreview && (
+              <button
+                onClick={() => { setImageFile(null); setImagePreview(''); }}
+                className="text-xs text-red-500 mt-1 hover:underline"
+              >
+                Bild entfernen
+              </button>
+            )}
+          </div>
+
           {/* Titel */}
           <div>
             <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('product_name')} *</label>
@@ -123,27 +227,6 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
             <p className="text-xs text-gray-400 text-right mt-1">{form.description.length}/4000</p>
           </div>
 
-          {/* Bild URL */}
-          <div>
-            <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('image_url')}</label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={form.image_url}
-                onChange={e => setForm({...form, image_url: e.target.value})}
-                className="flex-1 px-4 py-3 border border-[#E5E5E5] rounded-xl focus:ring-2 focus:ring-[#0A5EB0]"
-                placeholder="https://..."
-              />
-              {form.image_url && (
-                <img src={form.image_url} alt="preview"
-                  className="w-12 h-12 rounded-lg object-cover border border-[#E5E5E5]"
-                  onError={e => (e.currentTarget.style.display = 'none')}
-                />
-              )}
-            </div>
-            <p className="text-xs text-gray-400 mt-1">{t('seller_image_hint')}</p>
-          </div>
-
           {/* Hinweis */}
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">
             {t('seller_shipping_notice')}
@@ -156,13 +239,19 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading || !form.name || !form.sale_price}
+            disabled={loading || uploadProgress || !form.name || !form.sale_price}
             className="flex-1 py-3 bg-[#FF6F00] text-white rounded-xl font-bold hover:bg-[#E66000] transition disabled:opacity-50"
           >
-            {loading ? t('loading') : t('seller_publish')}
+            {loading || uploadProgress ? (
+              <span className="flex items-center justify-center gap-2">
+                <Upload className="w-4 h-4 animate-bounce" />
+                {uploadProgress ? 'Bild wird hochgeladen...' : t('loading')}
+              </span>
+            ) : t('seller_publish')}
           </button>
         </div>
       </div>
     </div>
   );
 };
+

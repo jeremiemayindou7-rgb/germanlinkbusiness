@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, Ship,
-  BarChart3, X, Store
+  BarChart3, X, Store, FileText
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,13 +13,14 @@ import { ContainerManagement } from './ContainerManagement';
 import { Statistics } from './Statistics';
 import { CustomerManagement } from './CustomerManagement';
 import { SellerApplicationsManagement } from './SellerApplicationsManagement';
+import { QuoteRequestsManagement } from './QuoteRequestsManagement'; // ← NEU
 
 interface AdminDashboardProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics' | 'customers' | 'sellers';
+type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics' | 'customers' | 'sellers' | 'quotes'; // ← quotes NEU
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose }) => {
   const { t } = useLanguage();
@@ -29,6 +30,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
+  const [pendingQuotes, setPendingQuotes] = useState(0); // ← NEU
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -45,14 +47,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
   }, [user, isOpen]);
 
   useEffect(() => {
-    const fetchPending = async () => {
-      const { count } = await supabase
+    const fetchBadges = async () => {
+      // Seller Bewerbungen
+      const { count: sellerCount } = await supabase
         .from('seller_applications')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'pending');
-      setPendingCount(count || 0);
+      setPendingCount(sellerCount || 0);
+
+      // eBay Anfragen ← NEU
+      const { count: quoteCount } = await supabase
+        .from('quote_requests')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+      setPendingQuotes(quoteCount || 0);
     };
-    if (isAdmin) fetchPending();
+    if (isAdmin) fetchBadges();
   }, [isAdmin]);
 
   if (!isOpen) return null;
@@ -83,21 +93,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
   }
 
   const menuItems = [
-    { id: 'dashboard' as TabType, icon: LayoutDashboard, label: 'Dashboard' },
-    { id: 'products' as TabType, icon: Package, label: t('products') },
-    { id: 'orders' as TabType, icon: ShoppingBag, label: t('order_management') },
-    { id: 'containers' as TabType, icon: Ship, label: 'Containers' },
-    { id: 'statistics' as TabType, icon: BarChart3, label: 'Statistiques' },
-    { id: 'customers' as TabType, icon: Users, label: 'Clients' },
-    { id: 'sellers' as TabType, icon: Store, label: 'Seller-Bewerbungen', badge: pendingCount },
+    { id: 'dashboard'  as TabType, icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'products'   as TabType, icon: Package,         label: t('products') },
+    { id: 'orders'     as TabType, icon: ShoppingBag,     label: t('order_management') },
+    { id: 'quotes'     as TabType, icon: FileText,        label: 'eBay Anfragen', badge: pendingQuotes }, // ← NEU
+    { id: 'containers' as TabType, icon: Ship,            label: 'Containers' },
+    { id: 'statistics' as TabType, icon: BarChart3,       label: 'Statistiques' },
+    { id: 'customers'  as TabType, icon: Users,           label: 'Clients' },
+    { id: 'sellers'    as TabType, icon: Store,           label: 'Seller-Bewerbungen', badge: pendingCount },
   ];
 
   return (
     <div className="fixed inset-0 bg-gray-900 z-50 flex">
+
+      {/* Sidebar */}
       <div className={`bg-[#009543] text-white transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'} flex-shrink-0`}>
         <div className="p-4 border-b border-white border-opacity-20 flex items-center justify-between">
           {!sidebarCollapsed && <h2 className="text-xl font-bold">Admin Dashboard</h2>}
-          <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition">
+          <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition">
             {sidebarCollapsed ? '→' : '←'}
           </button>
         </div>
@@ -106,10 +120,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition mb-1 ${
+              <button key={item.id} onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition mb-1 relative ${
                   activeTab === item.id ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-10'
                 }`}
               >
@@ -117,13 +129,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
                 {!sidebarCollapsed && (
                   <span className="flex-1 text-left">{item.label}</span>
                 )}
+                {/* Badge ausgeklappt */}
                 {!sidebarCollapsed && item.badge && item.badge > 0 ? (
                   <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                     {item.badge}
                   </span>
                 ) : null}
+                {/* Badge eingeklappt */}
                 {sidebarCollapsed && item.badge && item.badge > 0 ? (
-                  <span className="absolute ml-6 mt-[-24px] bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {item.badge}
                   </span>
                 ) : null}
@@ -133,6 +147,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
         </nav>
       </div>
 
+      {/* Main Content */}
       <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
         <div className="bg-white border-b p-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">
@@ -144,15 +159,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
-          {activeTab === 'dashboard' && <DashboardOverview />}
-          {activeTab === 'products' && <ProductManagement />}
-          {activeTab === 'orders' && <OrderManagement />}
+          {activeTab === 'dashboard'  && <DashboardOverview />}
+          {activeTab === 'products'   && <ProductManagement />}
+          {activeTab === 'orders'     && <OrderManagement />}
+          {activeTab === 'quotes'     && <QuoteRequestsManagement />} {/* ← NEU */}
           {activeTab === 'containers' && <ContainerManagement />}
           {activeTab === 'statistics' && <Statistics />}
-          {activeTab === 'customers' && <CustomerManagement />}
-          {activeTab === 'sellers' && <SellerApplicationsManagement />}
+          {activeTab === 'customers'  && <CustomerManagement />}
+          {activeTab === 'sellers'    && <SellerApplicationsManagement />}
         </div>
       </div>
     </div>
   );
 };
+

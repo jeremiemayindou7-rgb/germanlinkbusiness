@@ -99,7 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('[PasswordReset] Sending reset email to:', email);
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/confirm`,
+        redirectTo: 'https://www.germanlinkbusiness.de/auth/confirm', // ← feste Domain
       });
       if (error) {
         console.error('[PasswordReset] Error sending email:', error.message);
