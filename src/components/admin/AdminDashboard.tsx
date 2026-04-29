@@ -13,7 +13,7 @@ import { ContainerManagement } from './ContainerManagement';
 import { Statistics } from './Statistics';
 import { CustomerManagement } from './CustomerManagement';
 import { SellerApplicationsManagement } from './SellerApplicationsManagement';
-import { QuoteRequestsManagement } from './QuoteRequestsManagement'; // ← NEU
+import { QuoteRequestsManagement } from './QuoteRequestsManagement';// ← NEU
 
 interface AdminDashboardProps {
   isOpen: boolean;

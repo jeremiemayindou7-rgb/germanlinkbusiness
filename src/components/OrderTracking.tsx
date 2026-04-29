@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Package, Clock, Truck, Ship, MapPin, CheckCircle, CreditCard, Home, AlertCircle, Warehouse, Anchor } from 'lucide-react';
+import { X, Package, Clock, Truck, Ship, CheckCircle, CreditCard, Home, AlertCircle, Warehouse, Anchor } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -279,7 +279,6 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ isOpen, onClose })
                     const currentIndex = getCurrentStatusIndex(selectedOrder.order_status);
                     const isCompleted = idx < currentIndex;
                     const isCurrent  = idx === currentIndex;
-                    const isPending  = idx > currentIndex;
                     const Icon = status.icon;
 
                     return (
