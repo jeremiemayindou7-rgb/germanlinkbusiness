@@ -693,7 +693,7 @@ const translations: Translations = {
   },
   seller_germany_required: {
     de: 'Nur für Verkäufer in Deutschland. GLB übernimmt Versand & Lieferung nach Afrika.',
-    fr: 'Réservé aux vendeurs en Allemagne. GLB gère l\'expédition vers l\'Afrique.',
+    fr: "Réservé aux vendeurs en Allemagne. GLB gère l'expédition vers l'Afrique.",
     ln: 'Pona bateki na Allemagne. GLB ezali ko-tinda na Afrika.'
   },
   seller_city: {
@@ -706,8 +706,16 @@ const translations: Translations = {
     fr: 'Type de vendeur',
     ln: 'Type ya moteki'
   },
-  seller_private: { de: 'Privatperson', fr: 'Particulier', ln: 'Personne privée' },
-  seller_business: { de: 'Unternehmen', fr: 'Entreprise', ln: 'Entreprise' },
+  seller_private: {
+    de: 'Privatperson',
+    fr: 'Particulier',
+    ln: 'Personne privée'
+  },
+  seller_business: {
+    de: 'Unternehmen',
+    fr: 'Entreprise',
+    ln: 'Entreprise'
+  },
   seller_message_placeholder: {
     de: 'Was möchtest du verkaufen? (optional)',
     fr: 'Que souhaitez-vous vendre? (optionnel)',
@@ -730,7 +738,7 @@ const translations: Translations = {
   },
   seller_pending_title: {
     de: 'Bewerbung wird geprüft',
-    fr: 'Candidature en cours d\'examen',
+    fr: "Candidature en cours d'examen",
     ln: 'Candidature ezali kotaliama'
   },
   seller_pending_desc: {
@@ -790,7 +798,7 @@ const translations: Translations = {
   },
   seller_publish: {
     de: 'Inserat veröffentlichen',
-    fr: 'Publier l\'annonce',
+    fr: "Publier l'annonce",
     ln: 'Longola annonce'
   },
   become_seller: {
@@ -802,6 +810,370 @@ const translations: Translations = {
     de: 'Mein Verkäufer-Bereich',
     fr: 'Mon espace vendeur',
     ln: 'Esika ya moteki'
+  },
+
+  // ── Marketplace ──────────────────────────────────────────────────────────────
+  marketplace_title: {
+    de: 'Marktplätze durchsuchen',
+    fr: 'Rechercher sur les marchés',
+    ln: 'Luka na ba-marché'
+  },
+  marketplace_subtitle: {
+    de: 'Produkt suchen — GLB liefert nach Congo',
+    fr: 'Chercher un produit — GLB livre au Congo',
+    ln: 'Luka eloko — GLB ekobakisa na Congo'
+  },
+  marketplace_tab_search: {
+    de: 'Marktplätze durchsuchen',
+    fr: 'Parcourir les marchés',
+    ln: 'Luka na ba-marché'
+  },
+  marketplace_tab_link: {
+    de: 'Link einreichen',
+    fr: 'Soumettre un lien',
+    ln: 'Tinda lien'
+  },
+  marketplace_search_placeholder: {
+    de: 'Suchbegriff eingeben… z.B. iPhone, Sofa, Nike',
+    fr: 'Entrez un mot-clé… ex: iPhone, Canapé, Nike',
+    ln: 'Tiya liloba… ex: iPhone, Sofa, Nike'
+  },
+  marketplace_link_placeholder: {
+    de: 'https://www.ebay.de/itm/... oder amazon.de/dp/...',
+    fr: 'https://www.ebay.de/itm/... ou amazon.de/dp/...',
+    ln: 'https://www.ebay.de/itm/... to amazon.de/dp/...'
+  },
+  marketplace_how_it_works: {
+    de: 'So funktioniert es',
+    fr: 'Comment ça marche',
+    ln: 'Ndenge esalema'
+  },
+  marketplace_step1: {
+    de: 'Suchbegriff eingeben & Marktplatz wählen',
+    fr: 'Entrer un mot-clé & choisir un marché',
+    ln: 'Tiya liloba & pona marché'
+  },
+  marketplace_step2: {
+    de: 'Produkt finden & Link kopieren',
+    fr: 'Trouver le produit & copier le lien',
+    ln: 'Yeba eloko & kopia lien'
+  },
+  marketplace_step3: {
+    de: 'Link einreichen → GLB liefert nach Congo',
+    fr: 'Soumettre le lien → GLB livre au Congo',
+    ln: 'Tinda lien → GLB ekobakisa na Congo'
+  },
+  marketplace_choose: {
+    de: 'Marktplatz wählen',
+    fr: 'Choisir un marché',
+    ln: 'Pona marché'
+  },
+  marketplace_open: {
+    de: 'Öffnen',
+    fr: 'Ouvrir',
+    ln: 'Fungola'
+  },
+  marketplace_search_on: {
+    de: 'suchen',
+    fr: 'rechercher',
+    ln: 'luka'
+  },
+  marketplace_found: {
+    de: 'Produkt gefunden?',
+    fr: 'Produit trouvé?',
+    ln: 'Ozwi eloko?'
+  },
+  marketplace_found_desc: {
+    de: 'Link kopieren → oben auf „Link einreichen" klicken → GLB kauft und liefert nach Congo.',
+    fr: 'Copiez le lien → cliquez sur „Soumettre un lien" → GLB achète et livre au Congo.',
+    ln: 'Kopia lien → penza „Tinda lien" → GLB esomba mpe ekobakisa na Congo.'
+  },
+  marketplace_submit_link: {
+    de: 'Jetzt Link einreichen →',
+    fr: 'Soumettre le lien maintenant →',
+    ln: 'Tinda lien sikoyo →'
+  },
+  marketplace_supported: {
+    de: 'Unterstützte Marktplätze',
+    fr: 'Marchés supportés',
+    ln: 'Ba-marché oyo tozali kosalela'
+  },
+  marketplace_tip: {
+    de: 'Öffnen Sie den Marktplatz, suchen Sie Ihr Produkt, kopieren Sie den Link und reichen Sie ihn ein.',
+    fr: 'Ouvrez le marché, trouvez votre produit, copiez le lien et soumettez-le.',
+    ln: 'Fungola marché, luka eloko, kopia lien mpe tinda yango.'
+  },
+  marketplace_order_btn: {
+    de: 'Bei GLB bestellen',
+    fr: 'Commander via GLB',
+    ln: 'Somba na GLB'
+  },
+  marketplace_link_error_empty: {
+    de: 'Bitte einen Link eingeben',
+    fr: 'Veuillez entrer un lien',
+    ln: 'Tiya lien liboso'
+  },
+  marketplace_link_error_http: {
+    de: 'Link muss mit https:// beginnen',
+    fr: 'Le lien doit commencer par https://',
+    ln: 'Lien esengeli kobanda na https://'
+  },
+  marketplace_link_error_domain: {
+    de: 'Nur Links von eBay.de, Kleinanzeigen, Amazon.de, reBuy.de oder Vinted.de erlaubt',
+    fr: 'Seuls les liens de eBay.de, Kleinanzeigen, Amazon.de, reBuy.de ou Vinted.de sont acceptés',
+    ln: 'Lien ya eBay.de, Kleinanzeigen, Amazon.de, reBuy.de to Vinted.de kaka'
+  },
+
+  // ── Order Modal ───────────────────────────────────────────────────────────────
+  order_product_details: {
+    de: 'Produktdetails eingeben',
+    fr: 'Saisir les détails du produit',
+    ln: 'Tiya makambo ya eloko'
+  },
+  order_product_price: {
+    de: 'Produktpreis (€)',
+    fr: 'Prix du produit (€)',
+    ln: 'Ntalo ya eloko (€)'
+  },
+  order_price_hint: {
+    de: 'Den Preis vom Marktplatz ablesen und hier eingeben',
+    fr: 'Lire le prix sur le marché et le saisir ici',
+    ln: 'Tanga ntalo na marché mpe tiya awa'
+  },
+  order_quantity: {
+    de: 'Menge',
+    fr: 'Quantité',
+    ln: 'Motango'
+  },
+  order_variant: {
+    de: 'Größe / Farbe',
+    fr: 'Taille / Couleur',
+    ln: 'Bonene / Rangi'
+  },
+  order_variant_placeholder: {
+    de: 'z.B. Rot, XL',
+    fr: 'ex: Rouge, XL',
+    ln: 'ex: Motane, XL'
+  },
+  order_delivery_city: {
+    de: 'Lieferort',
+    fr: 'Ville de livraison',
+    ln: 'Ville ya kokaba'
+  },
+  order_note: {
+    de: 'Hinweis (optional)',
+    fr: 'Remarque (optionnel)',
+    ln: 'Liloba (soki olingi)'
+  },
+  order_note_placeholder: {
+    de: 'z.B. bitte gut verpacken…',
+    fr: 'ex: bien emballer svp…',
+    ln: 'ex: bokanga malamu…'
+  },
+  order_total_offer: {
+    de: 'GLB Gesamtangebot',
+    fr: 'Offre totale GLB',
+    ln: 'Prix mobimba ya GLB'
+  },
+  order_pickup_fee: {
+    de: 'Abholung in Deutschland',
+    fr: 'Récupération en Allemagne',
+    ln: 'Kokamata na Allemagne'
+  },
+  order_shipping_fee: {
+    de: 'Verschiffung nach Congo',
+    fr: 'Expédition vers Congo',
+    ln: 'Kotinda na Congo'
+  },
+  order_service_fee: {
+    de: 'GLB Servicegebühr',
+    fr: 'Frais de service GLB',
+    ln: 'Mbongo ya service GLB'
+  },
+  order_customs: {
+    de: 'Verzollung',
+    fr: 'Dédouanement',
+    ln: 'Douane'
+  },
+  order_customs_with: {
+    de: '✓ Mit Verzollung',
+    fr: '✓ Avec dédouanement',
+    ln: '✓ Na douane'
+  },
+  order_customs_with_sub: {
+    de: 'Lieferung bis Haustür',
+    fr: 'Livraison à domicile',
+    ln: 'Kokaba na ndako'
+  },
+  order_customs_without: {
+    de: 'Ohne Verzollung',
+    fr: 'Sans dédouanement',
+    ln: 'Kozanga douane'
+  },
+  order_customs_without_sub: {
+    de: 'Abholung am Hafen',
+    fr: 'Retrait au port',
+    ln: 'Kokamata na port'
+  },
+  order_accept: {
+    de: 'Akzeptieren →',
+    fr: 'Accepter →',
+    ln: 'Ndima →'
+  },
+  order_payment_title: {
+    de: 'Zahlung — UBA Congo',
+    fr: 'Paiement — UBA Congo',
+    ln: 'Kofuta — UBA Congo'
+  },
+  order_payment_instruction_title: {
+    de: 'Zahlungsanweisung',
+    fr: 'Instructions de paiement',
+    ln: 'Ndenge ya kofuta'
+  },
+  order_payment_step1: {
+    de: 'Ein GLB-Agent begleitet Sie zur UBA-Filiale',
+    fr: 'Un agent GLB vous accompagne à la filiale UBA',
+    ln: 'Agent ya GLB akotambola na yo na UBA'
+  },
+  order_payment_step2: {
+    de: 'Zahlung in CDF oder USD möglich',
+    fr: 'Paiement en CDF ou USD possible',
+    ln: 'Kofuta na CDF to USD ekoki'
+  },
+  order_payment_step3: {
+    de: 'Sofortige offizielle Quittung',
+    fr: 'Reçu officiel immédiat',
+    ln: 'Reçu ya sika mbangu'
+  },
+  order_payment_step4: {
+    de: 'Tracking-Nummer per WhatsApp',
+    fr: 'Numéro de suivi par WhatsApp',
+    ln: 'Numéro ya tracking na WhatsApp'
+  },
+  order_to_pay: {
+    de: 'Zu zahlen',
+    fr: 'À payer',
+    ln: 'Kofuta'
+  },
+  order_customs_label: {
+    de: 'Verzollung',
+    fr: 'Dédouanement',
+    ln: 'Douane'
+  },
+  order_customs_yes: {
+    de: 'Ja (Haustür)',
+    fr: 'Oui (domicile)',
+    ln: 'Iyo (ndako)'
+  },
+  order_customs_no: {
+    de: 'Nein (Hafen)',
+    fr: 'Non (port)',
+    ln: 'Te (port)'
+  },
+  order_saving: {
+    de: 'Wird gespeichert…',
+    fr: 'Enregistrement…',
+    ln: 'Ezali kobomba…'
+  },
+  order_confirm_payment: {
+    de: 'Zahlung bestätigt ✓',
+    fr: 'Paiement confirmé ✓',
+    ln: 'Kofuta esangisami ✓'
+  },
+  order_confirmed_title: {
+    de: 'Bestellung aufgenommen!',
+    fr: 'Commande enregistrée!',
+    ln: 'Commande eyambami!'
+  },
+  order_confirmed_desc: {
+    de: 'GLB liefert Ihr Produkt nach',
+    fr: 'GLB livre votre produit à',
+    ln: 'GLB ekobakisa eloko na yo na'
+  },
+  order_next_step: {
+    de: 'GLB kauft Produkt',
+    fr: 'GLB achète le produit',
+    ln: 'GLB esomba eloko'
+  },
+  order_delivery_time: {
+    de: '3–6 Wochen',
+    fr: '3–6 semaines',
+    ln: 'Mposo 3–6'
+  },
+  order_next_steps_title: {
+    de: 'Nächste Schritte',
+    fr: 'Prochaines étapes',
+    ln: 'Malako oyo elandi'
+  },
+  order_process_1: {
+    de: 'GLB kauft Produkt beim Verkäufer',
+    fr: 'GLB achète le produit au vendeur',
+    ln: 'GLB esomba eloko epai ya moteki'
+  },
+  order_process_2: {
+    de: 'Qualitätskontrolle & Verpackung',
+    fr: 'Contrôle qualité & emballage',
+    ln: 'Kotala qualité & kobomba'
+  },
+  order_process_3: {
+    de: 'Containerverladung & Verschiffung',
+    fr: 'Chargement container & expédition',
+    ln: 'Kotya na container & kotinda'
+  },
+  order_process_4: {
+    de: 'Verzollung & Inland-Lieferung',
+    fr: 'Dédouanement & livraison intérieure',
+    ln: 'Douane & kokaba na kati'
+  },
+  order_process_5: {
+    de: 'Übergabe in',
+    fr: 'Remise à',
+    ln: 'Kopesa na'
+  },
+  order_whatsapp_btn: {
+    de: 'Bestellung per WhatsApp senden',
+    fr: 'Envoyer la commande par WhatsApp',
+    ln: 'Tinda commande na WhatsApp'
+  },
+  order_done: {
+    de: 'Fertig — Zur Übersicht',
+    fr: 'Terminé — Voir le tableau de bord',
+    ln: 'Malamu — Tala résumé'
+  },
+  order_go_back: {
+    de: '← Zurück',
+    fr: '← Retour',
+    ln: '← Zonga'
+  },
+  order_next: {
+    de: 'Weiter',
+    fr: 'Suivant',
+    ln: 'Eleka'
+  },
+  order_cancel: {
+    de: 'Abbrechen',
+    fr: 'Annuler',
+    ln: 'Tika'
+  },
+  order_step_product: {
+    de: 'Produkt',
+    fr: 'Produit',
+    ln: 'Eloko'
+  },
+  order_step_offer: {
+    de: 'Angebot',
+    fr: 'Offre',
+    ln: 'Prix'
+  },
+  order_step_payment: {
+    de: 'Zahlung',
+    fr: 'Paiement',
+    ln: 'Kofuta'
+  },
+  order_step_confirmation: {
+    de: 'Bestätigung',
+    fr: 'Confirmation',
+    ln: 'Sangisa'
   },
 };
 
@@ -841,3 +1213,4 @@ export const useLanguage = () => {
   }
   return context;
 };
+

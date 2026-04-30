@@ -3,7 +3,6 @@ import { ShoppingCart, MapPin, MessageCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
-import { getProductField, getCategoryTranslation } from '../lib/translateProduct';
 
 interface Product {
   id: string;
