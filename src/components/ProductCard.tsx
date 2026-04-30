@@ -21,8 +21,9 @@ interface Product {
   category_ln?: string;
   sale_price: number;
   condition: string;
-  image_url: string;
+  image_url: string | null; // ← null erlaubt
   stock_status: string;
+  source_type?: 'own' | 'ebay' | 'vendor'; // ← NEU für Badge
 }
 
 interface ProductCardProps {
@@ -46,9 +47,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [imageError, setImageError] = useState(false);
 
   const productName = getProductField(product, 'name', language);
-  const fallbackImage = '/glblogo.png';
 
-  // "Acheter" – in Warenkorb + Warenkorb öffnen
+  // ── Bild-Logik: NULL oder kaputt → GLB Logo ──
+  const fallbackImage = '/glblogo.png';
+  const showFallback = !product.image_url || imageError;
+  const imageSrc = showFallback ? fallbackImage : product.image_url!;
+
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) { onAuthRequired?.(); return; }
@@ -58,7 +62,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       setShowAdded(true);
       setTimeout(() => {
         setShowAdded(false);
-        onCartOpen?.(); // Warenkorb automatisch öffnen
+        onCartOpen?.();
       }, 800);
     } catch (error: any) {
       alert(error.message || 'Erreur lors de l\'ajout au panier');
@@ -67,7 +71,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  // "Contacter le vendeur" – WhatsApp öffnen
   const handleContactSeller = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) { onAuthRequired?.(); return; }
@@ -83,27 +86,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         className="relative pb-[75%] bg-gray-100 cursor-pointer"
         onClick={() => onViewDetails?.(product.id)}
       >
-        {product.image_url && !imageError ? (
-          <img
-            src={product.image_url}
-            alt={productName}
-            className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            loading="lazy"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <img
-            src={fallbackImage}
-            alt={productName}
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-          />
-        )}
+        <img
+          src={imageSrc}
+          alt={productName}
+          className={`absolute inset-0 w-full h-full transition-transform duration-300 hover:scale-105 ${
+            showFallback
+              ? 'object-contain p-6 opacity-70' // GLB Logo zentriert + etwas transparent
+              : 'object-cover'
+          }`}
+          loading="lazy"
+          onError={() => setImageError(true)} // ← kaputte URLs → Fallback
+        />
+
+        {/* Condition Badge */}
         <div className="absolute top-3 right-3">
           <span className="bg-[#F4B400] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
             {t(product.condition)}
           </span>
         </div>
+
+        {/* Source Badge – nur für eBay */}
+        {product.source_type === 'ebay' && (
+          <div className="absolute top-3 left-3">
+            <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow">
+              eBay
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="p-4">
@@ -116,7 +125,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         <div className="flex items-center justify-between mb-3">
           <div className="text-2xl font-bold text-[#0A5EB0]">
-            {product.sale_price.toFixed(2)} €
+            {product.source_type === 'ebay'
+              ? <span className="text-lg text-orange-500">Auf Anfrage</span>
+              : `${product.sale_price.toFixed(2)} €`
+            }
           </div>
         </div>
 
@@ -131,9 +143,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         )}
 
-        {/* Zwei Buttons */}
         <div className="flex gap-2">
-          {/* Contacter le vendeur – WhatsApp */}
           <button
             onClick={handleContactSeller}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#1ebe5d] text-white rounded-lg font-bold text-sm transition-all shadow-md hover:shadow-lg"
@@ -142,17 +152,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <span>{t('contact_seller') || 'Contacter'}</span>
           </button>
 
-          {/* Acheter – Warenkorb */}
-          <button
-            onClick={handleAddToCart}
-            disabled={adding}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg font-bold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-          >
-            <ShoppingCart className="w-4 h-4" />
-            <span>{adding ? '...' : t('add_to_cart') || 'Acheter'}</span>
-          </button>
+          {/* eBay → "Anfragen", sonst → Warenkorb */}
+          {product.source_type === 'ebay' ? (
+            <button
+              onClick={() => onViewDetails?.(product.id)}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold text-sm transition-all shadow-md hover:shadow-lg"
+            >
+              <span>Anfragen</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleAddToCart}
+              disabled={adding}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg font-bold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span>{adding ? '...' : t('add_to_cart') || 'Acheter'}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
