@@ -45,7 +45,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [showAdded, setShowAdded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const productName = getProductField(product, 'name', language);
+  const productName = product[`name_${language}` as keyof Product] as string
+  || product.name
+  || '';
 
   // ── Bild-Logik: NULL oder kaputt → GLB Logo ──
   const fallbackImage = '/glblogo.png';
