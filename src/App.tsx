@@ -73,7 +73,6 @@ function AppContent() {
     } else if (tab === 'home') {
       setActiveView('dashboard');
     } else if (tab === 'seller') {
-      // Seller-Tab: eingeloggt? → Dashboard, sonst → Anmelden
       if (user) {
         setActiveView('seller');
       } else {
@@ -84,30 +83,77 @@ function AppContent() {
 
   const renderMain = () => {
     if (activeView === 'marketplace') return <MarketplaceSearch />;
+
     if (activeView === 'seller') return (
       <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Seller-Bereich Header */}
+
+        {/* ── Seller Banner ── */}
         <div className="bg-gradient-to-r from-[#0A5EB0] to-[#1a7fd4] rounded-2xl p-6 mb-6 text-white shadow-lg">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-2xl font-bold mb-1">🇩🇪 Seller-Programm</h1>
-              <p className="text-blue-100 text-sm">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+
+            <div className="flex-1">
+              {/* Titel */}
+              <h1 className="text-2xl font-bold mb-1">
+                🇩🇪 Seller-Programm
+              </h1>
+              <p className="text-blue-100 text-sm mb-5">
                 Verkaufe Produkte aus Deutschland nach Afrika – GLB liefert
               </p>
+
+              {/* 3 Vorteils-Kacheln */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                <div className="bg-white/10 rounded-xl px-4 py-3">
+                  <p className="text-white font-semibold text-sm mb-1">
+                    🌍 Zugang zum afrikanischen Markt
+                  </p>
+                  <p className="text-blue-100 text-xs leading-relaxed">
+                    Erreiche Käufer in Kinshasa, Brazzaville, Matadi und Pointe-Noire,
+                    die bereit sind, in deutsche Qualität zu investieren.
+                  </p>
+                </div>
+
+                <div className="bg-white/10 rounded-xl px-4 py-3">
+                  <p className="text-white font-semibold text-sm mb-1">
+                    💶 Du verkaufst — wir zahlen dich aus
+                  </p>
+                  <p className="text-blue-100 text-xs leading-relaxed">
+                    GLB übernimmt Abholung, Verpackung, Transport und Lieferung
+                    bis nach Afrika. Kein Aufwand für dich.
+                  </p>
+                </div>
+
+                <div className="bg-white/10 rounded-xl px-4 py-3">
+                  <p className="text-white font-semibold text-sm mb-1">
+                    🏢 Privat oder Unternehmen
+                  </p>
+                  <p className="text-blue-100 text-xs leading-relaxed">
+                    Ob Privatperson oder Händler — verkaufe zuverlässig
+                    und sicher nach Kongo und ganz Afrika.
+                  </p>
+                </div>
+
+              </div>
             </div>
+
+            {/* Bewerben Button */}
             {user && (
-              <button
-                onClick={() => setShowSellerApply(true)}
-                className="px-5 py-2.5 bg-white text-[#0A5EB0] rounded-xl font-bold hover:bg-blue-50 transition shadow-md text-sm"
-              >
-                + Bewerben
-              </button>
+              <div className="shrink-0 self-start">
+                <button
+                  onClick={() => setShowSellerApply(true)}
+                  className="px-5 py-2.5 bg-white text-[#0A5EB0] rounded-xl font-bold hover:bg-blue-50 transition shadow-md text-sm whitespace-nowrap"
+                >
+                  + Bewerben
+                </button>
+              </div>
             )}
           </div>
         </div>
+
         <SellerDashboard />
       </div>
     );
+
     return <ProductCatalog onCartOpen={() => setCartOpen(true)} />;
   };
 
@@ -180,3 +226,4 @@ function App() {
 }
 
 export default App;
+
