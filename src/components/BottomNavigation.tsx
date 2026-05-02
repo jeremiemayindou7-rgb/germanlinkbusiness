@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, PlusSquare, MessageCircle, User, Search, Store } from 'lucide-react';
+import { Home, Search, Store, User, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface BottomNavigationProps {
@@ -11,11 +11,11 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, o
   const { t } = useLanguage();
 
   const tabs = [
-    { id: 'home',        icon: Home,          label: t('home') || 'Home' },
-    { id: 'marketplace', icon: Search,         label: 'Marktplatz' },
-    { id: 'upload',      icon: PlusSquare,     label: t('upload_product') || 'Hochladen' },
-    { id: 'seller',      icon: Store,          label: t('become_seller') || 'Seller' },
-    { id: 'profile',     icon: User,           label: t('profile') || 'Profil' },
+    { id: 'home',        icon: Home,        label: 'Home'                      },
+    { id: 'marketplace', icon: Search,      label: 'Marktplatz'                },
+    { id: 'seller',      icon: Store,       label: t('become_seller')          },
+    { id: 'profile',     icon: User,        label: t('profile')                },
+    { id: 'upload',      icon: ShieldCheck, label: 'Admin', adminOnly: true    },
   ];
 
   return (
@@ -32,7 +32,9 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, o
               onClick={() => onTabChange(tab.id)}
               className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
                 isActive
-                  ? isSeller ? 'text-[#FF6F00]' : 'text-[#0A5EB0]'
+                  ? isSeller
+                    ? 'text-[#FF6F00]'
+                    : 'text-[#0A5EB0]'
                   : 'text-gray-500'
               }`}
             >
@@ -47,3 +49,4 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, o
     </nav>
   );
 };
+
