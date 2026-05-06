@@ -302,13 +302,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
               className="w-full flex items-center justify-center gap-2 py-3 border-2 border-orange-400 text-orange-500 rounded-lg font-bold hover:bg-orange-50 transition"
             >
               <ExternalLink className="w-5 h-5" />
-              Auf eBay ansehen
+              {t('view_on_ebay')}
             </a>
           )}
 
           {quoteSent ? (
             <div className="bg-green-50 border border-green-300 text-green-700 rounded-lg p-4 text-center font-bold">
-              ✅ Anfrage gesendet! GLB meldet sich bei dir.
+              ✅ {t('quote_sent_success')}
             </div>
           ) : (
             <button
@@ -316,44 +316,43 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
               className="w-full flex items-center justify-center gap-2 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition shadow-md"
             >
               <FileText className="w-5 h-5" />
-              Angebot anfragen
+              {t('request_quote')}
             </button>
           )}
 
           {showQuoteForm && !quoteSent && (
             <div className="border-2 border-orange-200 rounded-xl p-4 space-y-3 bg-orange-50">
-              <h4 className="font-bold text-[#1C1C1C]">Deine Anfrage an GLB</h4>
+              <h4 className="font-bold text-[#1C1C1C]">{t('quote_form_title')}</h4>
               <input
                 type="text"
-                placeholder="Dein Name *"
+                placeholder={t('quote_name_placeholder')}
                 value={quoteForm.customer_name}
                 onChange={e => setQuoteForm({ ...quoteForm, customer_name: e.target.value })}
                 className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm"
               />
               <input
                 type="tel"
-                placeholder="Telefonnummer (WhatsApp) *"
+                placeholder={t('quote_phone_placeholder')}
                 value={quoteForm.customer_phone}
                 onChange={e => setQuoteForm({ ...quoteForm, customer_phone: e.target.value })}
                 className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm"
               />
               <input
                 type="text"
-                placeholder="Dein Standort (z.B. Brazzaville)"
+                placeholder={t('quote_location_placeholder')}
                 value={quoteForm.customer_location}
                 onChange={e => setQuoteForm({ ...quoteForm, customer_location: e.target.value })}
                 className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm"
               />
               <input
                 type="number"
-                placeholder="Preisvorschlag (€) – optional"
+                placeholder={t('quote_price_placeholder')}
                 value={quoteForm.price_proposal}
                 onChange={e => setQuoteForm({ ...quoteForm, price_proposal: e.target.value })}
                 className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm"
               />
-              {/* ✅ FIX 1: resize-none bereits vorhanden – bestätigt */}
               <textarea
-                placeholder="Nachricht / Fragen..."
+                placeholder={t('quote_message_placeholder')}
                 value={quoteForm.message}
                 onChange={e => setQuoteForm({ ...quoteForm, message: e.target.value })}
                 rows={3}
@@ -365,13 +364,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                   disabled={quoteLoading}
                   className="flex-1 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition disabled:opacity-50"
                 >
-                  {quoteLoading ? 'Wird gesendet...' : 'Anfrage absenden'}
+                  {quoteLoading ? t('quote_sending') : t('quote_submit')}
                 </button>
                 <button
                   onClick={() => setShowQuoteForm(false)}
                   className="flex-1 py-2 border border-[#E5E5E5] rounded-lg font-bold text-gray-600 hover:bg-gray-100 transition"
                 >
-                  Abbrechen
+                  {t('cancel')}
                 </button>
               </div>
             </div>
@@ -393,7 +392,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
           className="w-full flex items-center justify-center space-x-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed text-[#1C1C1C] shadow-md hover:shadow-lg"
         >
           <ShoppingCart className="w-5 h-5" />
-          <span>{addingToCart ? 'Ajout en cours...' : t('add_to_cart')}</span>
+          <span>{addingToCart ? t('adding_to_cart') : t('add_to_cart')}</span>
         </button>
 
         {user && (
@@ -474,33 +473,32 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
               )}
 
               <div className="mb-6">
-                <h3 className="text-lg font-bold text-[#1C1C1C] mb-2">Beschreibung</h3>
+                <h3 className="text-lg font-bold text-[#1C1C1C] mb-2">{t('description')}</h3>
                 <p className="text-gray-600">{product.description}</p>
               </div>
 
               {/* Nachricht schreiben – nur für own/vendor */}
               {product.source_type !== 'ebay' && (
                 <div className="mb-6 bg-[#E5E5E5] bg-opacity-30 border border-[#E5E5E5] rounded-lg p-4">
-                  <h3 className="text-lg font-bold text-[#1C1C1C] mb-3">Nachricht schreiben</h3>
+                  <h3 className="text-lg font-bold text-[#1C1C1C] mb-3">{t('write_message')}</h3>
                   {!user && (
                     <div className="bg-[#F4B400] bg-opacity-10 border border-[#F4B400] rounded-lg p-3 mb-3 text-sm">
                       <div className="flex items-start space-x-2 mb-2">
                         <Lock className="w-5 h-5 text-[#1C1C1C] flex-shrink-0 mt-0.5" />
-                        <span className="text-[#1C1C1C] font-bold">Login zum Schutz vor Spammern</span>
+                        <span className="text-[#1C1C1C] font-bold">{t('login_anti_spam')}</span>
                       </div>
                     </div>
                   )}
                   {showMessageSent && (
                     <div className="bg-[#00A86B] bg-opacity-10 text-[#00A86B] border border-[#00A86B] p-3 rounded-lg text-sm mb-3 font-bold">
-                      Nachricht erfolgreich gesendet!
+                      {t('message_sent_success')}
                     </div>
                   )}
                   <div className="space-y-2">
-                    {/* ✅ FIX 2: resize-none hinzugefügt */}
                     <textarea
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
-                      placeholder="Ihre Nachricht..."
+                      placeholder={t('message_placeholder')}
                       rows={3}
                       disabled={!user}
                       className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-none"
@@ -510,7 +508,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                       className="w-full flex items-center justify-center space-x-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition text-[#1C1C1C]"
                     >
                       <MessageCircle className="w-5 h-5" />
-                      <span>Nachricht senden</span>
+                      <span>{t('send_message')}</span>
                     </button>
                   </div>
                 </div>
@@ -519,7 +517,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
               {/* Preis */}
               <div className="text-4xl font-bold text-[#00A86B] mb-6">
                 {product.source_type === 'ebay'
-                  ? <span className="text-2xl text-orange-500">Preis auf Anfrage</span>
+                  ? <span className="text-2xl text-orange-500">{t('price_on_request')}</span>
                   : `${product.sale_price.toFixed(2)} €`
                 }
               </div>

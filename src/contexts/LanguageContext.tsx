@@ -1370,6 +1370,93 @@ const translations: Translations = {
     fr: 'Confirmation',
     ln: 'Sangisa'
   },
+
+  // ── ProductDetail ────────────────────────────────────────────────────────────
+  write_message: {
+    de: 'Nachricht schreiben',
+    fr: 'Écrire un message',
+    ln: 'Koma message'
+  },
+  login_anti_spam: {
+    de: 'Login zum Schutz vor Spammern',
+    fr: 'Connexion requise pour éviter les spams',
+    ln: 'Kokota mpo na kobatela na ba-spam'
+  },
+  message_sent_success: {
+    de: 'Nachricht erfolgreich gesendet!',
+    fr: 'Message envoyé avec succès !',
+    ln: 'Message etindelami malamu!'
+  },
+  message_placeholder: {
+    de: 'Ihre Nachricht...',
+    fr: 'Votre message...',
+    ln: 'Message na yo...'
+  },
+  price_on_request: {
+    de: 'Preis auf Anfrage',
+    fr: 'Prix sur demande',
+    ln: 'Ntalo na demande'
+  },
+  adding_to_cart: {
+    de: 'Wird hinzugefügt...',
+    fr: 'Ajout en cours...',
+    ln: 'Ezali kobakisama...'
+  },
+  quote_sent_success: {
+    de: 'Anfrage gesendet! GLB meldet sich bei dir.',
+    fr: 'Demande envoyée ! GLB vous contactera.',
+    ln: 'Demande etindelami! GLB ekobenga yo.'
+  },
+  request_quote: {
+    de: 'Angebot anfragen',
+    fr: 'Demander un devis',
+    ln: 'Loba prix'
+  },
+  quote_form_title: {
+    de: 'Deine Anfrage an GLB',
+    fr: 'Votre demande à GLB',
+    ln: 'Demande na yo epai ya GLB'
+  },
+  quote_name_placeholder: {
+    de: 'Dein Name *',
+    fr: 'Votre nom *',
+    ln: 'Nkombo na yo *'
+  },
+  quote_phone_placeholder: {
+    de: 'Telefonnummer (WhatsApp) *',
+    fr: 'Numéro de téléphone (WhatsApp) *',
+    ln: 'Numéro ya téléphone (WhatsApp) *'
+  },
+  quote_location_placeholder: {
+    de: 'Dein Standort (z.B. Brazzaville)',
+    fr: 'Votre ville (ex: Brazzaville)',
+    ln: 'Ville na yo (ex: Brazzaville)'
+  },
+  quote_price_placeholder: {
+    de: 'Preisvorschlag (€) – optional',
+    fr: 'Proposition de prix (€) – optionnel',
+    ln: 'Prix oyo olingi (€) – soki olingi'
+  },
+  quote_message_placeholder: {
+    de: 'Nachricht / Fragen...',
+    fr: 'Message / Questions...',
+    ln: 'Message / Mituna...'
+  },
+  quote_sending: {
+    de: 'Wird gesendet...',
+    fr: 'Envoi en cours...',
+    ln: 'Ezali kotindama...'
+  },
+  quote_submit: {
+    de: 'Anfrage absenden',
+    fr: 'Envoyer la demande',
+    ln: 'Tinda demande'
+  },
+  view_on_ebay: {
+    de: 'Auf eBay ansehen',
+    fr: 'Voir sur eBay',
+    ln: 'Tála na eBay'
+  },
 };
 
 interface LanguageContextType {
