@@ -17,8 +17,8 @@ interface Product {
   condition: string;
   image_url: string;
   stock_status: string;
-  source_type: 'own' | 'ebay' | 'vendor'; // ← NEU
-  ebay_url?: string;                        // ← NEU
+  source_type: 'own' | 'ebay' | 'vendor';
+  ebay_url?: string;
   seller_id?: string;
 }
 
@@ -291,11 +291,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
   const ActionButtons = () => {
     if (!product) return null;
 
-    // eBay-Produkt: kein Warenkorb, nur Anfrage
     if (product.source_type === 'ebay') {
       return (
         <div className="space-y-3">
-          {/* eBay Link öffnen */}
           {product.ebay_url && (
             <a
               href={product.ebay_url}
@@ -308,7 +306,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
             </a>
           )}
 
-          {/* Angebot anfragen */}
           {quoteSent ? (
             <div className="bg-green-50 border border-green-300 text-green-700 rounded-lg p-4 text-center font-bold">
               ✅ Anfrage gesendet! GLB meldet sich bei dir.
@@ -323,7 +320,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
             </button>
           )}
 
-          {/* Anfrage-Formular */}
           {showQuoteForm && !quoteSent && (
             <div className="border-2 border-orange-200 rounded-xl p-4 space-y-3 bg-orange-50">
               <h4 className="font-bold text-[#1C1C1C]">Deine Anfrage an GLB</h4>
@@ -355,6 +351,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                 onChange={e => setQuoteForm({ ...quoteForm, price_proposal: e.target.value })}
                 className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm"
               />
+              {/* ✅ FIX 1: resize-none bereits vorhanden – bestätigt */}
               <textarea
                 placeholder="Nachricht / Fragen..."
                 value={quoteForm.message}
@@ -383,7 +380,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       );
     }
 
-    // Eigene Produkte + Händler: normaler Warenkorb
     return (
       <div className="space-y-3">
         {showCartAdded && (
@@ -457,7 +453,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
 
             {/* Infos */}
             <div>
-              {/* Kategorie + Zustand + Source Badge */}
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 <span className="text-sm text-[#0099CC] uppercase font-bold tracking-wide">{t(product.category)}</span>
                 <span className="text-gray-300">•</span>
@@ -501,13 +496,14 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                     </div>
                   )}
                   <div className="space-y-2">
+                    {/* ✅ FIX 2: resize-none hinzugefügt */}
                     <textarea
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
                       placeholder="Ihre Nachricht..."
                       rows={3}
                       disabled={!user}
-                      className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-none"
                     />
                     <button
                       onClick={handleSendMessage}
@@ -605,8 +601,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                 </div>
                 <div className="mb-3">
                   <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('your_review')}</label>
-                  <textarea value={reviewForm.comment} onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })} rows={3}
-                    className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0]" />
+                  {/* ✅ FIX 3: resize-none hinzugefügt */}
+                  <textarea
+                    value={reviewForm.comment}
+                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] resize-none"
+                  />
                 </div>
                 <div className="mb-3">
                   <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('your_name_optional')}</label>

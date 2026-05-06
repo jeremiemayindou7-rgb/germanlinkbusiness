@@ -106,6 +106,11 @@ const translations: Translations = {
     fr: 'Prochain envoi',
     ln: 'Envoi oyo elandi'
   },
+  next_shipment_desc: {
+    de: 'Ihre Bestellung wird beim nächsten monatlichen Versand verschickt',
+    fr: 'Votre commande sera expédiée lors du prochain envoi mensuel',
+    ln: 'Commande na yo ekotindama na envoi oyo elandi ya sanza'
+  },
   condition: {
     de: 'Zustand',
     fr: 'État',
@@ -206,6 +211,11 @@ const translations: Translations = {
     fr: 'Annuler',
     ln: 'Kotika'
   },
+  close: {
+    de: 'Schließen',
+    fr: 'Fermer',
+    ln: 'Kofunga'
+  },
   checkout: {
     de: 'Bestellen',
     fr: 'Commander',
@@ -226,6 +236,11 @@ const translations: Translations = {
     fr: 'Total',
     ln: 'Nyonso'
   },
+  to_pay_now: {
+    de: 'Jetzt zu zahlen',
+    fr: 'À payer maintenant',
+    ln: 'Kofuta sikoyo'
+  },
   payment_options: {
     de: 'Zahlungsoptionen',
     fr: 'Options de paiement',
@@ -241,6 +256,106 @@ const translations: Translations = {
     fr: 'Acompte 50%',
     ln: 'Kofuta ndambo (50%)'
   },
+  pay_now_prefix: {
+    de: 'Jetzt',
+    fr: 'Payer',
+    ln: 'Futa'
+  },
+  pay_now_suffix: {
+    de: 'bezahlen',
+    fr: 'maintenant',
+    ln: 'sikoyo'
+  },
+  deposit_rest_note: {
+    de: 'jetzt, Rest bei Lieferung',
+    fr: 'maintenant, le reste à la livraison',
+    ln: 'sikoyo, oyo etikali na livraison'
+  },
+  payment_method_title: {
+    de: 'Zahlungsmethode',
+    fr: 'Méthode de paiement',
+    ln: 'Ndenge ya kofuta'
+  },
+  lemfi_method_name: {
+    de: 'Banküberweisung via LemFi',
+    fr: 'Virement bancaire via LemFi',
+    ln: 'Kobakisa mbongo na LemFi'
+  },
+  lemfi_method_desc: {
+    de: 'Internationaler Banktransfer',
+    fr: 'Virement bancaire international',
+    ln: 'Kobakisa mbongo ya biso na biso'
+  },
+  uba_method_name: {
+    de: 'Agent + UBA Bank (Congo)',
+    fr: 'Agent + UBA Bank (Congo)',
+    ln: 'Agent + UBA Bank (Congo)'
+  },
+  uba_method_desc: {
+    de: 'Ein Agent begleitet Sie zur Bank',
+    fr: 'Un agent vous accompagne à la banque',
+    ln: 'Agent akotambola na yo na banque'
+  },
+  uba_how_it_works: {
+    de: 'So funktioniert der UBA-Prozess:',
+    fr: 'Comment fonctionne le processus UBA :',
+    ln: 'Ndenge ya procès ya UBA :'
+  },
+  uba_info_step1: {
+    de: 'GLB ruft dich an (Telefonnummer oben)',
+    fr: 'GLB vous appelle (numéro ci-dessus)',
+    ln: 'GLB ekobenga yo (numéro oyo ezali likolo)'
+  },
+  uba_info_step2: {
+    de: 'Gemeinsam zur UBA Bank in Brazzaville / Kinshasa',
+    fr: 'Ensemble à la UBA Bank à Brazzaville / Kinshasa',
+    ln: 'Bokende na UBA Bank na Brazzaville / Kinshasa'
+  },
+  uba_info_step3: {
+    de: 'Zahlung mit Bestellnummer als Referenz',
+    fr: 'Paiement avec le numéro de commande comme référence',
+    ln: 'Kofuta na numéro ya commande lokola référence'
+  },
+  uba_info_step4: {
+    de: 'GLB bestätigt Zahlung → Logistik startet',
+    fr: 'GLB confirme le paiement → la logistique démarre',
+    ln: 'GLB esangisi kofuta → logistique ebandi'
+  },
+  uba_next_steps_title: {
+    de: 'Agent UBA Bank (Congo) – Nächste Schritte',
+    fr: 'Agent UBA Bank (Congo) – Prochaines étapes',
+    ln: 'Agent UBA Bank (Congo) – Malako oyo elandi'
+  },
+  uba_step1: {
+    de: 'GLB kontaktiert dich innerhalb 24h',
+    fr: 'GLB vous contacte dans les 24h',
+    ln: 'GLB ekobenga yo na kati ya ngonga 24'
+  },
+  uba_step1_sub: {
+    de: 'Unter der Nummer:',
+    fr: 'Au numéro :',
+    ln: 'Na numéro :'
+  },
+  uba_step2: {
+    de: 'Gemeinsam zur UBA Bank gehen',
+    fr: 'Aller ensemble à la UBA Bank',
+    ln: 'Bokende na UBA Bank'
+  },
+  uba_step2_sub: {
+    de: 'Dein Agent begleitet dich zur UBA und hilft bei der Zahlung',
+    fr: 'Votre agent vous accompagne à la UBA et aide pour le paiement',
+    ln: 'Agent na yo akotambola na yo na UBA mpe akosalisa na kofuta'
+  },
+  uba_step3: {
+    de: 'Zahlung mit dieser Referenz',
+    fr: 'Paiement avec cette référence',
+    ln: 'Kofuta na référence oyo'
+  },
+  uba_submit_btn: {
+    de: 'Bestellung absenden → GLB kontaktiert dich',
+    fr: 'Envoyer la commande → GLB vous contacte',
+    ln: 'Tinda commande → GLB ekobenga yo'
+  },
   pay_with_lemfi: {
     de: 'Mit LemFi bezahlen',
     fr: 'Payer avec LemFi',
@@ -251,15 +366,105 @@ const translations: Translations = {
     fr: "S'inscrire sur LemFi",
     ln: 'Kokoma na LemFi'
   },
-  demo_mode: {
-    de: 'DEMO-MODUS - Keine echte Zahlung',
-    fr: 'MODE DÉMO - Aucun paiement réel',
-    ln: 'MODE DÉMO - Kofuta ya solo te'
+  processing_btn: {
+    de: 'Wird verarbeitet...',
+    fr: 'Traitement...',
+    ln: 'Ezali kosalema...'
+  },
+  order_error: {
+    de: 'Fehler beim Erstellen der Bestellung',
+    fr: 'Une erreur est survenue lors de la création de la commande',
+    ln: 'Likitá ezali na kosala commande'
+  },
+  phone_required: {
+    de: 'Telefonnummer ist erforderlich',
+    fr: 'Numéro de téléphone requis',
+    ln: 'Numéro ya téléphone esengeli'
+  },
+  phone_whatsapp_label: {
+    de: 'Telefonnummer (WhatsApp)',
+    fr: 'Numéro de téléphone (WhatsApp)',
+    ln: 'Numéro ya téléphone (WhatsApp)'
+  },
+  required_field: {
+    de: 'Pflichtfeld',
+    fr: 'Obligatoire',
+    ln: 'Esengeli'
+  },
+  phone_contact_note: {
+    de: 'GLB kontaktiert dich über diese Nummer bezüglich Lieferung und Zahlung.',
+    fr: 'GLB vous contactera via ce numéro pour la livraison et le paiement.',
+    ln: 'GLB ekobenga yo na numéro oyo pona livraison mpe kofuta.'
+  },
+  agb_prefix: {
+    de: 'Ich habe die ',
+    fr: "J'ai lu et j'accepte les ",
+    ln: 'Natanga mpe nasangisi na '
+  },
+  agb_link_text: {
+    de: 'AGB',
+    fr: 'CGV',
+    ln: 'Mibeko oyo'
+  },
+  agb_suffix: {
+    de: 'gelesen und stimme diesen zu.*',
+    fr: '.*',
+    ln: '.*'
+  },
+  agb_error: {
+    de: 'Bitte stimmen Sie den AGB zu, um fortzufahren.',
+    fr: 'Veuillez accepter les CGV pour continuer.',
+    ln: 'Sangisa na Mibeko liboso ya kotindela commande.'
+  },
+  order_confirmed_header: {
+    de: 'Bestellung bestätigt',
+    fr: 'Commande confirmée',
+    ln: 'Commande esangisami'
+  },
+  order_confirmed_title: {
+    de: 'Bestellung aufgenommen!',
+    fr: 'Commande enregistrée !',
+    ln: 'Commande eyambami!'
+  },
+  order_confirmed_desc: {
+    de: 'Ihre Bestellung wurde erfolgreich erstellt',
+    fr: 'Votre commande a été créée avec succès',
+    ln: 'Commande na yo esalemi malamu'
   },
   order_reference: {
     de: 'Bestellreferenz',
     fr: 'Référence de commande',
     ln: 'Référence ya commande'
+  },
+  lemfi_payment_instructions: {
+    de: 'LemFi Zahlungsanweisungen',
+    fr: 'Instructions de paiement LemFi',
+    ln: 'Ndenge ya kofuta na LemFi'
+  },
+  amount_to_pay: {
+    de: 'Zu zahlender Betrag',
+    fr: 'Montant à payer',
+    ln: 'Mbongo ya kofuta'
+  },
+  recipient: {
+    de: 'Empfänger',
+    fr: 'Destinataire',
+    ln: 'Moto ya kozwa'
+  },
+  mandatory_reference: {
+    de: 'Pflichtangabe Referenz',
+    fr: 'Référence OBLIGATOIRE',
+    ln: 'Référence ESENGELI'
+  },
+  email_instructions_sent: {
+    de: 'Eine E-Mail mit allen Anweisungen wurde Ihnen gesendet.',
+    fr: 'Un email avec toutes les instructions vous a été envoyé.',
+    ln: 'Email na makambo nyonso etindelamaki na yo.'
+  },
+  demo_mode: {
+    de: 'DEMO-MODUS - Keine echte Zahlung',
+    fr: 'MODE DÉMO - Aucun paiement réel',
+    ln: 'MODE DÉMO - Kofuta ya solo te'
   },
   empty_cart: {
     de: 'Ihr Warenkorb ist leer',
@@ -1079,16 +1284,6 @@ const translations: Translations = {
     de: 'Zahlung bestätigt ✓',
     fr: 'Paiement confirmé ✓',
     ln: 'Kofuta esangisami ✓'
-  },
-  order_confirmed_title: {
-    de: 'Bestellung aufgenommen!',
-    fr: 'Commande enregistrée!',
-    ln: 'Commande eyambami!'
-  },
-  order_confirmed_desc: {
-    de: 'GLB liefert Ihr Produkt nach',
-    fr: 'GLB livre votre produit à',
-    ln: 'GLB ekobakisa eloko na yo na'
   },
   order_next_step: {
     de: 'GLB kauft Produkt',

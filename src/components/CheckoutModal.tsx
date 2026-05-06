@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, CreditCard, AlertCircle, CheckCircle, Phone } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../hooks/useCart';
@@ -9,8 +9,6 @@ interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-type AGBLanguage = 'de' | 'fr' | 'ln';
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose }) => {
   const { t } = useLanguage();
@@ -24,20 +22,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
   const [loading, setLoading] = useState(false);
   const [agbAccepted, setAgbAccepted] = useState(false);
   const [agbError, setAgbError] = useState(false);
-  const [agbLanguage, setAgbLanguage] = useState<AGBLanguage>('de');
-
-  useEffect(() => {
-    const savedLang = localStorage.getItem('agb_lang') as AGBLanguage;
-    if (savedLang && ['de', 'fr', 'ln'].includes(savedLang)) {
-      setAgbLanguage(savedLang);
-    }
-  }, []);
-
-  const agbTexts = {
-    de: { checkbox: 'Ich habe die AGB gelesen und stimme diesen zu.*', error: 'Bitte stimmen Sie den AGB zu, um fortzufahren.' },
-    fr: { checkbox: 'J\'ai lu et j\'accepte les CGV.*', error: 'Veuillez accepter les CGV pour continuer.' },
-    ln: { checkbox: 'Natanga mpe nasangisi na Mibeko oyo.*', error: 'Sangisa na Mibeko liboso ya kotindela commande.' }
-  };
 
   const shippingCost = 50;
   const subtotal = cartTotal;
@@ -49,9 +33,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
 
     if (!agbAccepted) { setAgbError(true); return; }
 
-    // ── Telefon ist für ALLE Zahlungsmethoden Pflicht ──
     if (!customerPhone.trim()) {
-      alert('Telefonnummer ist erforderlich / Numéro de téléphone requis');
+      alert(t('phone_required'));
       return;
     }
 
@@ -66,7 +49,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
         product_name: item.product?.name || '',
         quantity: item.quantity,
         price: item.product?.sale_price || 0,
-        source_type: (item.product as any)?.source_type || 'own', // ← source_type pro Item
+        source_type: (item.product as any)?.source_type || 'own',
       }));
 
       const { data: newOrder, error } = await supabase.from('orders').insert({
@@ -78,10 +61,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
         total_amount: total,
         payment_option: paymentOption,
         payment_method: paymentMethod,
-        customer_phone: customerPhone, // ← immer gespeichert
+        customer_phone: customerPhone,
         payment_status: 'pending',
-        order_status: 'awaiting_payment', // ← direkt auf awaiting_payment
-        source_type: 'own',              // ← NEU: Bestellung-Typ
+        order_status: 'awaiting_payment',
+        source_type: 'own',
         next_shipment_date: '2026-02-15',
         agb_accepted: true,
         agb_accepted_at: new Date().toISOString(),
@@ -107,7 +90,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
       await clearCart();
     } catch (error) {
       console.error('Error creating order:', error);
-      alert('Une erreur est survenue lors de la création de la commande');
+      alert(t('order_error'));
     } finally {
       setLoading(false);
     }
@@ -128,7 +111,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
         <div className="bg-white border-b p-4 flex items-center justify-between rounded-t-lg flex-shrink-0">
           <h2 className="text-xl font-bold text-gray-900">
-            {orderCompleted ? '✓ Commande confirmée' : t('checkout')}
+            {orderCompleted ? `✓ ${t('order_confirmed_header')}` : t('checkout')}
           </h2>
           <button onClick={handleClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
             <X className="w-5 h-5" />
@@ -141,8 +124,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
             <div className="space-y-6">
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
                 <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-green-900 mb-2">Commande enregistrée !</h3>
-                <p className="text-green-700 mb-4">Votre commande a été créée avec succès</p>
+                <h3 className="text-2xl font-bold text-green-900 mb-2">{t('order_confirmed_title')}</h3>
+                <p className="text-green-700 mb-4">{t('order_confirmed_desc')}</p>
                 <div className="bg-white rounded-lg p-4 inline-block">
                   <p className="text-sm text-gray-600 mb-1">{t('order_reference')}</p>
                   <p className="text-2xl font-bold text-gray-900">{orderNumber}</p>
@@ -154,15 +137,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                 <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
                   <h4 className="font-bold text-yellow-900 mb-3 flex items-center gap-2">
                     <AlertCircle className="w-5 h-5" />
-                    Instructions de paiement LemFi
+                    {t('lemfi_payment_instructions')}
                   </h4>
                   <div className="space-y-2 text-sm text-yellow-900 bg-white rounded p-3">
-                    <p><strong>Montant à payer:</strong> {amountToPay.toFixed(2)} €</p>
-                    <p><strong>Destinataire:</strong> GermanLink Business GmbH</p>
+                    <p><strong>{t('amount_to_pay')}:</strong> {amountToPay.toFixed(2)} €</p>
+                    <p><strong>{t('recipient')}:</strong> GermanLink Business GmbH</p>
                     <p><strong>IBAN:</strong> DE89 3704 0044 0532 0130 00</p>
-                    <p className="text-red-700 font-bold"><strong>Référence OBLIGATOIRE:</strong> {orderNumber}</p>
+                    <p className="text-red-700 font-bold"><strong>{t('mandatory_reference')}:</strong> {orderNumber}</p>
                     <p className="pt-2 border-t border-yellow-200 text-xs">
-                      Un email avec toutes les instructions détaillées vous a été envoyé.
+                      {t('email_instructions_sent')}
                     </p>
                   </div>
                 </div>
@@ -173,33 +156,33 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                 <div className="bg-blue-50 border-2 border-blue-400 rounded-lg p-4">
                   <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
                     <Phone className="w-5 h-5" />
-                    Agent UBA Bank (Congo) – Nächste Schritte
+                    {t('uba_next_steps_title')}
                   </h4>
                   <div className="space-y-3 text-sm text-blue-900 bg-white rounded p-4">
                     <div className="flex items-center gap-2 text-base font-bold">
                       <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">1</span>
-                      GLB kontaktiert dich innerhalb 24h
+                      {t('uba_step1')}
                     </div>
                     <p className="ml-8 text-gray-600">
-                      Unter der Nummer: <strong className="text-blue-800">{customerPhone}</strong>
+                      {t('uba_step1_sub')} <strong className="text-blue-800">{customerPhone}</strong>
                     </p>
                     <div className="flex items-center gap-2 text-base font-bold mt-3">
                       <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">2</span>
-                      Gemeinsam zur UBA Bank gehen
+                      {t('uba_step2')}
                     </div>
                     <p className="ml-8 text-gray-600">
-                      Dein Agent begleitet dich zur UBA und hilft bei der Zahlung
+                      {t('uba_step2_sub')}
                     </p>
                     <div className="flex items-center gap-2 text-base font-bold mt-3">
                       <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">3</span>
-                      Zahlung mit dieser Referenz
+                      {t('uba_step3')}
                     </div>
                     <p className="ml-8 font-mono bg-blue-50 px-3 py-2 rounded border border-blue-200 text-blue-800 font-bold">
                       {orderNumber}
                     </p>
-                    <p className="ml-8 text-xs text-gray-500">Empfänger: GermanLink Business GmbH</p>
+                    <p className="ml-8 text-xs text-gray-500">{t('recipient')}: GermanLink Business GmbH</p>
                     <p className="pt-2 border-t border-blue-200 text-xs text-blue-700">
-                      Un email avec toutes les instructions vous a été envoyé.
+                      {t('email_instructions_sent')}
                     </p>
                   </div>
                 </div>
@@ -210,34 +193,25 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                   <strong>{t('next_shipment')}:</strong> 15/02/2026
                 </p>
                 <p className="text-yellow-700 text-xs mt-1">
-                  Votre commande sera expédiée lors du prochain envoi mensuel
+                  {t('next_shipment_desc')}
                 </p>
               </div>
 
               <button onClick={handleClose} className="w-full py-3 bg-[#009543] hover:bg-[#007a36] text-white rounded-lg font-medium transition">
-                Fermer
+                {t('close')}
               </button>
             </div>
           ) : (
-            // ── CHECKOUT FORMULAR ──
+            // ── CHECKOUT FORMULAR ── (KEIN Demo-Banner mehr)
             <div className="space-y-6">
-
-              {/* Demo-Hinweis */}
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-red-800">
-                  <p className="font-bold mb-1">{t('demo_mode')}</p>
-                  <p>Cette plateforme est en mode démonstration. Aucun paiement réel ne sera effectué.</p>
-                </div>
-              </div>
 
               {/* ── Telefonnummer – PFLICHTFELD für alle ── */}
               <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
                 <label className="block">
                   <span className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-2">
                     <Phone className="w-4 h-4 text-blue-600" />
-                    Telefonnummer (WhatsApp) *
-                    <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">Pflichtfeld</span>
+                    {t('phone_whatsapp_label')}
+                    <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">{t('required_field')}</span>
                   </span>
                   <input
                     type="tel"
@@ -248,7 +222,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                     className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                   <p className="text-xs text-blue-600 mt-1">
-                    GLB kontaktiert dich über diese Nummer bezüglich Lieferung und Zahlung.
+                    {t('phone_contact_note')}
                   </p>
                 </label>
               </div>
@@ -261,7 +235,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                     onChange={() => setPaymentOption('full')} className="mt-1" />
                   <div className="flex-1">
                     <div className="font-medium text-gray-900">{t('full_payment')}</div>
-                    <div className="text-sm text-gray-600">Payer {total.toFixed(2)} € maintenant</div>
+                    <div className="text-sm text-gray-600">{t('pay_now_prefix')} {total.toFixed(2)} € {t('pay_now_suffix')}</div>
                   </div>
                 </label>
                 <label className="flex items-start space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition">
@@ -270,7 +244,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                   <div className="flex-1">
                     <div className="font-medium text-gray-900">{t('deposit_50')}</div>
                     <div className="text-sm text-gray-600">
-                      Payer {(total * 0.5).toFixed(2)} € maintenant, le reste à la livraison
+                      {t('pay_now_prefix')} {(total * 0.5).toFixed(2)} € {t('deposit_rest_note')}
                     </div>
                   </div>
                 </label>
@@ -278,14 +252,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
 
               {/* Zahlungsmethode */}
               <div className="space-y-3">
-                <h3 className="font-bold text-gray-900">Zahlungsmethode / Méthode de paiement</h3>
+                <h3 className="font-bold text-gray-900">{t('payment_method_title')}</h3>
 
                 <label className="flex items-start space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                   <input type="radio" name="paymentMethod" value="lemfi" checked={paymentMethod === 'lemfi'}
                     onChange={() => setPaymentMethod('lemfi')} className="mt-1" />
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900">Banküberweisung via LemFi</div>
-                    <div className="text-sm text-gray-600">Virement bancaire international / Bank transfer</div>
+                    <div className="font-medium text-gray-900">{t('lemfi_method_name')}</div>
+                    <div className="text-sm text-gray-600">{t('lemfi_method_desc')}</div>
                   </div>
                 </label>
 
@@ -293,19 +267,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                   <input type="radio" name="paymentMethod" value="uba_congo" checked={paymentMethod === 'uba_congo'}
                     onChange={() => setPaymentMethod('uba_congo')} className="mt-1" />
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900">Agent + UBA Bank (Congo)</div>
-                    <div className="text-sm text-gray-600">Un agent vous accompagne à la banque</div>
+                    <div className="font-medium text-gray-900">{t('uba_method_name')}</div>
+                    <div className="text-sm text-gray-600">{t('uba_method_desc')}</div>
                   </div>
                 </label>
 
                 {/* UBA Info-Box */}
                 {paymentMethod === 'uba_congo' && (
                   <div className="ml-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 space-y-1">
-                    <p className="font-bold">So funktioniert der UBA-Prozess:</p>
-                    <p>① GLB ruft dich an (Telefonnummer oben)</p>
-                    <p>② Gemeinsam zur UBA Bank in Brazzaville / Kinshasa</p>
-                    <p>③ Zahlung mit Bestellnummer als Referenz</p>
-                    <p>④ GLB bestätigt Zahlung → Logistik startet</p>
+                    <p className="font-bold">{t('uba_how_it_works')}</p>
+                    <p>① {t('uba_info_step1')}</p>
+                    <p>② {t('uba_info_step2')}</p>
+                    <p>③ {t('uba_info_step3')}</p>
+                    <p>④ {t('uba_info_step4')}</p>
                   </div>
                 )}
               </div>
@@ -325,7 +299,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                   <span className="text-[#009543]">{total.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between text-xl font-bold text-[#DC241F] pt-2 border-t-2 border-[#DC241F]">
-                  <span>À payer maintenant</span>
+                  <span>{t('to_pay_now')}</span>
                   <span>{amountToPay.toFixed(2)} €</span>
                 </div>
               </div>
@@ -337,25 +311,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                     onChange={(e) => { setAgbAccepted(e.target.checked); setAgbError(false); }}
                     className="mt-1 w-4 h-4 text-[#009543] border-gray-300 rounded focus:ring-[#009543]" />
                   <label htmlFor="agb-checkbox" className="flex-1 text-sm text-gray-700">
-                    {agbLanguage === 'de' && <>Ich habe die </>}
-                    {agbLanguage === 'fr' && <>J'ai lu et j'accepte les </>}
-                    {agbLanguage === 'ln' && <>Natanga mpe nasangisi na </>}
+                    {t('agb_prefix')}
                     <a href="/agb" target="_blank" rel="noopener noreferrer"
-                      className="text-[#009543] hover:text-[#007a36] underline font-medium">
-                      {agbLanguage === 'de' && 'AGB'}
-                      {agbLanguage === 'fr' && 'CGV'}
-                      {agbLanguage === 'ln' && 'Mibeko oyo'}
+                      className="text-[#009543] hover:text-[#007a36] underline font-medium mx-1">
+                      {t('agb_link_text')}
                     </a>
-                    {agbLanguage === 'de' && <> gelesen und stimme diesen zu.*</>}
-                    {agbLanguage === 'fr' && <>.*</>}
-                    {agbLanguage === 'ln' && <>.*</>}
+                    {t('agb_suffix')}
                   </label>
                 </div>
 
                 {agbError && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2">
                     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-800">{agbTexts[agbLanguage].error}</p>
+                    <p className="text-sm text-red-800">{t('agb_error')}</p>
                   </div>
                 )}
 
@@ -368,7 +336,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                     </div>
                     <button onClick={handlePayment} disabled={loading || !agbAccepted || !customerPhone.trim()}
                       className="w-full py-4 bg-[#009543] hover:bg-[#007a36] text-white rounded-lg font-bold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-                      {loading ? 'Traitement...' : t('pay_with_lemfi')}
+                      {loading ? t('processing_btn') : t('pay_with_lemfi')}
                     </button>
                     <a href="https://lemfi.com" target="_blank" rel="noopener noreferrer"
                       className="block text-center py-3 border-2 border-gray-300 hover:border-gray-400 rounded-lg font-medium transition">
@@ -381,7 +349,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                 {paymentMethod === 'uba_congo' && (
                   <button onClick={handlePayment} disabled={loading || !agbAccepted || !customerPhone.trim()}
                     className="w-full py-4 bg-[#009543] hover:bg-[#007a36] text-white rounded-lg font-bold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-                    {loading ? 'Traitement...' : 'Bestellung absenden → GLB kontaktiert dich'}
+                    {loading ? t('processing_btn') : t('uba_submit_btn')}
                   </button>
                 )}
               </div>
