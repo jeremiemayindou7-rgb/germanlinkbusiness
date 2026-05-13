@@ -117,70 +117,87 @@ type Intent =
   | 'tracking'
   | 'my_orders'
   | 'product_search'
+  | 'container_info'   // nächster Container / Versanddatum
   | 'delivery_info'
   | 'payment'
   | 'contact'
   | 'greeting'
-  | 'unknown';
+  | 'unknown';         // → immer an AI weitergeleitet
 
 function detectIntent(message: string): Intent {
   const msg = message.toLowerCase();
 
-  const trackingPatterns = [
+  // Container / nächster Versand – VOR tracking prüfen
+  const containerPatterns = [
     // DE
-    'paket', 'tracken', 'tracking', 'paketnummer', 'sendungs', 'verfolgen', 'wo ist',
-    'wann kommt', 'lieferdatum', 'tracking-nummer',
+    'container', 'nächste', 'nächster', 'wann kommt der', 'wann fährt', 'wann verschiff',
+    'nächste lieferung', 'versanddatum', 'abfahrt', 'schiffsabfahrt',
     // FR
-    'colis', 'suivre', 'suivi', 'numéro de suivi', 'où est', 'quand arrive', 'livraison prévu',
+    'prochain', 'prochaine', 'conteneur', 'quand part', 'date de départ',
+    'prochaine livraison', 'prochaine expédition',
     // LN
-    'pake', 'landa', 'kolandi', 'numelo', 'wapi',
-    // Generic
-    'track', 'parcel',
+    'bateau', 'ndeke oyo ekoya', 'ntango nini',
+  ];
+
+  // Tracking: NUR wenn explizit Paket-Tracking gemeint
+  const trackingPatterns = [
+    'tracken', 'tracking', 'paketnummer', 'sendungs', 'verfolgen',
+    'wo ist mein paket', 'wo ist meine bestellung',
+    'suivre mon colis', 'numéro de suivi', 'où est mon colis',
+    'kolandi pake', 'numelo ya pake',
+    'track my', 'parcel tracking',
   ];
 
   const myOrderPatterns = [
     'meine bestellung', 'meine bestellungen', 'mes commandes', 'ma commande',
-    'bestellstatus', 'statut', 'commandes en cours', 'zeig mir', 'montre',
-    'my order', 'ba commandes na ngai',
+    'bestellstatus', 'commandes en cours', 'zeig mir meine',
+    'my order', 'ba commandes na ngai', 'historique',
   ];
 
   const productPatterns = [
-    'produkt', 'artikel', 'suche', 'haben sie', 'verfügbar',
-    'produit', 'cherche', 'disponible', 'avez vous',
-    'biloko', 'luka', 'ozali na',
+    'produkt', 'artikel', 'sortiment', 'haben sie', 'gibt es', 'verfügbar',
+    'solar', 'elektronik', 'haushalts', 'werkzeug', 'möbel',
+    'produit', 'cherche', 'disponible', 'avez vous', 'est-ce que vous vendez',
+    'biloko', 'luka', 'ozali na', 'ba produits',
   ];
 
   const deliveryPatterns = [
-    'liefer', 'versand', 'livraison', 'schiff', 'flug', 'ship', 'delivery',
-    'kotinda', 'kokabola', 'masuwa', 'ndeke',
+    'wie funktioniert', 'wie lange dauert', 'lieferzeit', 'versandkosten',
+    'livraison', 'délai', 'combien de temps',
+    'kotinda', 'kokabola ndenge nini',
   ];
 
   const paymentPatterns = [
-    'zahlung', 'preis', 'bezahl', 'paiement', 'prix', 'payment', 'kosten',
-    'mbongo', 'kofuta', 'ntalo',
+    'zahlung', 'bezahl', 'paiement', 'prix', 'kosten', 'lemfi', 'bank',
+    'mbongo', 'kofuta', 'ntalo', 'wie bezahl',
   ];
 
   const contactPatterns = [
-    'kontakt', 'telefon', 'email', 'hilfe', 'contact', 'aide', 'help', 'service',
-    'lisalisi', 'kosolola',
+    'kontakt', 'telefon', 'email', 'sprechen', 'anrufen',
+    'contact', 'appeler', 'parler',
+    'kosolola', 'lisalisi',
   ];
 
   const greetingPatterns = [
-    'hallo', 'guten', 'hi ', ' hi', '^hi$', 'hey', 'bonjour', 'bonsoir', 'salut',
-    'mbote', 'malamu', 'hello',
+    'hallo', 'guten morgen', 'guten tag', 'hi,', 'hey,', 'hey!',
+    'bonjour', 'bonsoir', 'salut',
+    'mbote', 'hello',
   ];
 
-  // Check tracking number patterns (alphanumeric 8+ chars)
-  const hasTrackingNumber = /\b[A-Z0-9]{8,}\b/.test(message.toUpperCase());
+  // Explizite Trackingnummer (alphanumerisch 8+ Zeichen, nicht nur Zahlen)
+  const hasTrackingNumber = /\b[A-Z]{1,4}[0-9]{6,}\b/i.test(message);
 
+  // Reihenfolge ist wichtig!
+  if (containerPatterns.some(p => msg.includes(p))) return 'container_info';
   if (hasTrackingNumber || trackingPatterns.some(p => msg.includes(p))) return 'tracking';
   if (myOrderPatterns.some(p => msg.includes(p))) return 'my_orders';
   if (productPatterns.some(p => msg.includes(p))) return 'product_search';
   if (deliveryPatterns.some(p => msg.includes(p))) return 'delivery_info';
   if (paymentPatterns.some(p => msg.includes(p))) return 'payment';
   if (contactPatterns.some(p => msg.includes(p))) return 'contact';
-  if (greetingPatterns.some(p => msg.includes(p))) return 'greeting';
+  if (greetingPatterns.some(p => msg.includes(p.toLowerCase()))) return 'greeting';
 
+  // Alles andere → AI beantwortet mit App-Kontext
   return 'unknown';
 }
 
@@ -274,6 +291,75 @@ async function fetchUserOrders(userId: string): Promise<Order[]> {
     return [];
   }
   return (data || []) as Order[];
+}
+
+/**
+ * Fetch upcoming containers / shipment dates
+ */
+async function fetchNextContainers(): Promise<any[]> {
+  const today = new Date().toISOString().split('T')[0];
+  const { data, error } = await supabase
+    .from('containers')
+    .select('id, name, departure_date, arrival_date, status, description')
+    .gte('departure_date', today)
+    .order('departure_date', { ascending: true })
+    .limit(3);
+
+  if (error) {
+    console.error('[ChatBot] fetchNextContainers error:', error);
+    return [];
+  }
+  return data || [];
+}
+
+function buildContainerResponse(containers: any[], lang: SupportedLanguage): string {
+  const contact = '\n\n📧 info@germanlink.de\n📱 +49 176 22896160';
+
+  if (containers.length === 0) {
+    const noData: Record<SupportedLanguage, string> = {
+      de: `📦 Aktuell sind keine geplanten Container-Abfahrten verfügbar. Bitte kontaktieren Sie uns direkt:${contact}`,
+      fr: `📦 Aucune date de départ de conteneur n'est actuellement disponible. Contactez-nous:${contact}`,
+      ln: `📦 Ezali na ba conteneur ya sima te sikawa. Bwela biso:${contact}`,
+      en: `📦 No upcoming container departures available. Contact us:${contact}`,
+    };
+    return noData[lang] ?? noData.fr;
+  }
+
+  const locale = lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'fr-CD';
+
+  const lines = containers.map((c: any) => {
+    const dep = c.departure_date
+      ? new Date(c.departure_date).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })
+      : '–';
+    const arr = c.arrival_date
+      ? new Date(c.arrival_date).toLocaleDateString(locale, { day: 'numeric', month: 'long' })
+      : null;
+
+    const arrSuffix: Record<SupportedLanguage, string> = {
+      de: arr ? ` → Ankunft: ${arr}` : '',
+      fr: arr ? ` → Arrivée: ${arr}` : '',
+      ln: arr ? ` → Kokóma: ${arr}` : '',
+      en: arr ? ` → Arrival: ${arr}` : '',
+    };
+
+    return `• **${c.name ?? 'Container'}** — ${dep}${arrSuffix[lang] ?? ''}`;
+  });
+
+  const header: Record<SupportedLanguage, string> = {
+    de: '🚢 **Nächste Container-Abfahrten:**\n\n',
+    fr: '🚢 **Prochains départs de conteneurs:**\n\n',
+    ln: '🚢 **Ba bateau ya sima:**\n\n',
+    en: '🚢 **Upcoming container departures:**\n\n',
+  };
+
+  const footer: Record<SupportedLanguage, string> = {
+    de: '\n\nUm Ihre Bestellung rechtzeitig aufzunehmen, kontaktieren Sie uns!\n📧 info@germanlink.de',
+    fr: '\n\nPour inclure votre commande, contactez-nous!\n📧 info@germanlink.de',
+    ln: '\n\nPo na kotia commande na yo, bwela biso liboso!\n📧 info@germanlink.de',
+    en: '\n\nTo include your order in a container, contact us!\n📧 info@germanlink.de',
+  };
+
+  return (header[lang] ?? header.fr) + lines.join('\n') + (footer[lang] ?? footer.fr);
 }
 
 // ─────────────────────────────────────────────
@@ -487,9 +573,10 @@ export const ChatBot: React.FC = () => {
   const fetchProducts = async () => {
     const { data } = await supabase
       .from('products')
-      .select('id, name, description, category, sale_price, image_url, stock_status')
+      .select('id, name, name_de, name_fr, description, description_de, description_fr, category, sale_price, image_url, stock_status')
       .eq('stock_status', 'available');
     setProducts(data || []);
+    console.log('[ChatBot] Produkte geladen:', data?.length ?? 0);
   };
 
   const addWelcomeMessage = () => {
@@ -541,6 +628,12 @@ export const ChatBot: React.FC = () => {
       }
       const orders = await fetchUserOrders(user.id);
       return { handled: true, text: buildUserOrdersSummary(orders, lang) };
+    }
+
+    // 3. CONTAINER INFO
+    if (intent === 'container_info') {
+      const containers = await fetchNextContainers();
+      return { handled: true, text: buildContainerResponse(containers, lang) };
     }
 
     return { handled: false };
@@ -617,11 +710,28 @@ export const ChatBot: React.FC = () => {
         botResponse = getRuleBasedResponse(messageText, intent, lang);
 
       } else {
-        const productContext = products.map(p =>
-          `- ${p.name}: ${p.sale_price}€ | ${p.description || ''} | Kategorie: ${p.category} | Status: ${p.stock_status}`
-        ).join('\n');
+        // Produkte gruppiert nach Kategorie
+        const categorized = products.reduce((acc: Record<string, any[]>, p) => {
+          const cat = p.category || 'Sonstige';
+          if (!acc[cat]) acc[cat] = [];
+          acc[cat].push(p);
+          return acc;
+        }, {});
+        const productContext = Object.entries(categorized).map(([cat, items]) =>
+          `### ${cat}\n` + (items as any[]).map(p =>
+            `  - ${p.name_de || p.name}: ${p.sale_price}€ | ${p.description_de || p.description || ''}`
+          ).join('\n')
+        ).join('\n\n');
 
-        const fullSystem = `${SYSTEM_PROMPT}\n\n${APP_CONTEXT}\n\n## VERFÜGBARE PRODUKTE:\n${productContext}`;
+        // Nächste Container für AI-Kontext laden
+        const containers = await fetchNextContainers();
+        const containerContext = containers.length > 0
+          ? '### NÄCHSTE CONTAINER-ABFAHRTEN:\n' + containers.map(c =>
+              `  - ${c.name ?? 'Container'}: Abfahrt ${c.departure_date ?? '?'}${c.arrival_date ? ` → Ankunft ${c.arrival_date}` : ''}`
+            ).join('\n')
+          : '### CONTAINER: Keine geplanten Abfahrten aktuell eingetragen.';
+
+        const fullSystem = `${SYSTEM_PROMPT}\n\n${APP_CONTEXT}\n\n## PRODUKTKATALOG (${products.length} Artikel):\n${productContext}\n\n${containerContext}\n\nWichtig: Beantworte ALLE Fragen zur App, zum Sortiment, zu Lieferzeiten und Containern auf Basis dieser Daten. Antworte in der Sprache des Users.`;
         const history = messages.map(m => ({ role: m.role, content: m.content }));
 
         if (aiMode === 'claude') {
