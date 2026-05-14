@@ -7,6 +7,8 @@
 
 import re
 import json
+import time
+import random
 import requests
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException
@@ -15,21 +17,15 @@ from pydantic import BaseModel
 
 app = FastAPI(title="GermanLink Business – eBay Import API")
 
-# ── CORS: erlaubt Anfragen vom Vite Dev Server ────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:3000",
-        "https://germanlinkbusiness.vercel.app",  # falls du auf Vercel hostest
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ── Request/Response Modelle ──────────────────────────────────────────────────
+# ── Modelle ───────────────────────────────────────────────────────────────────
 class ImportRequest(BaseModel):
     url: str
 
@@ -43,16 +39,30 @@ class SaveRequest(BaseModel):
     images: list
     translations: dict
 
-# ── HTTP Headers (imitiert Browser) ──────────────────────────────────────────
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-}
+# ── User-Agent Pool ───────────────────────────────────────────────────────────
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15",
+]
+
+def get_headers():
+    return {
+        "User-Agent": random.choice(USER_AGENTS),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Cache-Control": "max-age=0",
+        "DNT": "1",
+    }
 
 # ── URL Validierung ───────────────────────────────────────────────────────────
 EBAY_PATTERN = re.compile(r"https?://(www\.)?ebay\.[a-z.]{2,6}/itm/\d+", re.IGNORECASE)
@@ -61,7 +71,6 @@ def validate_url(url: str) -> str:
     url = url.strip()
     if not EBAY_PATTERN.match(url):
         raise HTTPException(status_code=400, detail=f"Ungültige eBay-URL: {url}")
-    # Query-Parameter entfernen
     return url.split("?")[0]
 
 # ── Preis parsen ──────────────────────────────────────────────────────────────
@@ -84,39 +93,31 @@ def extract_currency(text: str) -> str:
 def extract_images(soup: BeautifulSoup) -> list:
     images = []
 
-    # Strategie 1: data-zoom-src
-    for img in soup.find_all("img", {"data-zoom-src": True}):
-        src = img.get("data-zoom-src", "").strip()
-        if src and src.startswith("http"):
-            images.append(src)
+    for script in soup.find_all("script", {"type": "application/ld+json"}):
+        try:
+            data = json.loads(script.string or "")
+            ld_images = data.get("image", [])
+            if isinstance(ld_images, str):
+                ld_images = [ld_images]
+            for img in ld_images:
+                if img.startswith("http") and "ebayimg" in img:
+                    images.append(img)
+        except Exception:
+            continue
 
-    # Strategie 2: Galerie
     if not images:
-        for img in soup.select("div.ux-image-carousel-item img"):
-            src = img.get("data-src") or img.get("src", "")
-            if src and "ebayimg.com" in src:
+        for img in soup.find_all("img", {"data-zoom-src": True}):
+            src = img.get("data-zoom-src", "").strip()
+            if src and src.startswith("http"):
                 images.append(src)
 
-    # Strategie 3: JSON-LD
-    if not images:
-        for script in soup.find_all("script", {"type": "application/ld+json"}):
-            try:
-                data = json.loads(script.string or "")
-                ld_images = data.get("image", [])
-                if isinstance(ld_images, str):
-                    ld_images = [ld_images]
-                images.extend([i for i in ld_images if i.startswith("http")])
-            except Exception:
-                continue
-
-    # Strategie 4: Alle ebayimg.com Bilder
     if not images:
         for img in soup.find_all("img"):
-            src = img.get("src", "")
-            if "ebayimg.com" in src and src.startswith("http"):
+            src = img.get("src", "") or img.get("data-src", "")
+            if src and "ebayimg.com" in src and "s-l" in src:
+                src = re.sub(r"s-l\d+", "s-l1600", src)
                 images.append(src)
 
-    # Duplikate entfernen
     seen = set()
     unique = []
     for url in images:
@@ -124,7 +125,22 @@ def extract_images(soup: BeautifulSoup) -> list:
             seen.add(url)
             unique.append(url)
 
-    return unique[:8]  # max 8 Bilder
+    return unique[:8]
+
+# ── eBay Seite abrufen ────────────────────────────────────────────────────────
+def fetch_ebay_page(url: str):
+    session = requests.Session()
+
+    # Erst eBay-Startseite besuchen (setzt Cookies)
+    try:
+        base_domain = re.match(r"(https?://[^/]+)", url).group(1)
+        session.get(base_domain, headers=get_headers(), timeout=10)
+        time.sleep(random.uniform(0.8, 2.0))
+    except Exception:
+        pass
+
+    response = session.get(url, headers=get_headers(), timeout=20, allow_redirects=True)
+    return response
 
 # ── HTML parsen ───────────────────────────────────────────────────────────────
 def parse_ebay(html: str, source_url: str) -> dict:
@@ -132,13 +148,22 @@ def parse_ebay(html: str, source_url: str) -> dict:
 
     # Titel
     title = ""
-    title_tag = (
-        soup.find("h1", class_=re.compile(r"x-item-title", re.I))
-        or soup.find("h1", attrs={"itemprop": "name"})
-        or soup.find("h1")
-    )
-    if title_tag:
-        title = " ".join(title_tag.get_text().split()).strip()
+    for script in soup.find_all("script", {"type": "application/ld+json"}):
+        try:
+            data = json.loads(script.string or "")
+            if data.get("@type") == "Product" and data.get("name"):
+                title = data["name"].strip()
+                break
+        except Exception:
+            continue
+
+    if not title:
+        for selector in ["h1.x-item-title__mainTitle span", "h1[itemprop='name']", "h1"]:
+            el = soup.select_one(selector)
+            if el:
+                title = " ".join(el.get_text().split()).strip()
+                if title:
+                    break
 
     if not title:
         page_title = soup.find("title")
@@ -150,9 +175,18 @@ def parse_ebay(html: str, source_url: str) -> dict:
 
     # Beschreibung
     description = ""
-    meta_desc = soup.find("meta", {"name": "description"})
-    if meta_desc:
-        description = meta_desc.get("content", "").strip()
+    meta = soup.find("meta", {"name": "description"})
+    if meta:
+        description = meta.get("content", "").strip()
+    if not description:
+        for script in soup.find_all("script", {"type": "application/ld+json"}):
+            try:
+                data = json.loads(script.string or "")
+                if data.get("description"):
+                    description = data["description"].strip()
+                    break
+            except Exception:
+                continue
     if not description:
         description = title
 
@@ -160,15 +194,29 @@ def parse_ebay(html: str, source_url: str) -> dict:
     base_price = None
     currency = "EUR"
 
-    price_tag = soup.find(attrs={"itemprop": "price"})
-    if price_tag:
+    for script in soup.find_all("script", {"type": "application/ld+json"}):
         try:
-            base_price = float(str(price_tag.get("content", "")).replace(",", "."))
+            data = json.loads(script.string or "")
+            offers = data.get("offers", {})
+            if isinstance(offers, list) and offers:
+                offers = offers[0]
+            if offers.get("price"):
+                base_price = float(str(offers["price"]).replace(",", "."))
+                currency = offers.get("priceCurrency", "EUR")
+                break
         except Exception:
-            pass
+            continue
 
     if base_price is None:
-        for selector in ["span.x-price-primary", "span#prcIsum", "span.notranslate"]:
+        price_tag = soup.find(attrs={"itemprop": "price"})
+        if price_tag:
+            try:
+                base_price = float(str(price_tag.get("content", "")).replace(",", "."))
+            except Exception:
+                pass
+
+    if base_price is None:
+        for selector in ["div.x-price-primary span.ux-textspans", "span.x-price-primary", "span#prcIsum"]:
             el = soup.select_one(selector)
             if el:
                 try:
@@ -178,19 +226,6 @@ def parse_ebay(html: str, source_url: str) -> dict:
                     break
                 except Exception:
                     continue
-
-    if base_price is None:
-        for script in soup.find_all("script", {"type": "application/ld+json"}):
-            try:
-                data = json.loads(script.string or "")
-                offers = data.get("offers", {})
-                if isinstance(offers, list) and offers:
-                    offers = offers[0]
-                base_price = float(str(offers.get("price", "")).replace(",", "."))
-                currency = offers.get("priceCurrency", "EUR")
-                break
-            except Exception:
-                continue
 
     if base_price is None:
         raise HTTPException(status_code=422, detail="Preis konnte nicht extrahiert werden.")
@@ -203,29 +238,22 @@ def parse_ebay(html: str, source_url: str) -> dict:
         if crumbs:
             category = " ".join(crumbs[-1].get_text().split()).strip()
 
-    # Bilder
-    images = extract_images(soup)
-
-    # GLB Preis (+20%)
-    glb_price = round(base_price * 1.20, 2)
-
     return {
         "title": title,
         "description": description,
         "base_price": round(base_price, 2),
-        "glb_price": glb_price,
+        "glb_price": round(base_price * 1.20, 2),
         "currency": currency,
         "category": category,
-        "images": images,
+        "images": extract_images(soup),
         "source_url": source_url,
     }
 
-# ── Übersetzung via MyMemory (kostenlos, kein API-Key) ────────────────────────
+# ── Übersetzung ───────────────────────────────────────────────────────────────
 def translate(text: str, source: str, target: str) -> str:
-    if not text or not text.strip():
+    if not text.strip():
         return text
     try:
-        # MyMemory API – kostenlos bis 5000 Zeichen/Tag
         r = requests.get(
             "https://api.mymemory.translated.net/get",
             params={"q": text[:500], "langpair": f"{source}|{target}"},
@@ -237,51 +265,25 @@ def translate(text: str, source: str, target: str) -> str:
             return translated
     except Exception:
         pass
-    return text  # Fallback: Original
+    return text
+
+LINGALA_DICT = {
+    "tracteur": "masini ya bilanga", "tractor": "masini ya bilanga",
+    "traktor": "masini ya bilanga", "voiture": "motuka", "auto": "motuka",
+    "téléphone": "telefone", "phone": "telefone", "ordinateur": "ordinatɛrɛ",
+    "laptop": "ordinatɛrɛ ya mikolo", "maison": "ndako", "bon": "malamu",
+    "nouveau": "ya sika", "new": "ya sika", "utilisé": "esalelaki",
+    "prix": "ntalo", "livraison": "kobɔkɔlɔ", "qualité": "bolamu",
+    "allemagne": "Alemani", "germany": "Alemani", "diesel": "mazutu",
+}
 
 def translate_to_lingala(text: str) -> str:
-    """
-    Einfache Lingala-Übersetzung via Wörterbuch-Ersetzung.
-    Für bessere Qualität: OpenAI oder Google Translate API einbinden.
-    """
-    word_map = {
-        "tracteur": "masini ya bilanga",
-        "tractor": "masini ya bilanga",
-        "traktor": "masini ya bilanga",
-        "voiture": "motuka",
-        "auto": "motuka",
-        "car": "motuka",
-        "téléphone": "telefone",
-        "phone": "telefone",
-        "ordinateur": "ordinatɛrɛ",
-        "laptop": "ordinatɛrɛ ya mikolo",
-        "maison": "ndako",
-        "house": "ndako",
-        "bon": "malamu",
-        "good": "malamu",
-        "nouveau": "ya sika",
-        "new": "ya sika",
-        "utilisé": "esalelaki",
-        "used": "esalelaki",
-        "prix": "ntalo",
-        "price": "ntalo",
-        "livraison": "kobɔkɔlɔ",
-        "delivery": "kobɔkɔlɔ",
-        "qualité": "bolamu",
-        "quality": "bolamu",
-        "europe": "Eropɛ",
-        "allemagne": "Alemani",
-        "germany": "Alemani",
-        "diesel": "mazutu",
-        "essence": "esansi",
-    }
     result = text.lower()
-    for fr_word, ln_word in word_map.items():
-        result = result.replace(fr_word, ln_word)
+    for word, ln in LINGALA_DICT.items():
+        result = result.replace(word, ln)
     return result if result != text.lower() else f"[LN] {text[:100]}"
 
-# ── API Endpunkte ─────────────────────────────────────────────────────────────
-
+# ── Endpunkte ─────────────────────────────────────────────────────────────────
 @app.get("/")
 def root():
     return {"status": "ok", "service": "GermanLink Business eBay Import API"}
@@ -292,37 +294,39 @@ def health():
 
 @app.post("/api/import-ebay")
 def import_ebay(req: ImportRequest):
-    """
-    Hauptendpunkt: eBay URL → strukturiertes Produkt-JSON
-    """
-    # 1. URL validieren
     clean_url = validate_url(req.url)
 
-    # 2. HTML abrufen
     try:
-        response = requests.get(clean_url, headers=HEADERS, timeout=15)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"eBay nicht erreichbar: {e}")
-    except requests.exceptions.Timeout:
-        raise HTTPException(status_code=504, detail="eBay-Seite antwortet nicht (Timeout)")
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=str(e))
+        response = fetch_ebay_page(clean_url)
 
-    # 3. HTML parsen
+        if response.status_code == 403:
+            raise HTTPException(
+                status_code=403,
+                detail=(
+                    "eBay blockiert den automatischen Zugriff (403 Forbidden). "
+                    "Bitte warte auf die Genehmigung deines eBay Developer Accounts. "
+                    "Danach wird der Import vollautomatisch funktionieren."
+                )
+            )
+
+        response.raise_for_status()
+
+    except HTTPException:
+        raise
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="eBay antwortet nicht (Timeout)")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Verbindungsfehler: {str(e)}")
+
     data = parse_ebay(response.text, clean_url)
 
-    # 4. Übersetzungen erstellen
     title_de = data["title"]
     desc_de = data["description"]
-
     title_fr = translate(title_de, "de", "fr")
     desc_fr = translate(desc_de, "de", "fr")
-
     title_ln = translate_to_lingala(title_fr)
     desc_ln = translate_to_lingala(desc_fr)
 
-    # 5. Fertiges Payload zurückgeben
     return {
         "source": "ebay",
         "source_url": clean_url,
@@ -340,13 +344,6 @@ def import_ebay(req: ImportRequest):
 
 @app.post("/api/products")
 def save_product(product: SaveRequest):
-    """
-    Produkt speichern – hier kannst du Supabase einbinden.
-    Aktuell gibt es nur eine Bestätigung zurück.
-    """
     print(f"[GLB] Produkt gespeichert: {product.source_url}")
-    # TODO: Supabase Python Client einbinden:
-    # from supabase import create_client
-    # supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    # supabase.table("products").insert(product.dict()).execute()
     return {"status": "saved", "source_url": product.source_url}
+
