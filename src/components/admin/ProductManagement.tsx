@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Package } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Package, Download } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { translateLongText } from '../../lib/translateText';
@@ -28,10 +28,15 @@ interface Product {
   stock_quantity: number;
 }
 
+// ── NEU: Props-Interface für den eBay-Import-Callback ───────────────────────
+interface ProductManagementProps {
+  onEbayImport?: () => void;
+}
+
 const categories = ['electronics', 'clothing', 'furniture', 'household', 'auto_motor', 'other'];
 const conditions = ['new', 'very_good', 'good', 'acceptable'];
 
-export const ProductManagement: React.FC = () => {
+export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImport }) => {
   const { t } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -91,15 +96,6 @@ export const ProductManagement: React.FC = () => {
 
       console.log('[AdminForm] DE texts:', { sourceNameDE, sourceDescDE, sourceCategoryDE });
 
-      /*
-        TEST: Open browser console after clicking translate button.
-        You should see:
-        ✅ [Translation] Success de→fr: Mini-tracteur...
-        ✅ [AdminForm] Translation complete
-
-        If you see ❌ — check network tab for failed API call
-      */
-
       const [nameFR, descriptionFR] = await Promise.all([
         translateLongText(sourceNameDE, 'de', 'fr'),
         translateLongText(sourceDescDE, 'de', 'fr')
@@ -134,10 +130,6 @@ export const ProductManagement: React.FC = () => {
 
     } catch (err: any) {
       console.error('[AdminForm] Translation error:', err);
-      console.error('[AdminForm] Error type:', err?.constructor?.name);
-      console.error('[AdminForm] Message:', err?.message);
-      console.error('[AdminForm] Status:', err?.status);
-
       const errorMessage = err?.message || 'Unbekannter Fehler';
       setTranslationError(`Übersetzung fehlgeschlagen: ${errorMessage}`);
       alert(`❌ Übersetzung fehlgeschlagen: ${errorMessage}\n\nBitte manuell eingeben oder erneut versuchen.`);
@@ -250,13 +242,32 @@ export const ProductManagement: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Gestion des Produits</h2>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-[#009543] text-white rounded-lg hover:bg-[#007a36] transition"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Ajouter</span>
-        </button>
+
+        {/* ── Button-Gruppe: Manuell hinzufügen + eBay Import ─────────────── */}
+        <div className="flex items-center gap-3">
+
+          {/* ── NEU: eBay Import Button ─────────────────────────────────── */}
+          {onEbayImport && (
+            <button
+              onClick={onEbayImport}
+              className="flex items-center space-x-2 px-4 py-2 bg-[#0052cc] text-white rounded-lg hover:bg-[#0747a6] transition shadow-sm"
+              title="Produkt von eBay automatisch importieren"
+            >
+              <Download className="w-4 h-4" />
+              <span>eBay Import</span>
+            </button>
+          )}
+
+          {/* Bestehender "Ajouter"-Button – unverändert ─────────────────── */}
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-[#009543] text-white rounded-lg hover:bg-[#007a36] transition"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Ajouter</span>
+          </button>
+
+        </div>
       </div>
 
       {showForm && (
