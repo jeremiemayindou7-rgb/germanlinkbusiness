@@ -1,0 +1,13 @@
+src/
+node_modules/
+supabase/
+public/
+dist/
+.env
+*.tsx
+*.ts
+*.json
+!railway.json
+!requirements.txt
+package.json
+package-lock.json
