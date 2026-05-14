@@ -18,6 +18,8 @@ import MarketplaceSearch from './components/MarketplaceSearch';
 import AGBPage from './components/AGBPage';
 import { SellerApplyForm } from './components/SellerApplyForm';
 import { SellerDashboard } from './components/SellerDashboard';
+// ── NEU: eBay Import Page ──────────────────────────────────────────────────
+import { EbayImportPage } from './components/EbayImportPage';
 
 function AppContent() {
   const { user } = useAuth();
@@ -30,6 +32,7 @@ function AppContent() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [currentRoute, setCurrentRoute] = useState<string>('/');
   const [activeTab, setActiveTab] = useState('home');
+  // ── 'ebay-import' als neuer View-State hinzugefügt ───────────────────────
   const [activeView, setActiveView] = useState('dashboard');
   const [showSellerApply, setShowSellerApply] = useState(false);
 
@@ -82,6 +85,16 @@ function AppContent() {
   };
 
   const renderMain = () => {
+    // ── eBay Import View ───────────────────────────────────────────────────
+    if (activeView === 'ebay-import') {
+      return (
+        <EbayImportPage
+          onBack={() => setActiveView('dashboard')}
+          onSaved={() => setActiveView('dashboard')}
+        />
+      );
+    }
+
     if (activeView === 'marketplace') return <MarketplaceSearch />;
 
     if (activeView === 'seller') return (
@@ -180,7 +193,14 @@ function AppContent() {
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       <CartSidebar isOpen={cartOpen} onClose={() => setCartOpen(false)} onCheckout={() => setCheckoutOpen(true)} />
       <CheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
-      <AdminDashboard isOpen={adminDashboardOpen} onClose={() => setAdminDashboardOpen(false)} />
+      <AdminDashboard
+        isOpen={adminDashboardOpen}
+        onClose={() => setAdminDashboardOpen(false)}
+        onEbayImport={() => {
+          setAdminDashboardOpen(false); // Modal schließen
+          setActiveView('ebay-import'); // eBay Import Seite öffnen
+        }}
+      />
       <OrderTracking isOpen={ordersOpen} onClose={() => setOrdersOpen(false)} />
       <Notifications isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
       <ChatBot />
@@ -226,4 +246,3 @@ function App() {
 }
 
 export default App;
-

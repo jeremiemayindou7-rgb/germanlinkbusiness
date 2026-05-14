@@ -143,7 +143,7 @@ const translations = {
       subtitle: 'Bestelle direkt aus Deutschland',
       tagline: 'Baue Vertrauen. Baue Zukunft.',
       button: 'Jetzt starten mit GermanLink Business',
-      lingalaQuote: 'GermanLink Business ezali lien direct entre Allemagne na Congo. Qualité ya solo. Confiance. Développement ya business mpe mboka.'
+      lingalaQuote: 'GermanLink Business ist die direkte Verbindung zwischen Deutschland und dem Kongo. Echte Qualität. Vertrauen. Entwicklung für Unternehmen und das Land.'
     },
     footer: {
       tagline: 'Deutsche Qualität für afrikanisches Business',
@@ -277,7 +277,7 @@ const translations = {
       subtitle: 'Commandez directement depuis l\'Allemagne',
       tagline: 'Construisez la confiance. Construisez l\'avenir.',
       button: 'Commencer avec GermanLink Business',
-      lingalaQuote: 'GermanLink Business ezali lien direct entre Allemagne na Congo. Qualité ya solo. Confiance. Développement ya business mpe mboka.'
+      lingalaQuote: 'GermanLink Business est le lien direct entre l’Allemagne et le Congo. Qualité réelle. Confiance. Développement pour les entreprises et le pay'
     },
     footer: {
       tagline: 'Qualité allemande pour le business africain',

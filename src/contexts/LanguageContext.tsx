@@ -1007,12 +1007,12 @@ const translations: Translations = {
     ln: 'Longola annonce'
   },
   become_seller: {
-    de: 'Verkäufer werden',
+    de: 'Anbieter werden',
     fr: 'Devenir vendeur',
     ln: 'Koma moteki'
   },
   my_seller_area: {
-    de: 'Mein Verkäufer-Bereich',
+    de: 'Mein Anbieter-Bereich',
     fr: 'Mon espace vendeur',
     ln: 'Esika ya moteki'
   },

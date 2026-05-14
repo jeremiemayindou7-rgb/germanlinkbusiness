@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, Ship,
-  BarChart3, X, Store, FileText
+  BarChart3, X, Store, FileText, Download
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,16 +13,17 @@ import { ContainerManagement } from './ContainerManagement';
 import { Statistics } from './Statistics';
 import { CustomerManagement } from './CustomerManagement';
 import { SellerApplicationsManagement } from './SellerApplicationsManagement';
-import { QuoteRequestsManagement } from './QuoteRequestsManagement';// ← NEU
+import { QuoteRequestsManagement } from './QuoteRequestsManagement';
 
 interface AdminDashboardProps {
   isOpen: boolean;
   onClose: () => void;
+  onEbayImport?: () => void; // ← NEU: Callback für eBay Import Page
 }
 
-type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics' | 'customers' | 'sellers' | 'quotes'; // ← quotes NEU
+type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics' | 'customers' | 'sellers' | 'quotes';
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose, onEbayImport }) => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -30,7 +31,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
-  const [pendingQuotes, setPendingQuotes] = useState(0); // ← NEU
+  const [pendingQuotes, setPendingQuotes] = useState(0);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -48,14 +49,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
 
   useEffect(() => {
     const fetchBadges = async () => {
-      // Seller Bewerbungen
       const { count: sellerCount } = await supabase
         .from('seller_applications')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'pending');
       setPendingCount(sellerCount || 0);
 
-      // eBay Anfragen ← NEU
       const { count: quoteCount } = await supabase
         .from('quote_requests')
         .select('*', { count: 'exact', head: true })
@@ -96,31 +95,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
     { id: 'dashboard'  as TabType, icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'products'   as TabType, icon: Package,         label: t('products') },
     { id: 'orders'     as TabType, icon: ShoppingBag,     label: t('order_management') },
-    { id: 'quotes'     as TabType, icon: FileText,        label: 'eBay Anfragen', badge: pendingQuotes }, // ← NEU
+    { id: 'quotes'     as TabType, icon: FileText,        label: 'eBay Anfragen', badge: pendingQuotes },
     { id: 'containers' as TabType, icon: Ship,            label: 'Containers' },
     { id: 'statistics' as TabType, icon: BarChart3,       label: 'Statistiques' },
     { id: 'customers'  as TabType, icon: Users,           label: 'Clients' },
     { id: 'sellers'    as TabType, icon: Store,           label: 'Seller-Bewerbungen', badge: pendingCount },
   ];
 
+  // ── Handler: Modal schließen + eBay Import View öffnen ─────────────────────
+  const handleEbayImport = () => {
+    onClose();          // Admin-Modal schließen
+    onEbayImport?.();   // activeView auf 'ebay-import' setzen (via App.tsx)
+  };
+
   return (
     <div className="fixed inset-0 bg-gray-900 z-50 flex">
 
       {/* Sidebar */}
-      <div className={`bg-[#009543] text-white transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'} flex-shrink-0`}>
+      <div className={`bg-[#009543] text-white transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 flex flex-col`}>
         <div className="p-4 border-b border-white border-opacity-20 flex items-center justify-between">
           {!sidebarCollapsed && <h2 className="text-xl font-bold">Admin Dashboard</h2>}
-          <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition">
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition"
+          >
             {sidebarCollapsed ? '→' : '←'}
           </button>
         </div>
 
-        <nav className="p-2">
+        <nav className="p-2 flex-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
-              <button key={item.id} onClick={() => setActiveTab(item.id)}
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition mb-1 relative ${
                   activeTab === item.id ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-10'
                 }`}
@@ -145,6 +154,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
             );
           })}
         </nav>
+
+        {/* ── eBay Import Button (unten in der Sidebar) ────────────────────── */}
+        {onEbayImport && (
+          <div className="p-3 border-t border-white border-opacity-20">
+            <button
+              onClick={handleEbayImport}
+              title="Produkt von eBay importieren"
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 transition ${
+                sidebarCollapsed ? 'justify-center' : ''
+              }`}
+            >
+              <Download className="w-5 h-5 flex-shrink-0" />
+              {!sidebarCollapsed && (
+                <span className="text-sm font-semibold">eBay Import</span>
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
@@ -153,16 +180,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
           <h1 className="text-2xl font-bold text-gray-900">
             {menuItems.find(item => item.id === activeTab)?.label}
           </h1>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
-            <X className="w-6 h-6" />
-          </button>
+
+          <div className="flex items-center gap-3">
+            {/* ── eBay Import Button (oben rechts im Header) ───────────── */}
+            {onEbayImport && (
+              <button
+                onClick={handleEbayImport}
+                className="flex items-center gap-2 px-4 py-2 bg-[#0052cc] text-white rounded-lg hover:bg-[#0747a6] transition text-sm font-medium shadow-sm"
+                title="Produkt von eBay automatisch importieren"
+              >
+                <Download className="w-4 h-4" />
+                eBay Import
+              </button>
+            )}
+
+            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
           {activeTab === 'dashboard'  && <DashboardOverview />}
-          {activeTab === 'products'   && <ProductManagement />}
+          {activeTab === 'products'   && (
+            <ProductManagement
+              onEbayImport={handleEbayImport}
+            />
+          )}
           {activeTab === 'orders'     && <OrderManagement />}
-          {activeTab === 'quotes'     && <QuoteRequestsManagement />} {/* ← NEU */}
+          {activeTab === 'quotes'     && <QuoteRequestsManagement />}
           {activeTab === 'containers' && <ContainerManagement />}
           {activeTab === 'statistics' && <Statistics />}
           {activeTab === 'customers'  && <CustomerManagement />}
@@ -172,4 +218,3 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose 
     </div>
   );
 };
-

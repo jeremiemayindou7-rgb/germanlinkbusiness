@@ -52,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) =>
             }`}
           >
             <Store className="w-5 h-5" />
-            <span className="font-medium">{t('become_seller') || 'Verkäufer werden'}</span>
+            <span className="font-medium">{t('become_seller') || 'Anbieter werden'}</span>
           </button>
         </div>
       </nav>
