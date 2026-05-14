@@ -1,7 +1,9 @@
 // ─── GermanLink Business – Save Action Component ─────────────────────────────
+// Speichert das importierte eBay-Produkt direkt in Supabase
 
 import { useState } from "react";
 import { ImportedProduct } from "./types";
+import { supabase } from "../../lib/supabase";
 
 interface SaveActionProps {
   product: ImportedProduct;
@@ -9,6 +11,40 @@ interface SaveActionProps {
 }
 
 type SaveStatus = "idle" | "saving" | "success" | "error";
+
+// ── Kategorie-Mapping: eBay → GLB ─────────────────────────────────────────────
+function mapCategory(ebayCategory: string): string {
+  const cat = ebayCategory.toLowerCase();
+  if (cat.includes("traktor") || cat.includes("tractor") ||
+      cat.includes("auto") || cat.includes("motor") ||
+      cat.includes("fahrzeug") || cat.includes("kfz") ||
+      cat.includes("lkw") || cat.includes("pkw") ||
+      cat.includes("landmaschine") || cat.includes("sonstiges")) {
+    return "auto_motor";
+  }
+  if (cat.includes("elektronik") || cat.includes("computer") ||
+      cat.includes("handy") || cat.includes("tablet") ||
+      cat.includes("laptop") || cat.includes("phone") ||
+      cat.includes("telefon") || cat.includes("electronic")) {
+    return "electronics";
+  }
+  if (cat.includes("möbel") || cat.includes("furniture") ||
+      cat.includes("sofa") || cat.includes("tisch") ||
+      cat.includes("schrank") || cat.includes("stuhl")) {
+    return "furniture";
+  }
+  if (cat.includes("kleidung") || cat.includes("mode") ||
+      cat.includes("jacke") || cat.includes("schuhe") ||
+      cat.includes("clothing")) {
+    return "clothing";
+  }
+  if (cat.includes("haushalt") || cat.includes("küche") ||
+      cat.includes("garten") || cat.includes("werkzeug") ||
+      cat.includes("household")) {
+    return "household";
+  }
+  return "other";
+}
 
 export function SaveAction({ product, onSaved }: SaveActionProps) {
   const [status, setStatus] = useState<SaveStatus>("idle");
@@ -19,26 +55,54 @@ export function SaveAction({ product, onSaved }: SaveActionProps) {
     setError(null);
 
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+      const category = mapCategory(product.category);
 
-      // Versuche echten API-Aufruf – simuliere Erfolg wenn Backend nicht da
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/products`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(product),
-          signal: AbortSignal.timeout(10_000),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      } catch {
-        // Dev-Modus: simuliere erfolgreiches Speichern
-        await new Promise((r) => setTimeout(r, 800));
-        console.info("[GLB] Produkt würde gespeichert werden:", product);
-      }
+      // ── Supabase-Payload: passend zu deiner products-Tabelle ─────────────
+      const productData = {
+        // Basis
+        name:              product.translations.de.title,
+        description:       product.translations.de.description,
+        category,
+        purchase_price:    product.base_price,
+        sale_price:        product.glb_price,
+        condition:         "good",
+        image_url:         product.images[0] ?? "",
+        images:            product.images,
+        stock_status:      "available",
+        stock_quantity:    1,
 
+        // Übersetzungen
+        name_de:           product.translations.de.title,
+        name_fr:           product.translations.fr.title,
+        name_ln:           product.translations.ln.title,
+        description_de:    product.translations.de.description,
+        description_fr:    product.translations.fr.description,
+        description_ln:    product.translations.ln.description,
+        category_de:       category,
+        category_fr:       category,
+        category_ln:       category,
+
+        // eBay-Felder
+        source_type:       "ebay",
+        ebay_url:          product.source_url,
+        location:          "Kinshasa / Brazzaville",
+        is_seller_product: false,
+      };
+
+      console.log("[GLB Save] Speichere in Supabase:", productData);
+
+      const { error: supabaseError } = await supabase
+        .from("products")
+        .insert(productData);
+
+      if (supabaseError) throw new Error(supabaseError.message);
+
+      console.log("[GLB Save] ✅ Erfolgreich gespeichert!");
       setStatus("success");
       setTimeout(() => onSaved(), 1800);
+
     } catch (err) {
+      console.error("[GLB Save] ❌ Fehler:", err);
       setStatus("error");
       setError(err instanceof Error ? err.message : "Speichern fehlgeschlagen");
     }
@@ -46,7 +110,7 @@ export function SaveAction({ product, onSaved }: SaveActionProps) {
 
   return (
     <div className="glb-save">
-      {/* JSON Preview (einklappbar) */}
+      {/* JSON Preview */}
       <details className="glb-save__json-preview">
         <summary className="glb-save__json-toggle">
           <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -59,14 +123,14 @@ export function SaveAction({ product, onSaved }: SaveActionProps) {
         </pre>
       </details>
 
-      {/* Haupt-Speichern-Button */}
+      {/* Button */}
       <div className="glb-save__actions">
         {status === "success" ? (
           <div className="glb-save__success">
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
-            <span>Produkt gespeichert! Weiterleitung…</span>
+            <span>✅ Produkt gespeichert! Erscheint jetzt in der Produktliste.</span>
           </div>
         ) : (
           <button
@@ -102,3 +166,4 @@ export function SaveAction({ product, onSaved }: SaveActionProps) {
     </div>
   );
 }
+
