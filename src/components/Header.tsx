@@ -32,9 +32,17 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick, onCartClick, onAdmi
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-[#0A5EB0]">
-              {t('app_title')}
-            </h1>
+            <div className="flex items-center space-x-2">
+              <div className="flex space-x-0.5">
+                <div className="w-2.5 h-8 bg-[#000000] rounded-sm"></div>
+                <div className="w-2.5 h-8 bg-[#DD0000] rounded-sm"></div>
+                <div className="w-2.5 h-8 bg-[#FFCE00] rounded-sm"></div>
+              </div>
+              <div>
+                <div className="text-lg font-black text-[#1C1C1C] leading-none tracking-tight">GLB</div>
+                <div className="text-xs font-semibold text-[#0A5EB0] leading-none">GermanLink Business</div>
+              </div>
+            </div>
             <div className="hidden md:flex items-center space-x-2 text-xs">
               <span className="bg-[#0A5EB0] text-white px-3 py-1 rounded-full font-bold">
                 {t('european_quality')}

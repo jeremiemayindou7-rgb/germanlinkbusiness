@@ -458,14 +458,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-8 bg-[#000000]"></div>
-                <div className="w-2 h-8 bg-[#DD0000]"></div>
-                <div className="w-2 h-8 bg-[#FFCE00]"></div>
+              <div className="flex space-x-0.5">
+                <div className="w-2.5 h-8 bg-[#000000] rounded-sm"></div>
+                <div className="w-2.5 h-8 bg-[#DD0000] rounded-sm"></div>
+                <div className="w-2.5 h-8 bg-[#FFCE00] rounded-sm"></div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">GermanLink</h1>
-                <p className="text-xs text-gray-600 font-medium">Business</p>
+                <div className="text-lg font-black text-[#1C1C1C] leading-none tracking-tight">GLB</div>
+                <div className="text-xs font-semibold text-[#0A5EB0] leading-none">GermanLink Business</div>
               </div>
             </div>
 
@@ -827,12 +827,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
           <div className="border-t border-gray-800 pt-8">
             <div className="text-center mb-4">
-              <a
-                href="/agb"
-                className="text-gray-400 hover:text-white transition underline text-sm"
+              <button
+                onClick={() => window.location.href = '/agb'}
+                className="text-gray-400 hover:text-white underline bg-transparent border-none cursor-pointer"
               >
                 AGB & Lieferbedingungen
-              </a>
+              </button>
             </div>
             <div className="text-center text-gray-400">
               <p>&copy; {t.footer.copyright}</p>
