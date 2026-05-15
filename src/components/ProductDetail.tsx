@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShoppingCart, Star, MessageCircle, Send, Lock, ExternalLink, FileText } from 'lucide-react';
+import { X, ShoppingCart, Star, MessageCircle, Send, Lock, FileText, Search } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../hooks/useCart';
@@ -39,9 +39,10 @@ interface ChatMessage {
 interface ProductDetailProps {
   productId: string;
   onClose: () => void;
+  onCategoryFilter?: (category: string) => void; // ← NEU
 }
 
-export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose }) => {
+export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose, onCategoryFilter }) => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { addToCart } = useCart();
@@ -62,7 +63,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
   const [showCartAdded, setShowCartAdded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // ── eBay Anfrage-Formular State ──
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [quoteSent, setQuoteSent] = useState(false);
   const [quoteLoading, setQuoteLoading] = useState(false);
@@ -93,11 +93,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
 
   const loadOpenAIKey = async () => {
     try {
-      const { data } = await supabase
-        .from('admin_settings')
-        .select('value')
-        .eq('key', 'openai_api_key')
-        .maybeSingle();
+      const { data } = await supabase.from('admin_settings').select('value').eq('key', 'openai_api_key').maybeSingle();
       if (data?.value) initializeOpenAI(data.value);
     } catch (error) {
       console.error('Error loading API key:', error);
@@ -106,11 +102,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
 
   const fetchProductDetails = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', productId)
-        .single();
+      const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
       if (error) throw error;
       setProduct(data);
     } catch (error) {
@@ -122,11 +114,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
 
   const fetchReviews = async () => {
     try {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*')
-        .eq('product_id', productId)
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('reviews').select('*').eq('product_id', productId).order('created_at', { ascending: false });
       if (error) throw error;
       setReviews(data || []);
       if (data && data.length > 0) {
@@ -141,17 +129,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
   const fetchChatHistory = async () => {
     if (!user) return;
     try {
-      const { data, error } = await supabase
-        .from('product_chats')
-        .select('*')
-        .eq('product_id', productId)
-        .eq('user_id', user.id)
-        .maybeSingle();
+      const { data, error } = await supabase.from('product_chats').select('*').eq('product_id', productId).eq('user_id', user.id).maybeSingle();
       if (error && error.code !== 'PGRST116') throw error;
-      if (data) {
-        setChatMessages(data.messages || []);
-        setQuestionCount(data.question_count || 0);
-      }
+      if (data) { setChatMessages(data.messages || []); setQuestionCount(data.question_count || 0); }
     } catch (error) {
       console.error('Error fetching chat history:', error);
     }
@@ -171,9 +151,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       const newAssistantMessage: ChatMessage = { role: 'assistant', content: response, timestamp: Date.now() };
       const updatedMessages = [...chatMessages, newUserMessage, newAssistantMessage];
       const updatedCount = questionCount + 1;
-      const { data: existingChat } = await supabase
-        .from('product_chats').select('id')
-        .eq('product_id', productId).eq('user_id', user.id).maybeSingle();
+      const { data: existingChat } = await supabase.from('product_chats').select('id').eq('product_id', productId).eq('user_id', user.id).maybeSingle();
       if (existingChat) {
         await supabase.from('product_chats').update({ messages: updatedMessages, question_count: updatedCount }).eq('id', existingChat.id);
       } else {
@@ -194,11 +172,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     if (!user || !product) return;
     try {
       const { error } = await supabase.from('reviews').insert({
-        product_id: productId,
-        user_id: user.id,
-        rating: reviewForm.rating,
-        comment: reviewForm.comment,
-        reviewer_name: reviewForm.reviewer_name || 'Anonyme',
+        product_id: productId, user_id: user.id, rating: reviewForm.rating,
+        comment: reviewForm.comment, reviewer_name: reviewForm.reviewer_name || 'Anonyme',
       });
       if (error) throw error;
       setShowReviewForm(false);
@@ -229,11 +204,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     if (!messageText.trim()) return;
     try {
       const { error } = await supabase.from('notifications').insert({
-        user_id: user.id,
-        product_id: productId,
-        type: 'message',
-        message: messageText,
-        read: false,
+        user_id: user.id, product_id: productId, type: 'message', message: messageText, read: false,
       });
       if (error) throw error;
       setMessageText('');
@@ -244,7 +215,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     }
   };
 
-  // ── eBay Anfrage absenden ──
   const handleSubmitQuote = async () => {
     if (!quoteForm.customer_name || !quoteForm.customer_phone) {
       alert('Bitte Name und Telefonnummer angeben.');
@@ -271,40 +241,36 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     }
   };
 
-  // ── Badge je source_type ──
+  // ── Badge je source_type ──────────────────────────────────────────────────
   const SourceBadge = () => {
     if (!product) return null;
     const badges = {
       own:    { label: 'GLB Produkt',    color: 'bg-[#0A5EB0] text-white' },
-      vendor: { label: 'Händler',         color: 'bg-[#00A86B] text-white' },
-      ebay:   { label: 'eBay – Anfrage nötig', color: 'bg-orange-500 text-white' },
+      vendor: { label: 'Händler',        color: 'bg-[#00A86B] text-white' },
+      ebay:   { label: 'eBay Import',    color: 'bg-orange-500 text-white' },
     };
     const b = badges[product.source_type] || badges.own;
-    return (
-      <span className={`text-xs font-bold px-2 py-1 rounded-full ${b.color}`}>
-        {b.label}
-      </span>
-    );
+    return <span className={`text-xs font-bold px-2 py-1 rounded-full ${b.color}`}>{b.label}</span>;
   };
 
-  // ── Aktions-Buttons je source_type ──
+  // ── Aktions-Buttons ───────────────────────────────────────────────────────
   const ActionButtons = () => {
     if (!product) return null;
 
     if (product.source_type === 'ebay') {
       return (
         <div className="space-y-3">
-          {product.ebay_url && (
-            <a
-              href={product.ebay_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-3 border-2 border-orange-400 text-orange-500 rounded-lg font-bold hover:bg-orange-50 transition"
-            >
-              <ExternalLink className="w-5 h-5" />
-              {t('view_on_ebay')}
-            </a>
-          )}
+          {/* ── "Ähnliche Produkte" statt "Voir sur eBay" ─────────────── */}
+          <button
+            onClick={() => {
+              onClose();
+              onCategoryFilter?.(product.category);
+            }}
+            className="w-full flex items-center justify-center gap-2 py-3 border-2 border-[#0A5EB0] text-[#0A5EB0] rounded-lg font-bold hover:bg-blue-50 transition"
+          >
+            <Search className="w-5 h-5" />
+            Ähnliche Produkte anzeigen
+          </button>
 
           {quoteSent ? (
             <div className="bg-green-50 border border-green-300 text-green-700 rounded-lg p-4 text-center font-bold">
@@ -323,53 +289,28 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
           {showQuoteForm && !quoteSent && (
             <div className="border-2 border-orange-200 rounded-xl p-4 space-y-3 bg-orange-50">
               <h4 className="font-bold text-[#1C1C1C]">{t('quote_form_title')}</h4>
-              <input
-                type="text"
-                placeholder={t('quote_name_placeholder')}
-                value={quoteForm.customer_name}
+              <input type="text" placeholder={t('quote_name_placeholder')} value={quoteForm.customer_name}
                 onChange={e => setQuoteForm({ ...quoteForm, customer_name: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm"
-              />
-              <input
-                type="tel"
-                placeholder={t('quote_phone_placeholder')}
-                value={quoteForm.customer_phone}
+                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm" />
+              <input type="tel" placeholder={t('quote_phone_placeholder')} value={quoteForm.customer_phone}
                 onChange={e => setQuoteForm({ ...quoteForm, customer_phone: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm"
-              />
-              <input
-                type="text"
-                placeholder={t('quote_location_placeholder')}
-                value={quoteForm.customer_location}
+                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm" />
+              <input type="text" placeholder={t('quote_location_placeholder')} value={quoteForm.customer_location}
                 onChange={e => setQuoteForm({ ...quoteForm, customer_location: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm"
-              />
-              <input
-                type="number"
-                placeholder={t('quote_price_placeholder')}
-                value={quoteForm.price_proposal}
+                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm" />
+              <input type="number" placeholder={t('quote_price_placeholder')} value={quoteForm.price_proposal}
                 onChange={e => setQuoteForm({ ...quoteForm, price_proposal: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm"
-              />
-              <textarea
-                placeholder={t('quote_message_placeholder')}
-                value={quoteForm.message}
+                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm" />
+              <textarea placeholder={t('quote_message_placeholder')} value={quoteForm.message}
                 onChange={e => setQuoteForm({ ...quoteForm, message: e.target.value })}
-                rows={3}
-                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm resize-none"
-              />
+                rows={3} className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm resize-none" />
               <div className="flex gap-2">
-                <button
-                  onClick={handleSubmitQuote}
-                  disabled={quoteLoading}
-                  className="flex-1 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition disabled:opacity-50"
-                >
+                <button onClick={handleSubmitQuote} disabled={quoteLoading}
+                  className="flex-1 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition disabled:opacity-50">
                   {quoteLoading ? t('quote_sending') : t('quote_submit')}
                 </button>
-                <button
-                  onClick={() => setShowQuoteForm(false)}
-                  className="flex-1 py-2 border border-[#E5E5E5] rounded-lg font-bold text-gray-600 hover:bg-gray-100 transition"
-                >
+                <button onClick={() => setShowQuoteForm(false)}
+                  className="flex-1 py-2 border border-[#E5E5E5] rounded-lg font-bold text-gray-600 hover:bg-gray-100 transition">
                   {t('cancel')}
                 </button>
               </div>
@@ -386,20 +327,14 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
             {t('added_to_cart') || 'Produit ajouté au panier!'}
           </div>
         )}
-        <button
-          onClick={handleAddToCart}
-          disabled={addingToCart}
-          className="w-full flex items-center justify-center space-x-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed text-[#1C1C1C] shadow-md hover:shadow-lg"
-        >
+        <button onClick={handleAddToCart} disabled={addingToCart}
+          className="w-full flex items-center justify-center space-x-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed text-[#1C1C1C] shadow-md hover:shadow-lg">
           <ShoppingCart className="w-5 h-5" />
           <span>{addingToCart ? t('adding_to_cart') : t('add_to_cart')}</span>
         </button>
-
         {user && (
-          <button
-            onClick={() => setShowChat(!showChat)}
-            className="w-full flex items-center justify-center space-x-2 py-3 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg font-bold transition shadow-md hover:shadow-lg"
-          >
+          <button onClick={() => setShowChat(!showChat)}
+            className="w-full flex items-center justify-center space-x-2 py-3 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg font-bold transition shadow-md hover:shadow-lg">
             <MessageCircle className="w-5 h-5" />
             <span>{t('ask_question')}</span>
           </button>
@@ -477,7 +412,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                 <p className="text-gray-600">{product.description}</p>
               </div>
 
-              {/* Nachricht schreiben – nur für own/vendor */}
               {product.source_type !== 'ebay' && (
                 <div className="mb-6 bg-[#E5E5E5] bg-opacity-30 border border-[#E5E5E5] rounded-lg p-4">
                   <h3 className="text-lg font-bold text-[#1C1C1C] mb-3">{t('write_message')}</h3>
@@ -495,18 +429,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                     </div>
                   )}
                   <div className="space-y-2">
-                    <textarea
-                      value={messageText}
-                      onChange={(e) => setMessageText(e.target.value)}
-                      placeholder={t('message_placeholder')}
-                      rows={3}
-                      disabled={!user}
-                      className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-none"
-                    />
-                    <button
-                      onClick={handleSendMessage}
-                      className="w-full flex items-center justify-center space-x-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition text-[#1C1C1C]"
-                    >
+                    <textarea value={messageText} onChange={(e) => setMessageText(e.target.value)}
+                      placeholder={t('message_placeholder')} rows={3} disabled={!user}
+                      className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-none" />
+                    <button onClick={handleSendMessage}
+                      className="w-full flex items-center justify-center space-x-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition text-[#1C1C1C]">
                       <MessageCircle className="w-5 h-5" />
                       <span>{t('send_message')}</span>
                     </button>
@@ -514,18 +441,19 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                 </div>
               )}
 
-              {/* Preis */}
+              {/* ── Preis: immer anzeigen, kein "Prix sur demande" ────────── */}
               <div className="text-4xl font-bold text-[#00A86B] mb-6">
-                {product.source_type === 'ebay'
-                  ? <span className="text-2xl text-orange-500">{t('price_on_request')}</span>
-                  : `${product.sale_price.toFixed(2)} €`
+                {product.sale_price > 0
+                  ? `${product.sale_price.toFixed(2)} €`
+                  : <span className="text-2xl text-gray-400">–</span>
                 }
+                {product.source_type === 'ebay' && (
+                  <span className="block text-sm text-orange-500 font-normal mt-1">GLB-Preis inkl. 20% Aufschlag</span>
+                )}
               </div>
 
-              {/* Aktions-Buttons */}
               <ActionButtons />
 
-              {/* AI Chat – nur für own/vendor */}
               {product.source_type !== 'ebay' && showChat && user && (
                 <div className="mt-4 border-2 border-[#0A5EB0] rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -543,28 +471,18 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                   </div>
                   {questionCount < 3 ? (
                     <div className="flex space-x-2">
-                      <input
-                        type="text"
-                        value={userQuestion}
-                        onChange={(e) => setUserQuestion(e.target.value)}
+                      <input type="text" value={userQuestion} onChange={(e) => setUserQuestion(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleAskQuestion()}
-                        placeholder={t('type_your_question')}
-                        disabled={chatLoading}
-                        className="flex-1 px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0]"
-                      />
-                      <button
-                        onClick={handleAskQuestion}
-                        disabled={chatLoading || !userQuestion.trim()}
-                        className="px-4 py-2 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg transition disabled:opacity-50 font-bold"
-                      >
+                        placeholder={t('type_your_question')} disabled={chatLoading}
+                        className="flex-1 px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0]" />
+                      <button onClick={handleAskQuestion} disabled={chatLoading || !userQuestion.trim()}
+                        className="px-4 py-2 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg transition disabled:opacity-50 font-bold">
                         <Send className="w-5 h-5" />
                       </button>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => { const msg = encodeURIComponent(`Bonjour, j'ai des questions sur le produit: ${product.name}`); window.open(`https://wa.me/?text=${msg}`, '_blank'); }}
-                      className="w-full py-3 bg-[#DC241F] hover:bg-[#b51d19] text-white rounded-lg font-medium transition"
-                    >
+                    <button onClick={() => { const msg = encodeURIComponent(`Bonjour, j'ai des questions sur le produit: ${product.name}`); window.open(`https://wa.me/?text=${msg}`, '_blank'); }}
+                      className="w-full py-3 bg-[#DC241F] hover:bg-[#b51d19] text-white rounded-lg font-medium transition">
                       {t('contact_support')}
                     </button>
                   )}
@@ -591,7 +509,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                   <label className="block text-sm font-bold text-[#1C1C1C] mb-2">{t('your_rating')}</label>
                   <div className="flex space-x-1">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <button key={star} type="button" onClick={() => setReviewForm({ ...reviewForm, rating: star })} className="focus:outline-none">
+                      <button key={star} type="button" onClick={() => setReviewForm({ ...reviewForm, rating: star })}>
                         <Star className={`w-8 h-8 ${star <= reviewForm.rating ? 'fill-[#FBDE4A] text-[#FBDE4A]' : 'text-gray-300'}`} />
                       </button>
                     ))}
@@ -599,13 +517,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                 </div>
                 <div className="mb-3">
                   <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('your_review')}</label>
-                  {/* ✅ FIX 3: resize-none hinzugefügt */}
-                  <textarea
-                    value={reviewForm.comment}
-                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                    rows={3}
-                    className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] resize-none"
-                  />
+                  <textarea value={reviewForm.comment} onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    rows={3} className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] resize-none" />
                 </div>
                 <div className="mb-3">
                   <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('your_name_optional')}</label>
@@ -644,7 +557,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
           </div>
         </div>
       </div>
-
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );

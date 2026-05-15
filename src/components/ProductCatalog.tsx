@@ -179,6 +179,13 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
     }
     return undefined;
   };
+  
+    // ── NEU: Kategorie-Filter für "Ähnliche Produkte" ─────────────────────────
+  const handleCategoryFilter = (category: string) => {
+    setSelectedCategory(category);
+    setSelectedProductId(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const toggleCategory = (categoryId: string) => {
     const newExpanded = new Set(expandedCategories);
@@ -338,6 +345,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
               onViewDetails={setSelectedProductId}
               onAuthRequired={() => setShowAuthModal(true)}
               onCartOpen={onCartOpen}
+              onCategoryFilter={handleCategoryFilter}
             />
           ))}
         </div>
@@ -347,6 +355,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
         <ProductDetail
           productId={selectedProductId}
           onClose={() => setSelectedProductId(null)}
+          onCategoryFilter={handleCategoryFilter}
         />
       )}
 

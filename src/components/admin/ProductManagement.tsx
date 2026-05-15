@@ -6,6 +6,13 @@ import { translateLongText } from '../../lib/translateText';
 import { translateToLingala, getCategoryLingala } from '../../lib/lingalaTranslate';
 import { categoryTranslations } from '../../lib/translateProduct';
 
+interface Category {
+  id: string;
+  name_de: string;
+  name_fr: string;
+  name_ln: string;
+  parent_id: string | null;
+}
 interface Product {
   id?: string;
   name: string;
@@ -33,7 +40,6 @@ interface ProductManagementProps {
   onEbayImport?: () => void;
 }
 
-const categories = ['electronics', 'clothing', 'furniture', 'household', 'auto_motor', 'other'];
 const conditions = ['new', 'very_good', 'good', 'acceptable'];
 
 export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImport }) => {
@@ -68,6 +74,20 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase
+      .from('categories')
+      .select('id, name_de, name_fr, name_ln, parent_id')
+      .order('parent_id', { ascending: true, nullsFirst: true });
+    setCategories(data || []);
+  };
 
   const fetchProducts = async () => {
     const { data } = await supabase
@@ -293,9 +313,23 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="px-4 py-2 border rounded-lg"
               >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{t(cat)}</option>
-                ))}
+                <option value="">-- Kategorie wählen --</option>
+                {categories
+                  .filter(cat => cat.parent_id === null)
+                  .map(parent => (
+                    <optgroup key={parent.id} label={`── ${parent.name_de}`}>
+                      <option value={parent.id}>{parent.name_de}</option>
+                      {categories
+                        .filter(sub => sub.parent_id === parent.id)
+                        .map(sub => (
+                          <option key={sub.id} value={sub.id}>
+                            &nbsp;&nbsp;&nbsp;{sub.name_de}
+                          </option>
+                        ))
+                      }
+                    </optgroup>
+                  ))
+                }
               </select>
               <input
                 type="number"

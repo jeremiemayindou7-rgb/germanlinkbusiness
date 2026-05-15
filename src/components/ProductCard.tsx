@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, MapPin, MessageCircle } from 'lucide-react';
+import { ShoppingCart, MapPin, MessageCircle, Search } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
@@ -20,9 +20,9 @@ interface Product {
   category_ln?: string;
   sale_price: number;
   condition: string;
-  image_url: string | null; // ← null erlaubt
+  image_url: string | null;
   stock_status: string;
-  source_type?: 'own' | 'ebay' | 'vendor'; // ← NEU für Badge
+  source_type?: 'own' | 'ebay' | 'vendor';
 }
 
 interface ProductCardProps {
@@ -30,13 +30,15 @@ interface ProductCardProps {
   onViewDetails?: (productId: string) => void;
   onAuthRequired?: () => void;
   onCartOpen?: () => void;
+  onCategoryFilter?: (category: string) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onViewDetails,
   onAuthRequired,
-  onCartOpen
+  onCartOpen,
+  onCategoryFilter,
 }) => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
@@ -46,10 +48,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [imageError, setImageError] = useState(false);
 
   const productName = product[`name_${language}` as keyof Product] as string
-  || product.name
-  || '';
+    || product.name || '';
 
-  // ── Bild-Logik: NULL oder kaputt → GLB Logo ──
   const fallbackImage = '/glblogo.png';
   const showFallback = !product.image_url || imageError;
   const imageSrc = showFallback ? fallbackImage : product.image_url!;
@@ -61,10 +61,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     try {
       await addToCart(product.id);
       setShowAdded(true);
-      setTimeout(() => {
-        setShowAdded(false);
-        onCartOpen?.();
-      }, 800);
+      setTimeout(() => { setShowAdded(false); onCartOpen?.(); }, 800);
     } catch (error: any) {
       alert(error.message || 'Erreur lors de l\'ajout au panier');
     } finally {
@@ -81,6 +78,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     window.open(`https://wa.me/4917622896160?text=${message}`, '_blank');
   };
 
+  const handleSimilarProducts = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCategoryFilter?.(product.category);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-[#E5E5E5]">
       <div
@@ -91,22 +93,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           src={imageSrc}
           alt={productName}
           className={`absolute inset-0 w-full h-full transition-transform duration-300 hover:scale-105 ${
-            showFallback
-              ? 'object-contain p-6 opacity-70' // GLB Logo zentriert + etwas transparent
-              : 'object-cover'
+            showFallback ? 'object-contain p-6 opacity-70' : 'object-cover'
           }`}
           loading="lazy"
-          onError={() => setImageError(true)} // ← kaputte URLs → Fallback
+          onError={() => setImageError(true)}
         />
-
-        {/* Condition Badge */}
         <div className="absolute top-3 right-3">
           <span className="bg-[#F4B400] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
             {t(product.condition)}
           </span>
         </div>
-
-        {/* Source Badge – nur für eBay */}
         {product.source_type === 'ebay' && (
           <div className="absolute top-3 left-3">
             <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow">
@@ -124,13 +120,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {productName}
         </h3>
 
+        {/* ── Preis immer anzeigen ───────────────────────────────────────── */}
         <div className="flex items-center justify-between mb-3">
           <div className="text-2xl font-bold text-[#0A5EB0]">
-            {product.source_type === 'ebay'
-              ? <span className="text-lg text-orange-500">Auf Anfrage</span>
-              : `${product.sale_price.toFixed(2)} €`
+            {product.sale_price > 0
+              ? `${product.sale_price.toFixed(2)} €`
+              : <span className="text-lg text-gray-400">–</span>
             }
           </div>
+          {product.source_type === 'ebay' && (
+            <span className="text-xs text-orange-500 font-semibold bg-orange-50 px-2 py-0.5 rounded-full">
+              GLB-Preis
+            </span>
+          )}
         </div>
 
         <div className="flex items-center text-sm text-gray-600 mb-4">
@@ -153,13 +155,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <span>{t('contact_seller') || 'Contacter'}</span>
           </button>
 
-          {/* eBay → "Anfragen", sonst → Warenkorb */}
+          {/* eBay → Ähnliche Produkte (gleiche Kategorie), sonst → Warenkorb */}
           {product.source_type === 'ebay' ? (
             <button
-              onClick={() => onViewDetails?.(product.id)}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold text-sm transition-all shadow-md hover:shadow-lg"
+              onClick={handleSimilarProducts}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#0A5EB0] hover:bg-[#094da0] text-white rounded-lg font-bold text-sm transition-all shadow-md hover:shadow-lg"
             >
-              <span>Anfragen</span>
+              <Search className="w-4 h-4" />
+              <span>Ähnliche</span>
             </button>
           ) : (
             <button
