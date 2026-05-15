@@ -91,9 +91,27 @@ export const QuoteRequestsManagement: React.FC = () => {
 
       if (error) throw error;
 
-      alert(`Status auf "${STATUS_LABELS[newStatus]?.label}" gesetzt ✅`);
+      // ── Option A: WhatsApp automatisch öffnen bei "Angebot gesendet" ──
+      if (newStatus === 'offer_sent' && offerAmount) {
+        const productName = selected.product?.name || 'das Produkt';
+        const phone = selected.customer_phone.replace(/\D/g, '');
+        const message = encodeURIComponent(
+          `Bonjour ${selected.customer_name} 👋\n\n` +
+          `Voici notre offre pour *${productName}*:\n\n` +
+          `💰 *Prix total: ${parseFloat(offerAmount).toFixed(2)} €*\n` +
+          `(inkl. Transport & Verzollung bis Kinshasa/Brazzaville)\n\n` +
+          `Pour confirmer votre commande, veuillez effectuer le paiement via UBA.\n\n` +
+          `Merci de votre confiance 🙏\n` +
+          `— GermanLink Business`
+        );
+        window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+      }
+
       await fetchRequests();
-      setSelected(prev => prev ? { ...prev, status: newStatus as any, admin_notes: adminNotes, offer_amount: offerAmount ? parseFloat(offerAmount) : null } : null);
+      setSelected(prev => prev
+        ? { ...prev, status: newStatus as any, admin_notes: adminNotes, offer_amount: offerAmount ? parseFloat(offerAmount) : null }
+        : null
+      );
     } catch (err: any) {
       alert('Fehler: ' + err.message);
     } finally {
