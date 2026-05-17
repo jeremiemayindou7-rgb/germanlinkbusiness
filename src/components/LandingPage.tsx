@@ -827,11 +827,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
           <div className="border-t border-gray-800 pt-8">
             <div className="text-center mb-4">
-              <button
-                onClick={() => window.location.href = '/agb'}
-                className="text-gray-400 hover:text-white underline bg-transparent border-none cursor-pointer"
-              >
-                AGB & Lieferbedingungen
+              <button onClick={() => window.location.href = '/agb'}
+                className="text-gray-400 hover:text-white underline bg-transparent border-none cursor-pointer">
+                {language === 'de' ? 'AGB & Lieferbedingungen' : language === 'fr' ? 'CGV & Conditions de livraison' : 'Mibeko ya vente & livraison'}
+              </button> - 
+              <button onClick={() => window.location.href = '/how-it-works'}
+                className="text-gray-400 hover:text-white underline bg-transparent border-none cursor-pointer mr-4">
+                {language === 'de' ? 'So funktioniert GLB' : language === 'fr' ? 'Comment fonctionne GLB' : 'Ndenge GLB esalaka'}
               </button>
             </div>
             <div className="text-center text-gray-400">

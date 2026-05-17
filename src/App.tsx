@@ -20,6 +20,7 @@ import { SellerApplyForm } from './components/SellerApplyForm';
 import { SellerDashboard } from './components/SellerDashboard';
 // ── NEU: eBay Import Page ──────────────────────────────────────────────────
 import { EbayImportPage } from './components/EbayImportPage';
+import { HowItWorksPage } from './components/HowItWorksPage';
 
 function AppContent() {
   const { user } = useAuth();
@@ -40,6 +41,18 @@ function AppContent() {
     const path = window.location.pathname;
     setCurrentRoute(path);
     if (path === '/auth/confirm' || path === '/agb') return;
+
+      // ── NEU: How it works & Impressum ─────────────────────────────
+    if (path === '/how-it-works') {
+      setShowLanding(false);
+      setActiveView('how-it-works');
+      return;
+    }
+    if (path === '/impressum') {
+      setShowLanding(false);
+      setActiveView('impressum');
+      return;
+    }
     const params = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     if (params.get('reset') === 'true' || hashParams.get('type') === 'recovery') {
@@ -85,6 +98,13 @@ function AppContent() {
   };
 
   const renderMain = () => {
+    // ── NEU: How it works & Impressum ─────────────────────────
+    if (activeView === 'how-it-works') {
+      return <HowItWorksPage />;
+    }
+    if (activeView === 'impressum') {
+      return <HowItWorksPage initialTab="impressum" />;
+    }
     // ── eBay Import View ───────────────────────────────────────────────────
     if (activeView === 'ebay-import') {
       return (
