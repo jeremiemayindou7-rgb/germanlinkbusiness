@@ -100,11 +100,16 @@ function AppContent() {
   const renderMain = () => {
     // ── NEU: How it works & Impressum ─────────────────────────
     if (activeView === 'how-it-works') {
+      if (!user) {
+        setAuthModalOpen(true);
+        setActiveView('dashboard');
+        return null;
+      }
       return <HowItWorksPage />;
     }
     if (activeView === 'impressum') {
       return <HowItWorksPage initialTab="impressum" />;
-    }
+}
     // ── eBay Import View ───────────────────────────────────────────────────
     if (activeView === 'ebay-import') {
       return (
