@@ -67,7 +67,13 @@ function AppContent() {
   if (showLanding) {
     return (
       <>
-        <LandingPage onGetStarted={() => setShowLanding(false)} />
+        <LandingPage
+          onGetStarted={() => setShowLanding(false)}
+          onHowItWorks={() => {
+            setShowLanding(false);
+            setActiveView('how-it-works');
+          }}
+        />
         <ChatBot />
       </>
     );

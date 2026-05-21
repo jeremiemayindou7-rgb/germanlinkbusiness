@@ -3,6 +3,7 @@ import { Shield } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
+  onHowItWorks?: () => void;
 }
 
 type Language = 'de' | 'fr' | 'ln';
@@ -301,7 +302,7 @@ const translations = {
   },
 };
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onHowItWorks }) => {
   const [language, setLanguage] = useState<Language>('fr');
 
   useEffect(() => {
@@ -580,7 +581,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <button onClick={() => window.location.href = '/agb'} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
               {t.footer.agb}
             </button>
-            <button onClick={() => window.location.href = '/how-it-works'} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
+            <button
+              onClick={() => {
+                if (onHowItWorks) {
+                  onHowItWorks();
+                } else {
+                  onGetStarted();
+                }
+              }}
+              style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
               {t.footer.how}
             </button>
           </div>
