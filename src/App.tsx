@@ -18,7 +18,6 @@ import MarketplaceSearch from './components/MarketplaceSearch';
 import AGBPage from './components/AGBPage';
 import { SellerApplyForm } from './components/SellerApplyForm';
 import { SellerDashboard } from './components/SellerDashboard';
-// ── NEU: eBay Import Page ──────────────────────────────────────────────────
 import { EbayImportPage } from './components/EbayImportPage';
 import { HowItWorksPage } from './components/HowItWorksPage';
 
@@ -33,16 +32,17 @@ function AppContent() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [currentRoute, setCurrentRoute] = useState<string>('/');
   const [activeTab, setActiveTab] = useState('home');
-  // ── 'ebay-import' als neuer View-State hinzugefügt ───────────────────────
   const [activeView, setActiveView] = useState('dashboard');
   const [showSellerApply, setShowSellerApply] = useState(false);
+
+  // ── NEW: mobile sidebar drawer state ──────────────────────────────────────
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   React.useEffect(() => {
     const path = window.location.pathname;
     setCurrentRoute(path);
     if (path === '/auth/confirm' || path === '/agb') return;
 
-      // ── NEU: How it works & Impressum ─────────────────────────────
     if (path === '/how-it-works') {
       setShowLanding(false);
       setActiveView('how-it-works');
@@ -61,12 +61,9 @@ function AppContent() {
     }
   }, []);
 
-  if (currentRoute === '/auth/confirm') {
-    return <PasswordConfirm />;
-  }
-  if (currentRoute === '/agb') {
-    return <AGBPage />;
-  }
+  if (currentRoute === '/auth/confirm') return <PasswordConfirm />;
+  if (currentRoute === '/agb') return <AGBPage />;
+
   if (showLanding) {
     return (
       <>
@@ -98,7 +95,6 @@ function AppContent() {
   };
 
   const renderMain = () => {
-    // ── NEU: How it works & Impressum ─────────────────────────
     if (activeView === 'how-it-works') {
       if (!user) {
         setAuthModalOpen(true);
@@ -107,74 +103,36 @@ function AppContent() {
       }
       return <HowItWorksPage />;
     }
-    if (activeView === 'impressum') {
-      return <HowItWorksPage initialTab="impressum" />;
-}
-    // ── eBay Import View ───────────────────────────────────────────────────
-    if (activeView === 'ebay-import') {
-      return (
-        <EbayImportPage
-          onBack={() => setActiveView('dashboard')}
-          onSaved={() => setActiveView('dashboard')}
-        />
-      );
-    }
-
+    if (activeView === 'impressum') return <HowItWorksPage initialTab="impressum" />;
+    if (activeView === 'ebay-import') return (
+      <EbayImportPage
+        onBack={() => setActiveView('dashboard')}
+        onSaved={() => setActiveView('dashboard')}
+      />
+    );
     if (activeView === 'marketplace') return <MarketplaceSearch />;
-
     if (activeView === 'seller') return (
       <div className="max-w-4xl mx-auto px-4 py-6">
-
-        {/* ── Seller Banner ── */}
         <div className="bg-gradient-to-r from-[#0A5EB0] to-[#1a7fd4] rounded-2xl p-6 mb-6 text-white shadow-lg">
           <div className="flex items-start justify-between flex-wrap gap-4">
-
             <div className="flex-1">
-              {/* Titel */}
-              <h1 className="text-2xl font-bold mb-1">
-                🇩🇪 Seller-Programm
-              </h1>
-              <p className="text-blue-100 text-sm mb-5">
-                Verkaufe Produkte aus Deutschland nach Afrika – GLB liefert
-              </p>
-
-              {/* 3 Vorteils-Kacheln */}
+              <h1 className="text-2xl font-bold mb-1">🇩🇪 Seller-Programm</h1>
+              <p className="text-blue-100 text-sm mb-5">Verkaufe Produkte aus Deutschland nach Afrika – GLB liefert</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-
                 <div className="bg-white/10 rounded-xl px-4 py-3">
-                  <p className="text-white font-semibold text-sm mb-1">
-                    🌍 Zugang zum afrikanischen Markt
-                  </p>
-                  <p className="text-blue-100 text-xs leading-relaxed">
-                    Erreiche Käufer in Kinshasa, Brazzaville, Matadi und Pointe-Noire,
-                    die bereit sind, in deutsche Qualität zu investieren.
-                  </p>
+                  <p className="text-white font-semibold text-sm mb-1">🌍 Zugang zum afrikanischen Markt</p>
+                  <p className="text-blue-100 text-xs leading-relaxed">Erreiche Käufer in Kinshasa, Brazzaville, Matadi und Pointe-Noire.</p>
                 </div>
-
                 <div className="bg-white/10 rounded-xl px-4 py-3">
-                  <p className="text-white font-semibold text-sm mb-1">
-                    💶 Du verkaufst — wir zahlen dich aus
-                  </p>
-                  <p className="text-blue-100 text-xs leading-relaxed">
-                    GLB übernimmt Abholung, Verpackung, Transport und Lieferung
-                    bis nach Afrika. Kein Aufwand für dich.
-                  </p>
+                  <p className="text-white font-semibold text-sm mb-1">💶 Du verkaufst — wir zahlen dich aus</p>
+                  <p className="text-blue-100 text-xs leading-relaxed">GLB übernimmt Abholung, Verpackung, Transport und Lieferung bis nach Afrika.</p>
                 </div>
-
                 <div className="bg-white/10 rounded-xl px-4 py-3">
-                  <p className="text-white font-semibold text-sm mb-1">
-                    🏢 Privat oder Unternehmen
-                  </p>
-                  <p className="text-blue-100 text-xs leading-relaxed">
-                    Ob Privatperson oder Händler — verkaufe zuverlässig
-                    und sicher nach Kongo und ganz Afrika.
-                  </p>
+                  <p className="text-white font-semibold text-sm mb-1">🏢 Privat oder Unternehmen</p>
+                  <p className="text-blue-100 text-xs leading-relaxed">Ob Privatperson oder Händler — verkaufe zuverlässig nach Kongo und ganz Afrika.</p>
                 </div>
-
               </div>
             </div>
-
-            {/* Bewerben Button */}
             {user && (
               <div className="shrink-0 self-start">
                 <button
@@ -187,7 +145,6 @@ function AppContent() {
             )}
           </div>
         </div>
-
         <SellerDashboard />
       </div>
     );
@@ -197,17 +154,25 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header receives onMenuClick to open the drawer */}
       <Header
         onAuthClick={() => setAuthModalOpen(true)}
         onCartClick={() => setCartOpen(true)}
         onAdminClick={() => setAdminDashboardOpen(true)}
         onOrdersClick={() => setOrdersOpen(true)}
         onNotificationsClick={() => setNotificationsOpen(true)}
+        onMenuClick={() => setSidebarOpen(true)}
       />
 
       <div className="flex">
-        <Sidebar activeView={activeView} onViewChange={setActiveView} />
-        <main className="flex-1 pb-20 md:pb-0">
+        {/* Sidebar receives mobileOpen + onMobileClose */}
+        <Sidebar
+          activeView={activeView}
+          onViewChange={setActiveView}
+          mobileOpen={sidebarOpen}
+          onMobileClose={() => setSidebarOpen(false)}
+        />
+        <main className="flex-1 pb-20 md:pb-0 min-w-0">
           {renderMain()}
         </main>
       </div>
@@ -222,18 +187,15 @@ function AppContent() {
         isOpen={adminDashboardOpen}
         onClose={() => setAdminDashboardOpen(false)}
         onEbayImport={() => {
-          setAdminDashboardOpen(false); // Modal schließen
-          setActiveView('ebay-import'); // eBay Import Seite öffnen
+          setAdminDashboardOpen(false);
+          setActiveView('ebay-import');
         }}
       />
       <OrderTracking isOpen={ordersOpen} onClose={() => setOrdersOpen(false)} />
       <Notifications isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
       <ChatBot />
 
-      {/* Seller Bewerbungsformular */}
-      {showSellerApply && (
-        <SellerApplyForm onClose={() => setShowSellerApply(false)} />
-      )}
+      {showSellerApply && <SellerApplyForm onClose={() => setShowSellerApply(false)} />}
     </div>
   );
 }
@@ -244,9 +206,7 @@ function App() {
   if (currentRoute === '/auth/confirm') {
     return (
       <LanguageProvider>
-        <AuthProvider>
-          <PasswordConfirm />
-        </AuthProvider>
+        <AuthProvider><PasswordConfirm /></AuthProvider>
       </LanguageProvider>
     );
   }
@@ -254,9 +214,7 @@ function App() {
   if (currentRoute === '/agb') {
     return (
       <LanguageProvider>
-        <AuthProvider>
-          <AGBPage />
-        </AuthProvider>
+        <AuthProvider><AGBPage /></AuthProvider>
       </LanguageProvider>
     );
   }
@@ -271,3 +229,4 @@ function App() {
 }
 
 export default App;
+

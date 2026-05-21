@@ -1,21 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  ShoppingCart,
-  Shield,
-  Truck,
-  Award,
-  CheckCircle,
-  TrendingUp,
-  Users,
-  Building2,
-  Wrench,
-  Sparkles,
-  ArrowRight,
-  AlertCircle,
-  Target,
-  Globe,
-  ChevronDown,
-} from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -25,407 +9,296 @@ type Language = 'de' | 'fr' | 'ln';
 
 const translations = {
   de: {
-    languageNames: {
-      de: 'Deutsch',
-      fr: 'Français',
-      ln: 'Lingala'
-    },
+    languageNames: { de: 'Deutsch', fr: 'Français', ln: 'Lingala' },
+    nav: { howItWorks: 'Wie es funktioniert', categories: 'Produkte', seller: 'Verkäufer', trust: 'Über uns' },
     hero: {
-      title: 'GermanLink Business',
-      tagline: 'Deutsche Qualität. Echtes Vertrauen. Starkes Business.',
-      subtitle: 'Kaufe Originalprodukte Made in Germany – direkt aus Deutschland, sicher geliefert in den Kongo. Für dein Business. Für deine Zukunft. Für die Entwicklung deines Landes.',
-      cta: 'Jetzt starten',
-      badges: {
-        madeInGermany: 'Made in Germany',
-        secureDelivery: 'Sichere Lieferung',
-        verifiedQuality: 'Geprüfte Qualität'
-      }
+      tag: '🚢 Hamburg → Congo & DR Kongo',
+      title: 'Deutsche Produkte',
+      titleAccent: 'sicher nach Congo & DR Kongo.',
+      subtitle: 'Die Handels- und Logistikplattform zwischen Deutschland und Zentralafrika. Kaufe, verkaufe und versende deutsche Qualitätsprodukte über GLB.',
+      btn1: '🛒 Produkte kaufen',
+      btn2: '📦 Produkte verkaufen',
+      btn3: '🚢 Container versenden',
+      stat1num: '200+', stat1label: 'Händler im Netzwerk',
+      stat2num: '12×', stat2label: 'Container pro Jahr',
+      stat3num: '4', stat3label: 'Städte in Congo',
+      stat4num: '3', stat4label: 'Sprachen Support',
     },
-    problem: {
-      title: 'Das Problem',
-      subtitle: 'Zu viele Unternehmer und Händler verlieren Geld durch:',
-      points: [
-        {
-          title: 'Billige Produkte ohne Qualität',
-          description: 'Minderwertige Waren, die schnell kaputt gehen und dein Business schädigen'
-        },
-        {
-          title: 'Gefährliche oder gefälschte Waren',
-          description: 'Unsichere Produkte ohne Zertifikate, die deine Kunden gefährden'
-        },
-        {
-          title: 'Fehlende Garantie und kein Vertrauen',
-          description: 'Keine Sicherheit, kein Support, keine langfristige Perspektive'
-        }
+    how: {
+      tag: 'Ablauf',
+      title: 'Wie funktioniert GLB?',
+      subtitle: 'Von der Anfrage bis zur Lieferung in Kinshasa oder Brazzaville — transparent und sicher.',
+      route: ['🇩🇪 Hamburg', '✈️ Luftfracht / Seeweg', '🇨🇬 Pointe-Noire', '🇨🇩 Matadi', '🏙️ BZV & KIN'],
+      steps: [
+        { num: '1', icon: '🔍', title: 'Produkt auswählen', desc: 'Kunden wählen Produkte aus dem Marketplace oder senden eine individuelle Anfrage.' },
+        { num: '2', icon: '✅', title: 'GLB organisiert Einkauf', desc: 'Qualitätsprüfung & sichere Zahlungsabwicklung. Vollständige Dokumentation.' },
+        { num: '3', icon: '🚢', title: 'Sammelcontainer Versand', desc: 'Monatliche Container Hamburg → Pointe-Noire / Matadi.' },
+        { num: '4', icon: '📍', title: 'Lieferung in Congo', desc: 'Lieferung bis Brazzaville & Kinshasa über unser lokales Agentennetzwerk.' },
       ],
-      conclusion: 'Das bremst Business, Wachstum und die Entwicklung des Landes.'
     },
-    solution: {
-      title: 'Die Lösung',
-      subtitle: 'GermanLink Business verbindet dich direkt mit Deutschland.',
-      features: [
-        {
-          title: 'Geprüfte deutsche Produkte',
-          description: 'Jedes Produkt wird kontrolliert und stammt direkt aus Deutschland'
-        },
-        {
-          title: 'Echte Qualität – keine Fälschungen',
-          description: 'Originalware mit Garantie und Zertifikaten'
-        },
-        {
-          title: 'Sichere Bezahlung',
-          description: 'Geschützte Zahlungsmethoden für deine Sicherheit'
-        },
-        {
-          title: 'Lieferung direkt in den Kongo',
-          description: 'Container-Versand direkt zu dir – transparent und nachverfolgbar'
-        },
-        {
-          title: 'Ideal für Händler & Unternehmer',
-          description: 'Großmengen, Geschäftskunden-Support und faire Preise'
-        },
-        {
-          title: 'Entwicklungsprojekte unterstützen',
-          description: 'Qualität für nachhaltige Entwicklung und Infrastruktur'
-        }
-      ]
-    },
-    mission: {
-      title: 'Unsere Mission',
-      subtitle: 'Afrikanische Businesses stärken – mit deutscher Qualität.',
-      whenYouBuyBetter: 'Wenn du besser einkaufst:',
-      points: [
-        {
-          title: 'Wächst dein Unternehmen',
-          description: 'Mit besserer Qualität gewinnst du mehr Kunden und steigerst deinen Umsatz'
-        },
-        {
-          title: 'Entstehen Arbeitsplätze',
-          description: 'Starke Unternehmen schaffen sichere Jobs und fördern die lokale Wirtschaft'
-        },
-        {
-          title: 'Entwickelst du dein Land nachhaltig',
-          description: 'Qualität baut Vertrauen und langfristige Perspektiven für die Zukunft'
-        }
+    why: {
+      tag: 'Warum GLB?',
+      title: 'Ihr Vertrauenspartner für den deutsch-afrikanischen Handel.',
+      subtitle: 'Wir verbinden deutsche Qualität mit afrikanischer Reichweite — zuverlässig und transparent.',
+      cards: [
+        { icon: '🇩🇪', title: 'Deutsche Qualitätskontrolle', desc: 'Alle Produkte werden vor dem Versand in Deutschland geprüft und dokumentiert.' },
+        { icon: '🚢', title: 'Sicherer Sammelcontainer', desc: 'Regelmäßige monatliche Transporte mit vollständiger Versicherung und Tracking.' },
+        { icon: '💳', title: 'Sichere Zahlungsabwicklung', desc: 'Dokumentierte und transparente Zahlungsprozesse — LemFi, UBA Bank und mehr.' },
+        { icon: '🌍', title: 'Lokales Netzwerk in Afrika', desc: 'Eigene Agenten und mehrsprachiger Support in Congo & DR Kongo vor Ort.' },
       ],
-      conclusion: 'Wenn du besser einkaufst, baust du eine bessere Zukunft.',
-      cta: 'Starte jetzt'
     },
-    whyGermany: {
-      title: 'Warum Deutschland?',
-      subtitle: 'Deutschland steht weltweit für:',
-      values: ['Qualität', 'Zuverlässigkeit', 'Technik', 'Sicherheit'],
-      conclusion: 'Mit GermanLink Business kommt dieses Vertrauen direkt zu dir – ohne Umwege.'
+    cats: {
+      tag: 'Sortiment',
+      title: 'Produktkategorien',
+      subtitle: 'Deutsche Qualitätsprodukte für den afrikanischen Markt — von Solarenergie bis Fahrzeugtechnik.',
+      items: [
+        { icon: '☀️', title: 'Solarsysteme', desc: 'Solaranlagen, Batterien & Wechselrichter' },
+        { icon: '⚙️', title: 'Agrarmaschinen', desc: 'Traktoren, Pumpen & Feldgeräte' },
+        { icon: '🔌', title: 'Generatoren', desc: 'Diesel- & Benzingeneratoren aller Klassen' },
+        { icon: '🏠', title: 'Haushaltsgeräte', desc: 'Kühlschränke, Waschmaschinen & mehr' },
+        { icon: '🛞', title: 'Reifen & Fahrzeug', desc: 'Reifen, Ersatzteile & Zubehör' },
+        { icon: '📦', title: 'Individuelle Anfrage', desc: 'Produkt nicht gefunden? Wir beschaffen es.' },
+      ],
     },
-    forWhom: {
-      title: 'Für wen ist GermanLink Business?',
-      targets: [
-        {
-          title: 'Unternehmer & Händler',
-          description: 'Erweitere dein Sortiment mit hochwertigen deutschen Produkten und gewinne das Vertrauen deiner Kunden'
-        },
-        {
-          title: 'Start-ups im Kongo',
-          description: 'Starte dein Business mit der besten Grundlage – deutsche Qualität für nachhaltigen Erfolg'
-        },
-        {
-          title: 'Bau-, Technik- & Handelsprojekte',
-          description: 'Zuverlässige Materialien und Werkzeuge für professionelle Projekte'
-        },
-        {
-          title: 'Unternehmen mit Fokus auf Qualität',
-          description: 'Für alle, die nachhaltig wachsen und echten Mehrwert schaffen wollen'
-        }
-      ]
+    seller: {
+      tag: 'Für Händler & Unternehmen',
+      title: 'Verkaufe deine Produkte nach Afrika.',
+      subtitle: 'GLB hilft deutschen Händlern und Unternehmen beim sicheren Verkauf nach Zentralafrika — ohne Vorkenntnisse über den afrikanischen Markt.',
+      benefits: [
+        'Zugang zu 90 Millionen Kunden in Zentralafrika',
+        'GLB übernimmt die gesamte Logistik & Verzollung',
+        'Sichere, dokumentierte Zahlungen',
+        'Keine Afrika-Erfahrung nötig',
+        'Marketplace-Listing + Containerlösung',
+      ],
+      btn1: 'Seller werden →',
+      btn2: 'Mehr erfahren',
+    },
+    proof: {
+      tag: 'Vertrauen & Zahlen',
+      title: 'Deutschland ↔ Congo, seit Jahren.',
+      subtitle: 'Unser Netzwerk wächst — dank zufriedener Händler und Kunden auf beiden Seiten.',
+      stats: [
+        { num: '200+', label: 'Händler im Netzwerk' },
+        { num: '12', label: 'Container pro Jahr' },
+        { num: '4', label: 'Städte in Congo' },
+        { num: '3', label: 'Sprachen Support' },
+      ],
+      testimonials: [
+        { text: 'Über GLB konnte ich endlich eine hochwertige Solaranlage aus Deutschland kaufen. Die Lieferung nach Kinshasa war reibungslos und transparent.', name: 'Jean-Pierre M.', role: 'Kunde · Kinshasa, DR Kongo' },
+        { text: 'Als Händler in Hamburg war der Einstieg in den afrikanischen Markt ohne GLB undenkbar. Sie nehmen einem die gesamte Logistik ab.', name: 'Klaus H.', role: 'Seller · Hamburg, Deutschland' },
+        { text: 'Le service est excellent. J\'ai reçu ma commande à Brazzaville dans les délais prévus. Je recommande GLB à tous.', name: 'Marie-Claire N.', role: 'Cliente · Brazzaville, Congo' },
+      ],
     },
     cta: {
-      title: 'Starte dein Business mit echter Qualität',
-      subtitle: 'Bestelle direkt aus Deutschland',
-      tagline: 'Baue Vertrauen. Baue Zukunft.',
-      button: 'Jetzt starten mit GermanLink Business',
-      lingalaQuote: 'GermanLink Business ist die direkte Verbindung zwischen Deutschland und dem Kongo. Echte Qualität. Vertrauen. Entwicklung für Unternehmen und das Land.'
+      title: 'Bereit anzufangen?',
+      subtitle: 'Kaufe, verkaufe oder versende — GLB ist deine Brücke zwischen Deutschland und Zentralafrika.',
+      btn1: '🛒 Jetzt kaufen',
+      btn2: '📦 Seller werden',
+      btn3: '📞 Kontakt aufnehmen',
     },
     footer: {
       tagline: 'Deutsche Qualität für afrikanisches Business',
-      navigation: 'Navigation',
       contact: 'Kontakt',
-      sections: {
-        problem: 'Das Problem',
-        solution: 'Die Lösung',
-        mission: 'Unsere Mission',
-        forWhom: 'Für wen?'
-      },
-      copyright: '2026 GermanLink Business. Deutsche Qualität für den Kongo.'
-    }
+      agb: 'AGB & Lieferbedingungen',
+      how: 'So funktioniert GLB',
+      copyright: '2026 GermanLink Business. Deutsche Qualität für den Kongo.',
+    },
   },
   fr: {
-    languageNames: {
-      de: 'Allemand',
-      fr: 'Français',
-      ln: 'Lingala'
-    },
+    languageNames: { de: 'Allemand', fr: 'Français', ln: 'Lingala' },
+    nav: { howItWorks: 'Comment ça marche', categories: 'Produits', seller: 'Vendeurs', trust: 'À propos' },
     hero: {
-      title: 'GermanLink Business',
-      tagline: 'Qualité allemande. Vraie confiance. Business fort.',
-      subtitle: 'Achetez des produits originaux Made in Germany – directement d\'Allemagne, livrés en toute sécurité au Congo. Pour votre business. Pour votre avenir. Pour le développement de votre pays.',
-      cta: 'Commencer maintenant',
-      badges: {
-        madeInGermany: 'Made in Germany',
-        secureDelivery: 'Livraison sécurisée',
-        verifiedQuality: 'Qualité vérifiée'
-      }
+      tag: '🚢 Hambourg → Congo & RD Congo',
+      title: 'Produits allemands',
+      titleAccent: 'livrés en sécurité au Congo & RD Congo.',
+      subtitle: 'La plateforme commerciale et logistique entre l\'Allemagne et l\'Afrique centrale. Achetez, vendez et expédiez des produits allemands de qualité via GLB.',
+      btn1: '🛒 Acheter des produits',
+      btn2: '📦 Vendre des produits',
+      btn3: '🚢 Expédier un conteneur',
+      stat1num: '200+', stat1label: 'Marchands dans le réseau',
+      stat2num: '12×', stat2label: 'Conteneurs par an',
+      stat3num: '4', stat3label: 'Villes au Congo',
+      stat4num: '3', stat4label: 'Langues de support',
     },
-    problem: {
-      title: 'Le Problème',
-      subtitle: 'Trop d\'entrepreneurs et de commerçants perdent de l\'argent à cause de:',
-      points: [
-        {
-          title: 'Produits bon marché sans qualité',
-          description: 'Marchandises de qualité inférieure qui se cassent rapidement et nuisent à votre business'
-        },
-        {
-          title: 'Marchandises dangereuses ou contrefaites',
-          description: 'Produits non sécurisés sans certificats qui mettent vos clients en danger'
-        },
-        {
-          title: 'Absence de garantie et de confiance',
-          description: 'Pas de sécurité, pas de support, pas de perspective à long terme'
-        }
+    how: {
+      tag: 'Processus',
+      title: 'Comment fonctionne GLB?',
+      subtitle: 'De la demande à la livraison à Kinshasa ou Brazzaville — transparent et sécurisé.',
+      route: ['🇩🇪 Hambourg', '✈️ Fret aérien / Maritime', '🇨🇬 Pointe-Noire', '🇨🇩 Matadi', '🏙️ BZV & KIN'],
+      steps: [
+        { num: '1', icon: '🔍', title: 'Choisir un produit', desc: 'Les clients choisissent des produits sur le marketplace ou envoient une demande individuelle.' },
+        { num: '2', icon: '✅', title: 'GLB organise l\'achat', desc: 'Contrôle qualité & paiement sécurisé. Documentation complète.' },
+        { num: '3', icon: '🚢', title: 'Expédition conteneur groupé', desc: 'Conteneurs mensuels Hambourg → Pointe-Noire / Matadi.' },
+        { num: '4', icon: '📍', title: 'Livraison au Congo', desc: 'Livraison jusqu\'à Brazzaville & Kinshasa via notre réseau d\'agents locaux.' },
       ],
-      conclusion: 'Cela freine le business, la croissance et le développement du pays.'
     },
-    solution: {
-      title: 'La Solution',
-      subtitle: 'GermanLink Business vous connecte directement avec l\'Allemagne.',
-      features: [
-        {
-          title: 'Produits allemands vérifiés',
-          description: 'Chaque produit est contrôlé et provient directement d\'Allemagne'
-        },
-        {
-          title: 'Vraie qualité – pas de contrefaçons',
-          description: 'Marchandises originales avec garantie et certificats'
-        },
-        {
-          title: 'Paiement sécurisé',
-          description: 'Méthodes de paiement protégées pour votre sécurité'
-        },
-        {
-          title: 'Livraison directe au Congo',
-          description: 'Expédition par conteneur directement chez vous – transparente et traçable'
-        },
-        {
-          title: 'Idéal pour commerçants & entrepreneurs',
-          description: 'Grandes quantités, support clients professionnels et prix équitables'
-        },
-        {
-          title: 'Soutien aux projets de développement',
-          description: 'Qualité pour le développement durable et l\'infrastructure'
-        }
-      ]
-    },
-    mission: {
-      title: 'Notre Mission',
-      subtitle: 'Renforcer les businesses africains – avec la qualité allemande.',
-      whenYouBuyBetter: 'Quand vous achetez mieux:',
-      points: [
-        {
-          title: 'Votre entreprise grandit',
-          description: 'Avec une meilleure qualité, vous gagnez plus de clients et augmentez votre chiffre d\'affaires'
-        },
-        {
-          title: 'Des emplois se créent',
-          description: 'Les entreprises fortes créent des emplois sûrs et stimulent l\'économie locale'
-        },
-        {
-          title: 'Vous développez durablement votre pays',
-          description: 'La qualité construit la confiance et des perspectives à long terme pour l\'avenir'
-        }
+    why: {
+      tag: 'Pourquoi GLB?',
+      title: 'Votre partenaire de confiance pour le commerce germano-africain.',
+      subtitle: 'Nous connectons la qualité allemande à la portée africaine — fiable et transparent.',
+      cards: [
+        { icon: '🇩🇪', title: 'Contrôle qualité allemand', desc: 'Tous les produits sont vérifiés et documentés en Allemagne avant expédition.' },
+        { icon: '🚢', title: 'Conteneur groupé sécurisé', desc: 'Transports mensuels réguliers avec assurance complète et suivi.' },
+        { icon: '💳', title: 'Paiement sécurisé', desc: 'Processus de paiement documentés et transparents — LemFi, UBA Bank et plus.' },
+        { icon: '🌍', title: 'Réseau local en Afrique', desc: 'Agents propres et support multilingue au Congo & RD Congo sur place.' },
       ],
-      conclusion: 'Quand vous achetez mieux, vous construisez un meilleur avenir.',
-      cta: 'Commencer maintenant'
     },
-    whyGermany: {
-      title: 'Pourquoi l\'Allemagne?',
-      subtitle: 'L\'Allemagne est reconnue mondialement pour:',
-      values: ['Qualité', 'Fiabilité', 'Technologie', 'Sécurité'],
-      conclusion: 'Avec GermanLink Business, cette confiance arrive directement chez vous – sans détour.'
+    cats: {
+      tag: 'Catalogue',
+      title: 'Catégories de produits',
+      subtitle: 'Produits allemands de qualité pour le marché africain — de l\'énergie solaire aux pièces automobiles.',
+      items: [
+        { icon: '☀️', title: 'Systèmes solaires', desc: 'Panneaux solaires, batteries & onduleurs' },
+        { icon: '⚙️', title: 'Machines agricoles', desc: 'Tracteurs, pompes & équipements agricoles' },
+        { icon: '🔌', title: 'Générateurs', desc: 'Générateurs diesel & essence toutes classes' },
+        { icon: '🏠', title: 'Électroménager', desc: 'Réfrigérateurs, machines à laver & plus' },
+        { icon: '🛞', title: 'Pneus & Véhicules', desc: 'Pneus, pièces détachées & accessoires' },
+        { icon: '📦', title: 'Demande individuelle', desc: 'Produit introuvable? Nous le procurons.' },
+      ],
     },
-    forWhom: {
-      title: 'Pour qui est GermanLink Business?',
-      targets: [
-        {
-          title: 'Entrepreneurs & commerçants',
-          description: 'Élargissez votre gamme avec des produits allemands de haute qualité et gagnez la confiance de vos clients'
-        },
-        {
-          title: 'Start-ups au Congo',
-          description: 'Démarrez votre business avec la meilleure base – qualité allemande pour un succès durable'
-        },
-        {
-          title: 'Projets de construction, technique & commerce',
-          description: 'Matériaux et outils fiables pour des projets professionnels'
-        },
-        {
-          title: 'Entreprises axées sur la qualité',
-          description: 'Pour tous ceux qui veulent croître durablement et créer une vraie valeur ajoutée'
-        }
-      ]
+    seller: {
+      tag: 'Pour les marchands & entreprises',
+      title: 'Vendez vos produits en Afrique.',
+      subtitle: 'GLB aide les marchands et entreprises allemands à vendre en toute sécurité en Afrique centrale — sans expérience préalable du marché africain.',
+      benefits: [
+        'Accès à 90 millions de clients en Afrique centrale',
+        'GLB gère toute la logistique & le dédouanement',
+        'Paiements sécurisés et documentés',
+        'Aucune expérience de l\'Afrique requise',
+        'Listing marketplace + solution conteneur',
+      ],
+      btn1: 'Devenir vendeur →',
+      btn2: 'En savoir plus',
+    },
+    proof: {
+      tag: 'Confiance & Chiffres',
+      title: 'Allemagne ↔ Congo, depuis des années.',
+      subtitle: 'Notre réseau grandit — grâce à des marchands et clients satisfaits des deux côtés.',
+      stats: [
+        { num: '200+', label: 'Marchands dans le réseau' },
+        { num: '12', label: 'Conteneurs par an' },
+        { num: '4', label: 'Villes au Congo' },
+        { num: '3', label: 'Langues de support' },
+      ],
+      testimonials: [
+        { text: 'Grâce à GLB, j\'ai pu acheter un système solaire de qualité depuis l\'Allemagne. La livraison à Kinshasa était fluide et transparente.', name: 'Jean-Pierre M.', role: 'Client · Kinshasa, RD Congo' },
+        { text: 'En tant que marchand à Hambourg, entrer sur le marché africain sans GLB était impensable. Ils gèrent toute la logistique.', name: 'Klaus H.', role: 'Vendeur · Hambourg, Allemagne' },
+        { text: 'Le service est excellent. J\'ai reçu ma commande à Brazzaville dans les délais prévus. Je recommande GLB à tous.', name: 'Marie-Claire N.', role: 'Cliente · Brazzaville, Congo' },
+      ],
     },
     cta: {
-      title: 'Démarrez votre business avec une vraie qualité',
-      subtitle: 'Commandez directement depuis l\'Allemagne',
-      tagline: 'Construisez la confiance. Construisez l\'avenir.',
-      button: 'Commencer avec GermanLink Business',
-      lingalaQuote: 'GermanLink Business est le lien direct entre l’Allemagne et le Congo. Qualité réelle. Confiance. Développement pour les entreprises et le pay'
+      title: 'Prêt à commencer?',
+      subtitle: 'Achetez, vendez ou expédiez — GLB est votre pont entre l\'Allemagne et l\'Afrique centrale.',
+      btn1: '🛒 Acheter maintenant',
+      btn2: '📦 Devenir vendeur',
+      btn3: '📞 Nous contacter',
     },
     footer: {
       tagline: 'Qualité allemande pour le business africain',
-      navigation: 'Navigation',
       contact: 'Contact',
-      sections: {
-        problem: 'Le Problème',
-        solution: 'La Solution',
-        mission: 'Notre Mission',
-        forWhom: 'Pour qui?'
-      },
-      copyright: '2026 GermanLink Business. Qualité allemande pour le Congo.'
-    }
+      agb: 'CGV & Conditions de livraison',
+      how: 'Comment fonctionne GLB',
+      copyright: '2026 GermanLink Business. Qualité allemande pour le Congo.',
+    },
   },
   ln: {
-    languageNames: {
-      de: 'Allemand',
-      fr: 'Français',
-      ln: 'Lingala'
-    },
+    languageNames: { de: 'Allemand', fr: 'Français', ln: 'Lingala' },
+    nav: { howItWorks: 'Ndenge esalaka', categories: 'Biloko', seller: 'Ba vendeurs', trust: 'Biso' },
     hero: {
-      title: 'GermanLink Business',
-      tagline: 'Qualité ya Allemagne. Confiance ya solo. Business makasi.',
-      subtitle: 'Somba biloko ya solo Made in Germany – banda Allemagne, ekokoma na sécurité na Congo. Pona business na yo. Pona avenir na yo. Pona développement ya mboka na yo.',
-      cta: 'Bandá sikoyo',
-      badges: {
-        madeInGermany: 'Made in Germany',
-        secureDelivery: 'Livraison na sécurité',
-        verifiedQuality: 'Qualité oyo batalami'
-      }
+      tag: '🚢 Hambourg → Congo & RD Congo',
+      title: 'Biloko ya Allemagne',
+      titleAccent: 'ekokoma na sécurité na Congo & RD Congo.',
+      subtitle: 'Plateforme ya commerce mpe logistique entre Allemagne mpe Afrique centrale. Somba, teka mpe tinda biloko ya qualité ya Allemagne na GLB.',
+      btn1: '🛒 Somba biloko',
+      btn2: '📦 Teka biloko',
+      btn3: '🚢 Tinda container',
+      stat1num: '200+', stat1label: 'Ba marchands na réseau',
+      stat2num: '12×', stat2label: 'Ba containers par an',
+      stat3num: '4', stat3label: 'Bingumba na Congo',
+      stat4num: '3', stat4label: 'Minoko ya support',
     },
-    problem: {
-      title: 'Problème',
-      subtitle: 'Ba entrepreneurs mpe ba commerçants mingi bazali kobungisa mbongo mpo na:',
-      points: [
-        {
-          title: 'Biloko ya ntalo te ezanga qualité',
-          description: 'Biloko ya pamba oyo ekobukana nokinoki mpe ekobebisa business na yo'
-        },
-        {
-          title: 'Biloko ya danger to biloko ya lokuta',
-          description: 'Biloko ya danger ezanga ba certificats oyo ekotya ba clients na yo na danger'
-        },
-        {
-          title: 'Garantie ezali te mpe confiance ezali te',
-          description: 'Sécurité ezali te, support ezali te, perspective ya mokolo molayi ezali te'
-        }
+    how: {
+      tag: 'Processus',
+      title: 'Ndenge GLB esalaka?',
+      subtitle: 'Banda demande tii livraison na Kinshasa to Brazzaville — transparent mpe na sécurité.',
+      route: ['🇩🇪 Hambourg', '✈️ Avion / Bateau', '🇨🇬 Pointe-Noire', '🇨🇩 Matadi', '🏙️ BZV & KIN'],
+      steps: [
+        { num: '1', icon: '🔍', title: 'Pona eloko', desc: 'Ba clients baponi biloko na marketplace to batinda demande ya penza.' },
+        { num: '2', icon: '✅', title: 'GLB eorganise achat', desc: 'Contrôle ya qualité & paiement na sécurité. Documentation ya mobimba.' },
+        { num: '3', icon: '🚢', title: 'Envoi container groupé', desc: 'Ba containers ya sanza na sanza Hambourg → Pointe-Noire / Matadi.' },
+        { num: '4', icon: '📍', title: 'Livraison na Congo', desc: 'Livraison tii Brazzaville & Kinshasa na réseau ya ba agents na biso.' },
       ],
-      conclusion: 'Yango ezali kokanga business, croissance mpe développement ya mboka.'
     },
-    solution: {
-      title: 'Solution',
-      subtitle: 'GermanLink Business ezali kokangisa yo directement na Allemagne.',
-      features: [
-        {
-          title: 'Biloko ya Allemagne oyo batalami malamu',
-          description: 'Biloko nyonso batalami mpe euti directement na Allemagne'
-        },
-        {
-          title: 'Qualité ya solo – lokuta te',
-          description: 'Biloko ya original na garantie mpe ba certificats'
-        },
-        {
-          title: 'Kofuta na sécurité',
-          description: 'Ba méthodes ya kofuta oyo ebatelami pona sécurité na yo'
-        },
-        {
-          title: 'Livraison directe na Congo',
-          description: 'Expédition ya container directement epai na yo – transparent mpe okoki kolanda'
-        },
-        {
-          title: 'Malamu pona ba commerçants & ba entrepreneurs',
-          description: 'Ba quantités minene, support ya ba clients professionnels mpe ba prix ya justice'
-        },
-        {
-          title: 'Kosunga ba projets ya développement',
-          description: 'Qualité pona développement durable mpe infrastructure'
-        }
-      ]
-    },
-    mission: {
-      title: 'Mission na biso',
-      subtitle: 'Kolendisa ba business ya Afrique – na qualité ya Allemagne.',
-      whenYouBuyBetter: 'Ntango ozali kosomba malamu:',
-      points: [
-        {
-          title: 'Entreprise na yo ekokóla',
-          description: 'Na qualité ya malamu, okozwa ba clients ebele mpe okomatisa chiffre d\'affaires na yo'
-        },
-        {
-          title: 'Misala ekobima',
-          description: 'Ba entreprises ya makasi ekosala ba emplois ya sûr mpe ekotombola économie locale'
-        },
-        {
-          title: 'Okotongisa mboka na yo na ndenge ya durée',
-          description: 'Qualité etongaka confiance mpe ba perspectives ya mokolo molayi pona avenir'
-        }
+    why: {
+      tag: 'Mpo na nini GLB?',
+      title: 'Partenaire na yo ya confiance pona commerce Allemagne-Afrique.',
+      subtitle: 'Tozali kokangisa qualité ya Allemagne na portée ya Afrique — na confiance mpe transparence.',
+      cards: [
+        { icon: '🇩🇪', title: 'Contrôle qualité ya Allemagne', desc: 'Biloko nyonso etalelami mpe edokumentami na Allemagne liboso ya envoi.' },
+        { icon: '🚢', title: 'Container groupé na sécurité', desc: 'Ba transports ya sanza na sanza na assurance ya mobimba mpe suivi.' },
+        { icon: '💳', title: 'Paiement na sécurité', desc: 'Ba processus ya paiement edokumentami mpe transparent — LemFi, UBA Bank mpe mosusu.' },
+        { icon: '🌍', title: 'Réseau locale na Afrique', desc: 'Ba agents na biso mpe support ya minoko mingi na Congo & RD Congo.' },
       ],
-      conclusion: 'Ntango ozali kosomba malamu, ozali kotonga avenir ya malamu.',
-      cta: 'Bandá sikoyo'
     },
-    whyGermany: {
-      title: 'Mpo na nini Allemagne?',
-      subtitle: 'Allemagne eyebani na mokili mobimba pona:',
-      values: ['Qualité', 'Fiabilité', 'Technologie', 'Sécurité'],
-      conclusion: 'Na GermanLink Business, confiance oyo ekokoma directement epai na yo – na nzela moko.'
+    cats: {
+      tag: 'Biloko',
+      title: 'Ba catégories ya biloko',
+      subtitle: 'Biloko ya qualité ya Allemagne pona marché ya Afrique — banda énergie solaire tii pièces ya véhicules.',
+      items: [
+        { icon: '☀️', title: 'Systèmes solaires', desc: 'Ba panneaux solaires, ba batteries & ba onduleurs' },
+        { icon: '⚙️', title: 'Machines ya agriculture', desc: 'Ba tracteurs, ba pompes & ba équipements' },
+        { icon: '🔌', title: 'Ba générateurs', desc: 'Ba générateurs diesel & essence ya ndenge nyonso' },
+        { icon: '🏠', title: 'Biloko ya ndako', desc: 'Ba réfrigérateurs, ba machines à laver & mosusu' },
+        { icon: '🛞', title: 'Ba pneus & Véhicules', desc: 'Ba pneus, ba pièces détachées & accessoires' },
+        { icon: '📦', title: 'Demande ya penza', desc: 'Eloko ozali koluka ezali te? Tokoyeba kozwa yango.' },
+      ],
     },
-    forWhom: {
-      title: 'GermanLink Business ezali pona nani?',
-      targets: [
-        {
-          title: 'Ba entrepreneurs & ba commerçants',
-          description: 'Kolongola gamme na yo na biloko ya Allemagne ya qualité ya likolo mpe zwa confiance ya ba clients na yo'
-        },
-        {
-          title: 'Ba start-ups na Congo',
-          description: 'Bandá business na yo na base ya malamu – qualité ya Allemagne pona succès ya durée'
-        },
-        {
-          title: 'Ba projets ya botongami, technique & commerce',
-          description: 'Ba matériaux mpe ba outils ya confiance pona ba projets professionnels'
-        },
-        {
-          title: 'Ba entreprises oyo balingi qualité',
-          description: 'Pona bato nyonso oyo balingi kokóla na ndenge ya durée mpe kosala valeur ya solo'
-        }
-      ]
+    seller: {
+      tag: 'Pona ba marchands & ba entreprises',
+      title: 'Teka biloko na yo na Afrique.',
+      subtitle: 'GLB esalisaka ba marchands mpe ba entreprises ya Allemagne koteka na sécurité na Afrique centrale — kozanga expérience ya marché ya Afrique.',
+      benefits: [
+        'Accès na ba clients 90 millions na Afrique centrale',
+        'GLB etalelaka logistique nyonso & dédouanement',
+        'Ba paiements na sécurité mpe edokumentami',
+        'Expérience ya Afrique esengami te',
+        'Listing marketplace + solution container',
+      ],
+      btn1: 'Koma vendeur →',
+      btn2: 'Yeba koleka',
+    },
+    proof: {
+      tag: 'Confiance & Minumba',
+      title: 'Allemagne ↔ Congo, banda bambula.',
+      subtitle: 'Réseau na biso ekoli — na ba marchands mpe ba clients ya esengo na bansé ya mibale.',
+      stats: [
+        { num: '200+', label: 'Ba marchands na réseau' },
+        { num: '12', label: 'Ba containers par an' },
+        { num: '4', label: 'Bingumba na Congo' },
+        { num: '3', label: 'Minoko ya support' },
+      ],
+      testimonials: [
+        { text: 'Na GLB nakokaki kosomba système solaire ya qualité banda Allemagne. Livraison na Kinshasa ezalaki malamu mpe transparent.', name: 'Jean-Pierre M.', role: 'Client · Kinshasa, RD Congo' },
+        { text: 'Lokola marchand na Hambourg, kokota na marché ya Afrique kozanga GLB ekokaki te. Bazali kokata logistique nyonso.', name: 'Klaus H.', role: 'Vendeur · Hambourg, Allemagne' },
+        { text: 'Le service est excellent. J\'ai reçu ma commande à Brazzaville dans les délais prévus. Je recommande GLB à tous.', name: 'Marie-Claire N.', role: 'Cliente · Brazzaville, Congo' },
+      ],
     },
     cta: {
-      title: 'Bandá business na yo na qualité ya solo',
-      subtitle: 'Tomba directement banda Allemagne',
-      tagline: 'Tonga confiance. Tonga avenir.',
-      button: 'Bandá na GermanLink Business',
-      lingalaQuote: 'GermanLink Business ezali lien direct entre Allemagne na Congo. Qualité ya solo. Confiance. Développement ya business mpe mboka.'
+      title: 'Ozali pona kobanda?',
+      subtitle: 'Somba, teka to tinda — GLB ezali pont na yo entre Allemagne mpe Afrique centrale.',
+      btn1: '🛒 Somba sikoyo',
+      btn2: '📦 Koma vendeur',
+      btn3: '📞 Samba biso',
     },
     footer: {
       tagline: 'Qualité ya Allemagne pona business ya Afrique',
-      navigation: 'Navigation',
       contact: 'Contact',
-      sections: {
-        problem: 'Problème',
-        solution: 'Solution',
-        mission: 'Mission na biso',
-        forWhom: 'Pona nani?'
-      },
-      copyright: '2026 GermanLink Business. Qualité ya Allemagne pona Congo.'
-    }
-  }
+      agb: 'Mibeko ya vente & livraison',
+      how: 'Ndenge GLB esalaka',
+      copyright: '2026 GermanLink Business. Qualité ya Allemagne pona Congo.',
+    },
+  },
 };
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
@@ -445,403 +318,277 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
   const t = translations[language];
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-white">
-      <header className="sticky top-0 z-50 bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <div className="flex items-center space-x-3">
-              <div className="flex space-x-0.5">
-                <div className="w-2.5 h-8 bg-[#000000] rounded-sm"></div>
-                <div className="w-2.5 h-8 bg-[#DD0000] rounded-sm"></div>
-                <div className="w-2.5 h-8 bg-[#FFCE00] rounded-sm"></div>
-              </div>
-              <div>
-                <div className="text-lg font-black text-[#1C1C1C] leading-none tracking-tight">GLB</div>
-                <div className="text-xs font-semibold text-[#0A5EB0] leading-none">GermanLink Business</div>
-              </div>
-            </div>
+    <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", background: '#0a1628', color: '#f5f2eb', overflowX: 'hidden' }}>
 
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => changeLanguage('de')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition ${
-                    language === 'de'
-                      ? 'bg-[#DD0000] text-white shadow-md'
-                      : 'text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  🇩🇪 DE
-                </button>
-                <button
-                  onClick={() => changeLanguage('fr')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition ${
-                    language === 'fr'
-                      ? 'bg-[#DD0000] text-white shadow-md'
-                      : 'text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  🇫🇷 FR
-                </button>
-                <button
-                  onClick={() => changeLanguage('ln')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition ${
-                    language === 'ln'
-                      ? 'bg-[#DD0000] text-white shadow-md'
-                      : 'text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  🇨🇩 LN
-                </button>
-              </div>
-
-              <button
-                onClick={onGetStarted}
-                className="bg-[#DD0000] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#BB0000] transition shadow-lg hidden sm:block"
-              >
-                {t.hero.cta}
-              </button>
-            </div>
+      {/* ── NAV ── */}
+      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 4vw', background: 'rgba(7,16,32,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        {/* Logo — unchanged from original */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', gap: '2px' }}>
+            <div style={{ width: 10, height: 32, background: '#000000', borderRadius: 2 }}></div>
+            <div style={{ width: 10, height: 32, background: '#DD0000', borderRadius: 2 }}></div>
+            <div style={{ width: 10, height: 32, background: '#FFCE00', borderRadius: 2 }}></div>
           </div>
+          <div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#f5f2eb', lineHeight: 1, letterSpacing: '-0.01em' }}>GLB</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#0A5EB0', lineHeight: 1 }}>GermanLink Business</div>
+          </div>
+        </div>
+
+        {/* Language switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.07)', borderRadius: 8, padding: '4px' }}>
+            {(['de', 'fr', 'ln'] as Language[]).map((lang) => (
+              <button
+                key={lang}
+                onClick={() => changeLanguage(lang)}
+                style={{
+                  padding: '6px 12px', borderRadius: 6, fontSize: '0.8rem', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                  background: language === lang ? '#DD0000' : 'transparent',
+                  color: language === lang ? '#fff' : '#8fa3b8',
+                }}
+              >
+                {lang === 'de' ? '🇩🇪 DE' : lang === 'fr' ? '🇫🇷 FR' : '🇨🇩 LN'}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={onGetStarted}
+            style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.8rem', letterSpacing: '0.05em', padding: '0.55rem 1.3rem', border: 'none', borderRadius: 2, cursor: 'pointer', textTransform: 'uppercase' as const, display: 'none' }}
+            className="nav-cta-btn"
+          >
+            {t.hero.btn1}
+          </button>
         </div>
       </header>
 
-      <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-24 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-64 h-64 bg-[#DD0000] rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#FFCE00] rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#009543] rounded-full blur-3xl"></div>
+      {/* ── HERO ── */}
+      <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, justifyContent: 'flex-end', padding: '0 4vw 8vh', position: 'relative', overflow: 'hidden', paddingTop: '80px' }}>
+        {/* Background */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: 'linear-gradient(to top, rgba(7,16,32,0.98) 0%, rgba(7,16,32,0.65) 45%, rgba(7,16,32,0.25) 100%), url("https://images.unsplash.com/photo-1553413077-190dd305871c?w=1600&q=80") center/cover no-repeat' }}></div>
+        {/* Flag bar top */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, zIndex: 2, display: 'flex' }}>
+          {['#000000','#DD0000','#FFCE00','#009A00','#FBDE2A','#F73B00'].map((c, i) => (
+            <div key={i} style={{ flex: 1, background: c }}></div>
+          ))}
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-2 mb-6">
-              <div className="flex space-x-1">
-                <div className="w-3 h-12 bg-[#000000] rounded"></div>
-                <div className="w-3 h-12 bg-[#DD0000] rounded"></div>
-                <div className="w-3 h-12 bg-[#FFCE00] rounded"></div>
-              </div>
-            </div>
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: 900 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#5dcaa5', marginBottom: '1.8rem', padding: '0.35rem 0.85rem', border: '1px solid rgba(93,202,165,0.3)', borderRadius: 2 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#5dcaa5', display: 'inline-block' }}></span>
+            {t.hero.tag}
+          </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
-              {t.hero.title}
-            </h1>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(2.4rem, 5.5vw, 4.8rem)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.02em', marginBottom: '1.2rem' }}>
+            {t.hero.title}<br />
+            <span style={{ color: '#F4B400', fontStyle: 'italic' }}>{t.hero.titleAccent}</span>
+          </h1>
 
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#FFCE00] mb-4">
-              {t.hero.tagline}
-            </p>
+          <p style={{ fontSize: 'clamp(1rem, 1.4vw, 1.2rem)', color: '#8fa3b8', fontWeight: 300, lineHeight: 1.7, maxWidth: 560, marginBottom: '2.5rem' }}>
+            {t.hero.subtitle}
+          </p>
 
-            <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto mb-12 leading-relaxed">
-              {t.hero.subtitle}
-            </p>
-
-            <button
-              onClick={onGetStarted}
-              className="bg-[#DD0000] text-white px-10 py-5 rounded-lg text-xl font-bold hover:bg-[#BB0000] transition shadow-2xl inline-flex items-center space-x-3"
-            >
-              <span>{t.hero.cta}</span>
-              <ArrowRight className="w-6 h-6" />
+          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.75rem', marginBottom: '3.5rem' }}>
+            <button onClick={onGetStarted} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>
+              {t.hero.btn1}
             </button>
-
-            <div className="mt-16 flex flex-wrap justify-center gap-8 text-sm">
-              <div className="flex items-center space-x-2 bg-white/10 px-6 py-3 rounded-full backdrop-blur-sm">
-                <Shield className="w-5 h-5 text-[#FFCE00]" />
-                <span>{t.hero.badges.madeInGermany}</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-white/10 px-6 py-3 rounded-full backdrop-blur-sm">
-                <CheckCircle className="w-5 h-5 text-[#009543]" />
-                <span>{t.hero.badges.secureDelivery}</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-white/10 px-6 py-3 rounded-full backdrop-blur-sm">
-                <Award className="w-5 h-5 text-[#DD0000]" />
-                <span>{t.hero.badges.verifiedQuality}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronDown className="w-8 h-8 text-white/50" />
-        </div>
-      </section>
-
-      <section id="problem" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <AlertCircle className="w-16 h-16 text-[#DD0000] mx-auto mb-4" />
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              {t.problem.title}
-            </h2>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
-              {t.problem.subtitle}
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {t.problem.points.map((point, index) => (
-              <div key={index} className="bg-white p-8 rounded-xl shadow-lg border-t-4 border-[#DD0000]">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  {index === 0 && <AlertCircle className="w-8 h-8 text-[#DD0000]" />}
-                  {index === 1 && <Shield className="w-8 h-8 text-[#DD0000]" />}
-                  {index === 2 && <CheckCircle className="w-8 h-8 text-[#DD0000]" />}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">
-                  {point.title}
-                </h3>
-                <p className="text-gray-600 text-center">
-                  {point.description}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="bg-[#DD0000] text-white p-8 rounded-xl text-center">
-            <p className="text-2xl font-bold">
-              {t.problem.conclusion}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="solution" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Sparkles className="w-16 h-16 text-[#FFCE00] mx-auto mb-4" />
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              {t.solution.title}
-            </h2>
-            <p className="text-2xl text-gray-700 max-w-3xl mx-auto font-semibold">
-              {t.solution.subtitle}
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {t.solution.features.map((feature, index) => (
-              <div key={index} className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition border border-gray-200">
-                <div className="w-16 h-16 bg-[#009543] bg-opacity-10 rounded-full flex items-center justify-center mb-4">
-                  {index === 0 && <CheckCircle className="w-8 h-8 text-[#009543]" />}
-                  {index === 1 && <Award className="w-8 h-8 text-[#009543]" />}
-                  {index === 2 && <Shield className="w-8 h-8 text-[#009543]" />}
-                  {index === 3 && <Truck className="w-8 h-8 text-[#009543]" />}
-                  {index === 4 && <TrendingUp className="w-8 h-8 text-[#009543]" />}
-                  {index === 5 && <Building2 className="w-8 h-8 text-[#009543]" />}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="mission" className="py-20 bg-gradient-to-br from-[#009543] to-[#007535] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Target className="w-16 h-16 text-white mx-auto mb-4" />
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4">
-              {t.mission.title}
-            </h2>
-            <p className="text-2xl font-semibold mb-8">
-              {t.mission.subtitle}
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {t.mission.points.map((point, index) => (
-              <div key={index} className="bg-white/10 backdrop-blur-sm p-8 rounded-xl">
-                {index === 0 && <TrendingUp className="w-12 h-12 text-[#FFCE00] mb-4" />}
-                {index === 1 && <Users className="w-12 h-12 text-[#FFCE00] mb-4" />}
-                {index === 2 && <Globe className="w-12 h-12 text-[#FFCE00] mb-4" />}
-                <h3 className="text-2xl font-bold mb-3">{point.title}</h3>
-                <p className="text-lg text-white/90">
-                  {point.description}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-16 text-center">
-            <p className="text-2xl font-bold mb-6">
-              {t.mission.conclusion}
-            </p>
-            <button
-              onClick={onGetStarted}
-              className="bg-white text-[#009543] px-10 py-5 rounded-lg text-xl font-bold hover:bg-gray-100 transition shadow-2xl inline-flex items-center space-x-3"
-            >
-              <span>{t.mission.cta}</span>
-              <ArrowRight className="w-6 h-6" />
+            <button onClick={onGetStarted} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
+              {t.hero.btn2}
+            </button>
+            <button onClick={onGetStarted} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
+              {t.hero.btn3}
             </button>
           </div>
-        </div>
-      </section>
 
-      <section id="why-germany" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center space-x-1 mb-6">
-              <div className="w-4 h-16 bg-[#000000] rounded"></div>
-              <div className="w-4 h-16 bg-[#DD0000] rounded"></div>
-              <div className="w-4 h-16 bg-[#FFCE00] rounded"></div>
-            </div>
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              {t.whyGermany.title}
-            </h2>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              {t.whyGermany.subtitle}
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            {t.whyGermany.values.map((value, index) => (
-              <div key={index} className="bg-white p-8 rounded-xl shadow-lg text-center">
-                {index === 0 && <Award className="w-16 h-16 text-[#DD0000] mx-auto mb-4" />}
-                {index === 1 && <CheckCircle className="w-16 h-16 text-[#DD0000] mx-auto mb-4" />}
-                {index === 2 && <Wrench className="w-16 h-16 text-[#DD0000] mx-auto mb-4" />}
-                {index === 3 && <Shield className="w-16 h-16 text-[#DD0000] mx-auto mb-4" />}
-                <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
-              </div>
-            ))}
-          </div>
-
-          <div className="bg-gradient-to-r from-[#000000] via-[#DD0000] to-[#FFCE00] text-white p-8 rounded-xl text-center">
-            <p className="text-2xl font-bold">
-              {t.whyGermany.conclusion}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="for-whom" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Users className="w-16 h-16 text-[#009543] mx-auto mb-4" />
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              {t.forWhom.title}
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {t.forWhom.targets.map((target, index) => (
-              <div key={index} className="bg-gradient-to-br from-gray-50 to-white p-10 rounded-xl shadow-lg border-l-4 border-[#009543]">
-                {index === 0 && <ShoppingCart className="w-12 h-12 text-[#009543] mb-4" />}
-                {index === 1 && <TrendingUp className="w-12 h-12 text-[#009543] mb-4" />}
-                {index === 2 && <Building2 className="w-12 h-12 text-[#009543] mb-4" />}
-                {index === 3 && <Globe className="w-12 h-12 text-[#009543] mb-4" />}
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                  {target.title}
-                </h3>
-                <p className="text-lg text-gray-600">
-                  {target.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="cta" className="py-24 bg-gradient-to-br from-[#DD0000] to-[#BB0000] text-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-            {t.cta.title}
-          </h2>
-          <p className="text-2xl mb-4">
-            {t.cta.subtitle}
-          </p>
-          <p className="text-3xl font-bold text-[#FFCE00] mb-10">
-            {t.cta.tagline}
-          </p>
-          <button
-            onClick={onGetStarted}
-            className="bg-white text-[#DD0000] px-12 py-6 rounded-lg text-2xl font-bold hover:bg-gray-100 transition shadow-2xl inline-flex items-center space-x-4"
-          >
-            <span>{t.cta.button}</span>
-            <ArrowRight className="w-8 h-8" />
-          </button>
-
-          <div className="mt-12 pt-12 border-t border-white/30">
-            <p className="text-lg text-white/90 italic">
-              "{t.cta.lingalaQuote}"
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-8 bg-[#000000]"></div>
-                  <div className="w-2 h-8 bg-[#DD0000]"></div>
-                  <div className="w-2 h-8 bg-[#FFCE00]"></div>
+          {/* Stats */}
+          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '2.5rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            {[
+              { num: t.hero.stat1num, label: t.hero.stat1label },
+              { num: t.hero.stat2num, label: t.hero.stat2label },
+              { num: t.hero.stat3num, label: t.hero.stat3label },
+              { num: t.hero.stat4num, label: t.hero.stat4label },
+            ].map((s, i) => (
+              <div key={i}>
+                <div style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', fontWeight: 900, color: '#f5f2eb', lineHeight: 1 }}>
+                  {s.num.replace('+', '')}<span style={{ color: '#F4B400' }}>{s.num.includes('+') ? '+' : s.num.includes('×') ? '×' : ''}</span>
                 </div>
-                <h3 className="text-xl font-bold">GermanLink Business</h3>
+                <div style={{ fontSize: '0.72rem', color: '#8fa3b8', letterSpacing: '0.05em', textTransform: 'uppercase' as const, marginTop: '0.2rem' }}>{s.label}</div>
               </div>
-              <p className="text-gray-400">
-                {t.footer.tagline}
-              </p>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <div>
-              <h4 className="font-bold mb-4">{t.footer.navigation}</h4>
-              <div className="space-y-2">
-                <button onClick={() => scrollToSection('problem')} className="block text-gray-400 hover:text-white transition">
-                  {t.footer.sections.problem}
-                </button>
-                <button onClick={() => scrollToSection('solution')} className="block text-gray-400 hover:text-white transition">
-                  {t.footer.sections.solution}
-                </button>
-                <button onClick={() => scrollToSection('mission')} className="block text-gray-400 hover:text-white transition">
-                  {t.footer.sections.mission}
-                </button>
-                <button onClick={() => scrollToSection('for-whom')} className="block text-gray-400 hover:text-white transition">
-                  {t.footer.sections.forWhom}
-                </button>
-              </div>
-            </div>
+      {/* ── HOW IT WORKS ── */}
+      <section id="how" style={{ padding: '6rem 4vw', background: '#071020' }}>
+        <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.how.tag}</div>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.how.title}</h2>
+        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: '3rem' }}>{t.how.subtitle}</p>
 
-            <div>
-              <h4 className="font-bold mb-4">{t.footer.contact}</h4>
-              <p className="text-gray-400 mb-2">
-                kizomba-global-post@web.de
-              </p>
-              <div className="flex items-center space-x-2 mt-4">
-                <Shield className="w-5 h-5 text-[#FFCE00]" />
-                <span className="text-sm text-gray-400">Made in Germany</span>
-              </div>
+        {/* Route bar */}
+        <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 4, padding: '1rem 1.5rem', marginBottom: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' as const, fontSize: '0.85rem' }}>
+          {t.how.route.map((stop, i) => (
+            <React.Fragment key={i}>
+              <span>{stop}</span>
+              {i < t.how.route.length - 1 && <span style={{ color: '#F4B400', opacity: 0.5 }}>→</span>}
+            </React.Fragment>
+          ))}
+        </div>
+
+        {/* Steps */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1px', background: 'rgba(255,255,255,0.06)' }}>
+          {t.how.steps.map((step, i) => (
+            <div key={i} style={{ background: '#071020', padding: '2rem 1.5rem', textAlign: 'center' as const }}>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#0a1628', border: '2px solid #F4B400', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', fontSize: '1.2rem', fontWeight: 900, color: '#F4B400', margin: '0 auto 1.2rem' }}>{step.num}</div>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.6rem' }}>{step.icon}</div>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.5rem' }}>{step.title}</h3>
+              <p style={{ fontSize: '0.82rem', color: '#8fa3b8', lineHeight: 1.6 }}>{step.desc}</p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── WHY GLB ── */}
+      <section id="why" style={{ padding: '6rem 4vw', background: '#0a1628' }}>
+        <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.why.tag}</div>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.why.title}</h2>
+        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: '3rem' }}>{t.why.subtitle}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5px', background: 'rgba(255,255,255,0.06)' }}>
+          {t.why.cards.map((card, i) => (
+            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '2.2rem 1.8rem' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>{card.icon}</div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem' }}>{card.title}</h3>
+              <p style={{ fontSize: '0.83rem', color: '#8fa3b8', lineHeight: 1.7 }}>{card.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CATEGORIES ── */}
+      <section id="categories" style={{ padding: '6rem 4vw', background: '#071020' }}>
+        <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.cats.tag}</div>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.cats.title}</h2>
+        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: '3rem' }}>{t.cats.subtitle}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '1rem' }}>
+          {t.cats.items.map((cat, i) => (
+            <div
+              key={i}
+              onClick={onGetStarted}
+              style={{ border: `1px solid ${i === 5 ? 'rgba(244,180,0,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 4, padding: '2rem 1.5rem', background: i === 5 ? 'rgba(244,180,0,0.04)' : 'rgba(255,255,255,0.02)', cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.2s' }}
+            >
+              <div style={{ fontSize: '2.2rem', marginBottom: '0.6rem' }}>{cat.icon}</div>
+              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.35rem' }}>{cat.title}</h3>
+              <p style={{ fontSize: '0.78rem', color: '#8fa3b8', lineHeight: 1.5 }}>{cat.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── SELLER ── */}
+      <section id="seller" style={{ padding: '6rem 4vw', background: 'linear-gradient(135deg, #071a10 0%, #0a1628 50%, #071020 100%)', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -80, right: -80, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(26,143,115,0.15) 0%, transparent 70%)', zIndex: 0 }}></div>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 680 }}>
+          <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#5dcaa5', fontWeight: 600, marginBottom: '0.75rem' }}>{t.seller.tag}</div>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.seller.title}</h2>
+          <p style={{ color: '#8fa3b8', lineHeight: 1.7, marginBottom: '1.5rem' }}>{t.seller.subtitle}</p>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '0.7rem', marginBottom: '2rem' }}>
+            {t.seller.benefits.map((b, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem' }}>
+                <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(93,202,165,0.2)', border: '1px solid #5dcaa5', color: '#5dcaa5', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                {b}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' as const }}>
+            <button onClick={onGetStarted} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.seller.btn1}</button>
+            <button onClick={onGetStarted} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>{t.seller.btn2}</button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SOCIAL PROOF ── */}
+      <section id="proof" style={{ padding: '6rem 4vw', background: '#0a1628' }}>
+        <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.proof.tag}</div>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.proof.title}</h2>
+        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: '3rem' }}>{t.proof.subtitle}</p>
+
+        {/* Stats row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1.5px', background: 'rgba(255,255,255,0.06)', marginBottom: '3rem' }}>
+          {t.proof.stats.map((s, i) => (
+            <div key={i} style={{ background: '#0a1628', padding: '2.2rem 1.5rem', textAlign: 'center' as const }}>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: '2.8rem', fontWeight: 900, color: '#F4B400', lineHeight: 1 }}>{s.num}</div>
+              <div style={{ fontSize: '0.75rem', color: '#8fa3b8', letterSpacing: '0.05em', textTransform: 'uppercase' as const, marginTop: '0.4rem' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Testimonials */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: '1rem' }}>
+          {t.proof.testimonials.map((tm, i) => (
+            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, padding: '2rem', position: 'relative' }}>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: '3.5rem', color: '#F4B400', opacity: 0.25, position: 'absolute', top: '0.5rem', left: '1.1rem', lineHeight: 1 }}>"</div>
+              <p style={{ fontSize: '0.88rem', lineHeight: 1.7, color: '#8fa3b8', marginBottom: '1rem' }}>{tm.text}</p>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#f5f2eb' }}>{tm.name}</div>
+              <div style={{ fontSize: '0.75rem', color: '#5dcaa5' }}>{tm.role}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FINAL CTA ── */}
+      <section style={{ background: '#F4B400', textAlign: 'center' as const, padding: '6rem 4vw' }}>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 900, color: '#0a1628', marginBottom: '1rem' }}>{t.cta.title}</h2>
+        <p style={{ color: 'rgba(10,22,40,0.7)', maxWidth: 500, margin: '0 auto 2.5rem', lineHeight: 1.7 }}>{t.cta.subtitle}</p>
+        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' as const, gap: '1rem' }}>
+          <button onClick={onGetStarted} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn1}</button>
+          <button onClick={onGetStarted} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn2}</button>
+          <button onClick={onGetStarted} style={{ background: 'transparent', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: '2px solid #0a1628', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn3}</button>
+        </div>
+      </section>
+
+      {/* ── FOOTER — 2 columns, no navigation column ── */}
+      <footer style={{ background: '#050e1a', padding: '3rem 4vw', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+          {/* Logo col — unchanged */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', gap: '2px' }}>
+                <div style={{ width: 8, height: 28, background: '#000000' }}></div>
+                <div style={{ width: 8, height: 28, background: '#DD0000' }}></div>
+                <div style={{ width: 8, height: 28, background: '#FFCE00' }}></div>
+              </div>
+              <span style={{ fontSize: '1.05rem', fontWeight: 900, color: '#f5f2eb' }}>GermanLink Business</span>
+            </div>
+            <p style={{ fontSize: '0.82rem', color: '#8fa3b8' }}>{t.footer.tagline}</p>
           </div>
 
-          <div className="border-t border-gray-800 pt-8">
-            <div className="text-center mb-4">
-              <button onClick={() => window.location.href = '/agb'}
-                className="text-gray-400 hover:text-white underline bg-transparent border-none cursor-pointer">
-                {language === 'de' ? 'AGB & Lieferbedingungen' : language === 'fr' ? 'CGV & Conditions de livraison' : 'Mibeko ya vente & livraison'}
-              </button> - 
-              <button onClick={() => window.location.href = '/how-it-works'}
-                className="text-gray-400 hover:text-white underline bg-transparent border-none cursor-pointer mr-4">
-                {language === 'de' ? 'So funktioniert GLB' : language === 'fr' ? 'Comment fonctionne GLB' : 'Ndenge GLB esalaka'}
-              </button>
-            </div>
-            <div className="text-center text-gray-400">
-              <p>&copy; {t.footer.copyright}</p>
+          {/* Contact col */}
+          <div>
+            <h4 style={{ fontWeight: 700, marginBottom: '0.75rem', fontSize: '0.9rem' }}>{t.footer.contact}</h4>
+            <p style={{ fontSize: '0.82rem', color: '#8fa3b8', marginBottom: '0.75rem' }}>kizomba-global-post@web.de</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Shield size={14} color="#F4B400" />
+              <span style={{ fontSize: '0.78rem', color: '#8fa3b8' }}>Made in Germany</span>
             </div>
           </div>
+        </div>
+
+        {/* Bottom links + copyright */}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.5rem', textAlign: 'center' as const }}>
+          <div style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' as const }}>
+            <button onClick={() => window.location.href = '/agb'} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
+              {t.footer.agb}
+            </button>
+            <button onClick={() => window.location.href = '/how-it-works'} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
+              {t.footer.how}
+            </button>
+          </div>
+          <p style={{ fontSize: '0.78rem', color: '#8fa3b8' }}>© {t.footer.copyright}</p>
         </div>
       </footer>
+
     </div>
   );
 };
+

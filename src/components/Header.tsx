@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Menu, X, ShoppingCart, User, LogOut, Shield, Bell, Package } from 'lucide-react';
+import React from 'react';
+import { Menu, ShoppingCart, User, LogOut, Shield, Bell, Package } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../hooks/useCart';
@@ -11,13 +11,21 @@ interface HeaderProps {
   onAdminClick: () => void;
   onOrdersClick: () => void;
   onNotificationsClick: () => void;
+  // NEW: controls the mobile sidebar drawer
+  onMenuClick?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onAuthClick, onCartClick, onAdminClick, onOrdersClick, onNotificationsClick }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onAuthClick,
+  onCartClick,
+  onAdminClick,
+  onOrdersClick,
+  onNotificationsClick,
+  onMenuClick,
+}) => {
   const { t } = useLanguage();
   const { user, isAdmin, signOut } = useAuth();
   const { cartCount } = useCart();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -31,19 +39,33 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick, onCartClick, onAdmi
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="flex space-x-0.5">
-                <div className="w-2.5 h-8 bg-[#000000] rounded-sm"></div>
-                <div className="w-2.5 h-8 bg-[#DD0000] rounded-sm"></div>
-                <div className="w-2.5 h-8 bg-[#FFCE00] rounded-sm"></div>
+
+          {/* Left: Hamburger (mobile) + Logo + badges */}
+          <div className="flex items-center gap-3">
+            {/* Hamburger — only on mobile/tablet (hidden lg+) */}
+            <button
+              onClick={onMenuClick}
+              className="lg:hidden p-2 -ml-1 rounded-lg hover:bg-gray-100 transition active:scale-95"
+              aria-label="Menü öffnen"
+            >
+              <Menu className="w-6 h-6 text-[#1C1C1C]" />
+            </button>
+
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="flex gap-0.5">
+                <div className="w-2.5 h-8 bg-[#000000] rounded-sm" />
+                <div className="w-2.5 h-8 bg-[#DD0000] rounded-sm" />
+                <div className="w-2.5 h-8 bg-[#FFCE00] rounded-sm" />
               </div>
               <div>
                 <div className="text-lg font-black text-[#1C1C1C] leading-none tracking-tight">GLB</div>
                 <div className="text-xs font-semibold text-[#0A5EB0] leading-none">GermanLink Business</div>
               </div>
             </div>
-            <div className="hidden md:flex items-center space-x-2 text-xs">
+
+            {/* Badges — desktop only */}
+            <div className="hidden md:flex items-center gap-2 text-xs">
               <span className="bg-[#0A5EB0] text-white px-3 py-1 rounded-full font-bold">
                 {t('european_quality')}
               </span>
@@ -53,12 +75,14 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick, onCartClick, onAdmi
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Right: actions */}
+          <div className="flex items-center gap-2">
             <LanguageSwitcher />
 
+            {/* Cart — always visible */}
             <button
               onClick={onCartClick}
-              className="relative p-2 hover:bg-[#E5E5E5] rounded-lg transition"
+              className="relative p-2 hover:bg-gray-100 rounded-lg transition"
               aria-label={t('cart')}
             >
               <ShoppingCart className="w-6 h-6 text-[#1C1C1C]" />
@@ -69,19 +93,20 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick, onCartClick, onAdmi
               )}
             </button>
 
-            <div className="hidden md:block">
+            {/* Desktop user actions */}
+            <div className="hidden md:flex items-center gap-1">
               {user ? (
-                <div className="flex items-center space-x-2">
+                <>
                   <button
                     onClick={onNotificationsClick}
-                    className="p-2 hover:bg-[#E5E5E5] rounded-lg transition"
+                    className="p-2 hover:bg-gray-100 rounded-lg transition"
                     aria-label={t('notifications')}
                   >
                     <Bell className="w-6 h-6 text-[#1C1C1C]" />
                   </button>
                   <button
                     onClick={onOrdersClick}
-                    className="p-2 hover:bg-[#E5E5E5] rounded-lg transition"
+                    className="p-2 hover:bg-gray-100 rounded-lg transition"
                     aria-label={t('my_orders')}
                   >
                     <Package className="w-6 h-6 text-[#1C1C1C]" />
@@ -89,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick, onCartClick, onAdmi
                   {isAdmin && (
                     <button
                       onClick={onAdminClick}
-                      className="p-2 hover:bg-[#E5E5E5] rounded-lg transition"
+                      className="p-2 hover:bg-gray-100 rounded-lg transition"
                       aria-label={t('admin')}
                     >
                       <Shield className="w-6 h-6 text-[#1C1C1C]" />
@@ -97,16 +122,16 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick, onCartClick, onAdmi
                   )}
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center space-x-2 px-4 py-2 bg-[#E5E5E5] hover:bg-[#1C1C1C] hover:text-white rounded-lg transition font-medium"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-[#1C1C1C] hover:text-white rounded-lg transition font-medium text-sm"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span className="text-sm">{t('logout')}</span>
+                    <span>{t('logout')}</span>
                   </button>
-                </div>
+                </>
               ) : (
                 <button
                   onClick={onAuthClick}
-                  className="flex items-center space-x-2 px-4 py-2 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg transition font-bold shadow-md hover:shadow-lg"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg transition font-bold shadow-md"
                 >
                   <User className="w-4 h-4" />
                   <span>{t('login')}</span>
@@ -114,79 +139,20 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick, onCartClick, onAdmi
               )}
             </div>
 
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Mobile: login button if not logged in */}
+            {!user && (
+              <button
+                onClick={onAuthClick}
+                className="md:hidden flex items-center gap-1 px-3 py-2 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg transition font-bold text-sm shadow-md"
+              >
+                <User className="w-4 h-4" />
+                <span>{t('login')}</span>
+              </button>
+            )}
           </div>
         </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t">
-            <div className="flex flex-col space-y-2">
-              {user ? (
-                <>
-                  <button
-                    onClick={() => {
-                      onNotificationsClick();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-100 rounded-lg transition text-left"
-                  >
-                    <Bell className="w-5 h-5" />
-                    <span>{t('notifications')}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      onOrdersClick();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-100 rounded-lg transition text-left"
-                  >
-                    <Package className="w-5 h-5" />
-                    <span>{t('my_orders')}</span>
-                  </button>
-                  {isAdmin && (
-                    <button
-                      onClick={() => {
-                        onAdminClick();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-100 rounded-lg transition text-left"
-                    >
-                      <Shield className="w-5 h-5" />
-                      <span>{t('admin')}</span>
-                    </button>
-                  )}
-                  <button
-                    onClick={() => {
-                      handleSignOut();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-100 rounded-lg transition text-left"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>{t('logout')}</span>
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => {
-                    onAuthClick();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex items-center space-x-2 px-4 py-3 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg transition font-bold shadow-md"
-                >
-                  <User className="w-5 h-5" />
-                  <span>{t('login')}</span>
-                </button>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </header>
   );
 };
+

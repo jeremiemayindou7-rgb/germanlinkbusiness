@@ -73,10 +73,10 @@ const impressum = {
   de: {
     title: 'Impressum',
     sections: [
-      { heading: '1. Allgemeine Unternehmensangaben', lines: ['GermanLink Business (GLB)', 'Logistik, Import, Einkauf und Koordination Deutschland–Afrika', 'Inhaber: Rebeca Bahoumina & Jérémie Mayindou'] },
+      { heading: '1. Allgemeine Unternehmensangaben', lines: ['GermanLink Business (GLB)', 'Logistik, Import, Einkauf und Koordination Deutschland–Afrika', 'Inhaber: Rebeca Bahoumina & Jérémie MC'] },
       { heading: '2. Firmensitz – Republik Kongo (Kongo-Brazzaville)', lines: ['Adresse: 68, rue Raymond-Paillet, Bacongo, Brazzaville, Republik Kongo', 'Telefon: +242 53312060', 'E-Mail: info@germanlinkbusiness.de', '──────────────────────────────', 'Koordinatorin – Demokratische Republik Kongo: Angele K', 'Telefon: +243 533320604', 'E-Mail: info_ak@germanlinkbusiness.de'] },
-      { heading: '3. Rechtliche Angaben – Deutschland (gemäß § 5 TMG)', lines: ['IT & Koordination Deutschland: Jérémie Mayindou', 'Telefon: +49 176 22896160', 'E-Mail: info_jmc@germanlinkbusiness.de', 'Weitere E-Mail: kizomba-global-post@web.de'] },
-      { heading: '4. Inhaltlich Verantwortliche (gemäß § 55 Abs. 2 RStV)', lines: ['Verantwortlich für den Inhalt: Rebeca Bahoumina & Jérémie Mayindou'] },
+      { heading: '3. Rechtliche Angaben – Deutschland (gemäß § 5 TMG)', lines: ['IT & Koordination Deutschland: Jérémie MC', 'Telefon: +49 176 22896160', 'E-Mail: info_jmc@germanlinkbusiness.de', 'Weitere E-Mail: kizomba-global-post@web.de'] },
+      { heading: '4. Inhaltlich Verantwortliche (gemäß § 55 Abs. 2 RStV)', lines: ['Verantwortlich für den Inhalt: Rebeca Bahoumina & Jérémie MC'] },
       { heading: '5. Allgemeiner Kontakt', lines: ['E-Mail: info@germanlinkbusiness.de', 'Telefon: +242 53312060'] },
       { heading: 'Haftungsausschluss', lines: ['Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität können wir keine Gewähr übernehmen.', 'Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte verantwortlich.'] },
       { heading: 'Urheberrecht', lines: ['Die erstellten Inhalte unterliegen dem deutschen Urheberrecht. Vervielfältigung bedarf der schriftlichen Zustimmung des Autors.'] },
@@ -86,10 +86,10 @@ const impressum = {
   fr: {
     title: 'Mentions légales',
     sections: [
-      { heading: '1. Informations générales sur l\'entreprise', lines: ['GermanLink Business (GLB)', 'Services logistiques, importation, achat et coordination Allemagne–Afrique', 'Propriétaires : Rebeca Bahoumina & Jérémie Mayindou'] },
+      { heading: '1. Informations générales sur l\'entreprise', lines: ['GermanLink Business (GLB)', 'Services logistiques, importation, achat et coordination Allemagne–Afrique', 'Propriétaires : Rebeca Bahoumina & Jérémie MC'] },
       { heading: '2. Siège social – République du Congo (Congo-Brazzaville)', lines: ['Adresse : 68, rue Raymond-Paillet, Bacongo, Brazzaville, République du Congo', 'Téléphone : +242 53312060', 'E-mail : info@germanlinkbusiness.de', '──────────────────────────────', 'Responsable Coordinateur – République Démocratique du Congo : Angele K', 'Téléphone : +243 533320604', 'E-mail : info_ak@germanlinkbusiness.de'] },
-      { heading: '3. Informations légales – Allemagne (conformément au § 5 TMG)', lines: ['IT & Coordination Allemagne : Jérémie Mayindou', 'Téléphone : +49 176 22896160', 'E-mail : info_jmc@germanlinkbusiness.de', 'E-mail supplémentaire : kizomba-global-post@web.de'] },
-      { heading: '4. Responsables du contenu (conformément au § 55 Abs. 2 RStV)', lines: ['Responsables du contenu : Rebeca Bahoumina & Jérémie Mayindou'] },
+      { heading: '3. Informations légales – Allemagne (conformément au § 5 TMG)', lines: ['IT & Coordination Allemagne : Jérémie MC', 'Téléphone : +49 176 22896160', 'E-mail : info_jmc@germanlinkbusiness.de', 'E-mail supplémentaire : kizomba-global-post@web.de'] },
+      { heading: '4. Responsables du contenu (conformément au § 55 Abs. 2 RStV)', lines: ['Responsables du contenu : Rebeca Bahoumina & Jérémie MC'] },
       { heading: '5. Contact général', lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone : +242 53312060'] },
       { heading: 'Clause de non-responsabilité', lines: ['Le contenu de nos pages a été créé avec le plus grand soin. Nous ne pouvons garantir l\'exactitude et l\'actualité du contenu.'] },
       { heading: 'Droit d\'auteur', lines: ['Le contenu est soumis au droit d\'auteur allemand. La reproduction nécessite le consentement écrit de l\'auteur.'] },
@@ -99,10 +99,10 @@ const impressum = {
   ln: {
     title: 'Makambo ya légal',
     sections: [
-      { heading: '1. Makambo ya générale ya société', lines: ['GermanLink Business (GLB)', 'Ba services ya logistique, importation, kosomba mpe coordination Allemagne–Afrique', 'Ba propriétaires : Rebeca Bahoumina & Jérémie Mayindou'] },
+      { heading: '1. Makambo ya générale ya société', lines: ['GermanLink Business (GLB)', 'Ba services ya logistique, importation, kosomba mpe coordination Allemagne–Afrique', 'Ba propriétaires : Rebeca Bahoumina & Jérémie MC'] },
       { heading: '2. Siège ya société – République du Congo (Congo-Brazzaville)', lines: ['Adresse : 68, rue Raymond-Paillet, Bacongo, Brazzaville, République du Congo', 'Téléphone : +242 53312060', 'E-mail : info@germanlinkbusiness.de', '──────────────────────────────', 'Coordinateur – République Démocratique du Congo : Angele K', 'Téléphone : +243 533320604', 'E-mail : info_ak@germanlinkbusiness.de'] },
-      { heading: '3. Makambo ya légal – Allemagne (§ 5 TMG)', lines: ['IT & Coordination Allemagne : Jérémie Mayindou', 'Téléphone : +49 176 22896160', 'E-mail : info_jmc@germanlinkbusiness.de', 'E-mail ya lisusu : kizomba-global-post@web.de'] },
-      { heading: '4. Ba responsables ya contenu (§ 55 Abs. 2 RStV)', lines: ['Ba responsables ya contenu : Rebeca Bahoumina & Jérémie Mayindou'] },
+      { heading: '3. Makambo ya légal – Allemagne (§ 5 TMG)', lines: ['IT & Coordination Allemagne : Jérémie MC', 'Téléphone : +49 176 22896160', 'E-mail : info_jmc@germanlinkbusiness.de', 'E-mail ya lisusu : kizomba-global-post@web.de'] },
+      { heading: '4. Ba responsables ya contenu (§ 55 Abs. 2 RStV)', lines: ['Ba responsables ya contenu : Rebeca Bahoumina & Jérémie MC'] },
       { heading: '5. Contact ya générale', lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone : +242 53312060'] },
       { heading: 'Limitation ya responsabilité', lines: ['Ba contenu ya ba pages na biso esalelaki na nzela ya mokwa. Kasi tokoki kotia garantie te pona exactitude ya ba contenu.'] },
       { heading: 'Droit d\'auteur', lines: ['Ba contenu oyo basalaki ekomani na ba lois ya Allemagne. Kobongola esengeli libula ya écrit ya auteur.'] },
