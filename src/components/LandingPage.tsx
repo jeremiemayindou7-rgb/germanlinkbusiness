@@ -332,7 +332,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           </div>
           <div>
             <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#f5f2eb', lineHeight: 1, letterSpacing: '-0.01em' }}>GLB</div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#0A5EB0', lineHeight: 1 }}>GermanLink Business</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#00e676', lineHeight: 1, textShadow: '0 0 8px rgba(0,230,118,0.6)' }}>GermanLink Business</div>
           </div>
         </div>
 
@@ -375,8 +375,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         </div>
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 900 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#5dcaa5', marginBottom: '1.8rem', padding: '0.35rem 0.85rem', border: '1px solid rgba(93,202,165,0.3)', borderRadius: 2 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#5dcaa5', display: 'inline-block' }}></span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#00e676', marginBottom: '1.8rem', padding: '0.35rem 0.85rem', border: '1px solid rgba(0,230,118,0.5)', borderRadius: 2, background: 'rgba(0,230,118,0.08)', textShadow: '0 0 10px rgba(0,230,118,0.5)' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00e676', display: 'inline-block', boxShadow: '0 0 6px #00e676' }}></span>
             {t.hero.tag}
           </div>
 
@@ -385,7 +385,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <span style={{ color: '#F4B400', fontStyle: 'italic' }}>{t.hero.titleAccent}</span>
           </h1>
 
-          <p style={{ fontSize: 'clamp(1rem, 1.4vw, 1.2rem)', color: '#8fa3b8', fontWeight: 300, lineHeight: 1.7, maxWidth: 560, marginBottom: '2.5rem' }}>
+          <p style={{ fontSize: 'clamp(1rem, 1.4vw, 1.2rem)', color: '#e8edf2', fontWeight: 400, lineHeight: 1.7, maxWidth: 560, marginBottom: '2.5rem', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
             {t.hero.subtitle}
           </p>
 
