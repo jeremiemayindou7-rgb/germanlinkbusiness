@@ -3,7 +3,7 @@ import { Shield } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
-  onHowItWorks?: () => void;
+  onNavigate?: (view: string) => void;
 }
 
 type Language = 'de' | 'fr' | 'ln';
@@ -302,7 +302,18 @@ const translations = {
   },
 };
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onHowItWorks }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNavigate }) => {
+
+  // Helper: navigate to a view (enters app) or fallback to onGetStarted
+  const go = (view: string) => {
+    if (onNavigate) {
+      onGetStarted(); // exit landing first
+      // small delay so showLanding=false renders before view switch
+      setTimeout(() => onNavigate(view), 0);
+    } else {
+      onGetStarted();
+    }
+  };
   const [language, setLanguage] = useState<Language>('fr');
 
   useEffect(() => {
@@ -391,13 +402,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onHowItW
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.75rem', marginBottom: '3.5rem' }}>
-            <button onClick={onGetStarted} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>
+            {/* Acheter → Marketplace/ProductCatalog */}
+            <button onClick={() => go('marketplace')} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>
               {t.hero.btn1}
             </button>
-            <button onClick={onGetStarted} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
+            {/* Vendre → Seller Program */}
+            <button onClick={() => go('seller')} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
               {t.hero.btn2}
             </button>
-            <button onClick={onGetStarted} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
+            {/* Expédier → How it works */}
+            <button onClick={() => go('how-it-works')} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
               {t.hero.btn3}
             </button>
           </div>
@@ -502,8 +516,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onHowItW
             ))}
           </div>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' as const }}>
-            <button onClick={onGetStarted} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.seller.btn1}</button>
-            <button onClick={onGetStarted} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>{t.seller.btn2}</button>
+            {/* Devenir vendeur → Seller Program */}
+            <button onClick={() => go('seller')} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.seller.btn1}</button>
+            {/* En savoir plus → How it works */}
+            <button onClick={() => go('how-it-works')} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>{t.seller.btn2}</button>
           </div>
         </div>
       </section>
@@ -542,9 +558,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onHowItW
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 900, color: '#0a1628', marginBottom: '1rem' }}>{t.cta.title}</h2>
         <p style={{ color: 'rgba(10,22,40,0.7)', maxWidth: 500, margin: '0 auto 2.5rem', lineHeight: 1.7 }}>{t.cta.subtitle}</p>
         <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' as const, gap: '1rem' }}>
-          <button onClick={onGetStarted} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn1}</button>
-          <button onClick={onGetStarted} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn2}</button>
-          <button onClick={onGetStarted} style={{ background: 'transparent', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: '2px solid #0a1628', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn3}</button>
+          {/* Acheter → Marketplace */}
+          <button onClick={() => go('marketplace')} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn1}</button>
+          {/* Seller werden → Seller Program */}
+          <button onClick={() => go('seller')} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn2}</button>
+          {/* Nous contacter → Mentions légales / Impressum */}
+          <button onClick={() => go('impressum')} style={{ background: 'transparent', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: '2px solid #0a1628', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn3}</button>
         </div>
       </section>
 
@@ -581,15 +600,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onHowItW
             <button onClick={() => window.location.href = '/agb'} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
               {t.footer.agb}
             </button>
-            <button
-              onClick={() => {
-                if (onHowItWorks) {
-                  onHowItWorks();
-                } else {
-                  onGetStarted();
-                }
-              }}
-              style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
+            {/* Comment fonctionne GLB → HowItWorksPage */}
+            <button onClick={() => go('how-it-works')} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
               {t.footer.how}
             </button>
           </div>

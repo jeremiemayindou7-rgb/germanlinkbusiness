@@ -69,9 +69,10 @@ function AppContent() {
       <>
         <LandingPage
           onGetStarted={() => setShowLanding(false)}
-          onHowItWorks={() => {
+          onNavigate={(view) => {
             setShowLanding(false);
-            setActiveView('how-it-works');
+            // needs one tick for showLanding state to flush
+            setTimeout(() => setActiveView(view), 0);
           }}
         />
         <ChatBot />
