@@ -1,5 +1,4 @@
 // ─── GermanLink Business – HowItWorksPage ────────────────────────────────────
-// Nutzt useLanguage() aus dem globalen Context – KEIN eigener Sprachumschalter
 import React, { useState } from 'react';
 import {
   ShoppingBag, MessageCircle, Building2, Package,
@@ -28,6 +27,9 @@ const content = {
     closingDesc: 'Die direkte Brücke zwischen Deutschland und dem Congo.',
     tabProcess: 'Ablauf',
     tabImprint: 'Impressum',
+    mediaTitle: '📸 Aktuelle Lieferungen',
+    mediaSubtitle: 'Wird regelmäßig aktualisiert',
+    mediaRoute: '🚢 Monatliche Container Hamburg → Pointe-Noire / Matadi',
   },
   fr: {
     title: 'Comment fonctionne GermanLink Business',
@@ -47,6 +49,9 @@ const content = {
     closingDesc: 'Le pont direct entre l\'Allemagne et le Congo.',
     tabProcess: 'Processus',
     tabImprint: 'Mentions légales',
+    mediaTitle: '📸 Livraisons récentes',
+    mediaSubtitle: 'Mis à jour régulièrement',
+    mediaRoute: '🚢 Conteneurs mensuels Hambourg → Pointe-Noire / Matadi',
   },
   ln: {
     title: 'Ndenge GermanLink Business esalaka',
@@ -66,6 +71,9 @@ const content = {
     closingDesc: 'Pont direct entre Allemagne na Congo.',
     tabProcess: 'Ndenge esalaka',
     tabImprint: 'Makambo ya légal',
+    mediaTitle: '📸 Ba livraisons ya sika',
+    mediaSubtitle: 'Ebongisami ntango nyonso',
+    mediaRoute: '🚢 Ba containers ya sanza na sanza Hambourg → Pointe-Noire / Matadi',
   },
 };
 
@@ -104,19 +112,29 @@ const impressum = {
       { heading: '3. Makambo ya légal – Allemagne (§ 5 TMG)', lines: ['IT & Coordination Allemagne : Jérémie MC', 'Téléphone : +49 176 22896160', 'E-mail : info_jmc@germanlinkbusiness.de', 'E-mail ya lisusu : kizomba-global-post@web.de'] },
       { heading: '4. Ba responsables ya contenu (§ 55 Abs. 2 RStV)', lines: ['Ba responsables ya contenu : Rebeca Bahoumina & Jérémie MC'] },
       { heading: '5. Contact ya générale', lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone : +242 53312060'] },
-      { heading: 'Limitation ya responsabilité', lines: ['Ba contenu ya ba pages na biso esalelaki na nzela ya mokwa. Kasi tokoki kotia garantie te pona exactitude ya ba contenu.'] },
-      { heading: 'Droit d\'auteur', lines: ['Ba contenu oyo basalaki ekomani na ba lois ya Allemagne. Kobongola esengeli libula ya écrit ya auteur.'] },
-      { heading: 'Protection ya ba données', lines: ['Kosalela site na biso ekotelemi mingi te na kopesa ba données ya personnel. Esalelaka na bolutu.'] },
+      { heading: 'Limitation ya responsabilité', lines: ['Ba contenu ya ba pages na biso esalelaki na nzela ya mokwa.'] },
+      { heading: 'Droit d\'auteur', lines: ['Ba contenu oyo basalaki ekomani na ba lois ya Allemagne.'] },
+      { heading: 'Protection ya ba données', lines: ['Kosalela site na biso ekotelemi mingi te na kopesa ba données ya personnel.'] },
     ],
   },
 };
+
+// ── Bilder in /public/media/ mit festen Dateinamen ────────────────────────
+// Einfach gleichen Dateinamen ersetzen → Browser lädt neu (cache: 'reload')
+const MEDIA_IMAGES = [
+  { src: '/media/delivery-1.jpg', fallback: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80' },
+  { src: '/media/delivery-2.jpg', fallback: 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80' },
+  { src: '/media/delivery-3.jpg', fallback: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80' },
+  { src: '/media/delivery-4.jpg', fallback: 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=600&q=80' },
+  { src: '/media/delivery-5.jpg', fallback: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=600&q=80' },
+  { src: '/media/delivery-6.jpg', fallback: 'https://images.unsplash.com/photo-1571987502227-9231b837d92a?w=600&q=80' },
+];
 
 interface HowItWorksPageProps {
   initialTab?: 'process' | 'impressum';
 }
 
 export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'process' }) => {
-  // ── Globale Sprache nutzen statt eigener State ────────────────────────────
   const { language } = useLanguage();
   const lang = (language as Lang) || 'fr';
   const [tab, setTab] = useState<'process' | 'impressum'>(initialTab);
@@ -126,7 +144,7 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ── Tabs (kein eigener Sprachumschalter!) ───────────────────────── */}
+      {/* Tabs */}
       <div className="bg-white border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex gap-2 sm:gap-6">
@@ -152,7 +170,7 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
 
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-10">
 
-        {/* ── PROZESS TAB ───────────────────────────────────────────────── */}
+        {/* ── PROZESS TAB ── */}
         {tab === 'process' && (
           <>
             <div className="text-center mb-8 sm:mb-12">
@@ -225,35 +243,116 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
           </>
         )}
 
-        {/* ── IMPRESSUM TAB ─────────────────────────────────────────────── */}
+        {/* ── IMPRESSUM TAB ── */}
         {tab === 'impressum' && (
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
-            <h1 className="text-xl sm:text-2xl font-black text-gray-900 mb-6 sm:mb-8 pb-4 border-b">
-              📄 {imp.title}
-            </h1>
-            <div className="space-y-6 sm:space-y-8">
-              {imp.sections.map((section, i) => (
-                <div key={i} className={i < 5 ? 'bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-100' : ''}>
-                  <h2 className={`text-sm sm:text-base font-bold mb-2 sm:mb-3 ${i < 5 ? 'text-[#009543]' : 'text-[#0A5EB0]'}`}>
-                    {section.heading}
-                  </h2>
-                  <div className="space-y-1.5 sm:space-y-2">
-                    {section.lines.map((line, li) => (
-                      <p key={li} className={`text-xs sm:text-sm leading-relaxed ${
-                        line.startsWith('──') ? 'text-gray-300 my-1' : 'text-gray-700'
-                      }`}>
-                        {line}
-                      </p>
-                    ))}
+          <>
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
+              <h1 className="text-xl sm:text-2xl font-black text-gray-900 mb-6 sm:mb-8 pb-4 border-b">
+                📄 {imp.title}
+              </h1>
+              <div className="space-y-6 sm:space-y-8">
+                {imp.sections.map((section, i) => (
+                  <div key={i} className={i < 5 ? 'bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-100' : ''}>
+                    <h2 className={`text-sm sm:text-base font-bold mb-2 sm:mb-3 ${i < 5 ? 'text-[#009543]' : 'text-[#0A5EB0]'}`}>
+                      {section.heading}
+                    </h2>
+                    <div className="space-y-1.5 sm:space-y-2">
+                      {section.lines.map((line, li) => (
+                        <p key={li} className={`text-xs sm:text-sm leading-relaxed ${
+                          line.startsWith('──') ? 'text-gray-300 my-1' : 'text-gray-700'
+                        }`}>
+                          {line}
+                        </p>
+                      ))}
+                    </div>
                   </div>
+                ))}
+              </div>
+              <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t text-center text-xs text-gray-400">
+                © {new Date().getFullYear()} GermanLink Business · info@germanlinkbusiness.de
+              </div>
+            </div>
+
+            {/* ── MEDIA GALLERY — aktuelle Lieferungen ── */}
+            <div className="mt-8">
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-1 h-6 bg-[#009543] rounded-full flex-shrink-0" />
+                <h2 className="text-base sm:text-lg font-black text-gray-900">{c.mediaTitle}</h2>
+                <span className="ml-auto text-xs text-gray-400 italic whitespace-nowrap">{c.mediaSubtitle}</span>
+              </div>
+
+              {/* Grid — wie Screenshot: 1 hochkant links, 1 hochkant mitte, 2×2 rechts */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 grid-rows-2 gap-2 sm:gap-3" style={{ height: 320 }}>
+
+                {/* Bild 1 — spans col 1, rows 1+2 */}
+                <div className="row-span-2 rounded-2xl overflow-hidden bg-gray-100">
+                  <img
+                    src={`${MEDIA_IMAGES[0].src}?v=${Date.now()}`}
+                    alt="Lieferung 1"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[0].fallback; }}
+                  />
                 </div>
-              ))}
+
+                {/* Bild 2 — spans col 2, rows 1+2 */}
+                <div className="row-span-2 rounded-2xl overflow-hidden bg-gray-100">
+                  <img
+                    src={`${MEDIA_IMAGES[1].src}?v=${Date.now()}`}
+                    alt="Lieferung 2"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[1].fallback; }}
+                  />
+                </div>
+
+                {/* Bild 3 — col 3, row 1 */}
+                <div className="rounded-2xl overflow-hidden bg-gray-100">
+                  <img
+                    src={`${MEDIA_IMAGES[2].src}?v=${Date.now()}`}
+                    alt="Lieferung 3"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[2].fallback; }}
+                  />
+                </div>
+
+                {/* Bild 4 — col 4, row 1 */}
+                <div className="rounded-2xl overflow-hidden bg-gray-100">
+                  <img
+                    src={`${MEDIA_IMAGES[3].src}?v=${Date.now()}`}
+                    alt="Lieferung 4"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[3].fallback; }}
+                  />
+                </div>
+
+                {/* Bild 5 — col 3, row 2 */}
+                <div className="rounded-2xl overflow-hidden bg-gray-100">
+                  <img
+                    src={`${MEDIA_IMAGES[4].src}?v=${Date.now()}`}
+                    alt="Lieferung 5"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[4].fallback; }}
+                  />
+                </div>
+
+                {/* Bild 6 — col 4, row 2 */}
+                <div className="rounded-2xl overflow-hidden bg-gray-100">
+                  <img
+                    src={`${MEDIA_IMAGES[5].src}?v=${Date.now()}`}
+                    alt="Lieferung 6"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[5].fallback; }}
+                  />
+                </div>
+
+              </div>
+
+              {/* Route Hinweis */}
+              <p className="text-center text-xs text-gray-400 mt-3">{c.mediaRoute}</p>
             </div>
-            <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t text-center text-xs text-gray-400">
-              © {new Date().getFullYear()} GermanLink Business · info@germanlinkbusiness.de
-            </div>
-          </div>
+          </>
         )}
+
       </div>
     </div>
   );
