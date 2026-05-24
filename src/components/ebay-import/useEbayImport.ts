@@ -1,13 +1,22 @@
-// ─── GermanLink Business – eBay Import API Hook ──────────────────────────────
-// Verbindet das React-Frontend mit dem Python Import-Service.
-// Passe API_BASE_URL an deine Backend-URL an (z.B. http://localhost:8000).
+// ─── GermanLink Business – eBay Import Hook (API Version) ────────────────────
+// Nutzt Supabase Edge Function "ebay-proxy" statt Python-Backend.
+// Kein lokaler Server mehr nötig!
 
 import { useState, useCallback } from "react";
 import { ImportedProduct, ImportState } from "./types";
+import { supabase } from "../../lib/supabaseClient"; // Pfad ggf. anpassen
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+// ─── Item ID aus eBay URL extrahieren ─────────────────────────────────────────
+function extractItemId(url: string): string | null {
+  // Unterstützt:
+  // https://www.ebay.de/itm/123456789012
+  // https://www.ebay.de/itm/Titel-des-Produkts/123456789012
+  // https://ebay.de/itm/123456789012?hash=...
+  const match = url.match(/\/itm\/(?:[^/]+\/)?(\d{10,13})/);
+  return match ? match[1] : null;
+}
 
-// Simuliert den Python-Backend-Aufruf im Dev-Modus (wenn kein Backend läuft)
+// ─── Fallback Mock (nur für Dev wenn Edge Function nicht erreichbar) ──────────
 const MOCK_RESPONSE: ImportedProduct = {
   source: "ebay",
   source_url: "https://www.ebay.de/itm/123456789",
@@ -39,6 +48,12 @@ const MOCK_RESPONSE: ImportedProduct = {
   },
 };
 
+// ─── GLB Aufschlag (20%) berechnen ────────────────────────────────────────────
+function calcGlbPrice(basePrice: number): number {
+  return Math.ceil(basePrice * 1.2 * 100) / 100;
+}
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 export function useEbayImport() {
   const [state, setState] = useState<ImportState>({
     status: "idle",
@@ -51,42 +66,76 @@ export function useEbayImport() {
     setState({ status: "fetching", product: null, error: null, progress: 10 });
 
     try {
-      // Schritt 1: eBay-Daten fetchen (40%)
-      await simulateDelay(400);
-      setState((s) => ({ ...s, progress: 40 }));
+      // Item ID aus URL extrahieren
+      const itemId = extractItemId(url);
+      if (!itemId) {
+        throw new Error(
+          "Ungültige eBay URL. Bitte kopiere die vollständige Produktseiten-URL."
+        );
+      }
 
-      // Schritt 2: Übersetzen (80%)
-      setState((s) => ({ ...s, status: "translating", progress: 70 }));
-      await simulateDelay(400);
-      setState((s) => ({ ...s, progress: 90 }));
+      setState((s) => ({ ...s, progress: 30 }));
 
       let product: ImportedProduct;
 
-      // Echter API-Aufruf – fällt auf Mock zurück wenn Backend nicht erreichbar
       try {
-        const res = await fetch(`${API_BASE_URL}/api/import-ebay`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url }),
-          signal: AbortSignal.timeout(30_000),
+        // ── Supabase Edge Function aufrufen ──────────────────────────────
+        setState((s) => ({ ...s, progress: 50 }));
+
+        const { data, error } = await supabase.functions.invoke("ebay-proxy", {
+          body: { itemId, sourceUrl: url },
         });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.detail ?? `HTTP ${res.status}`);
-        }
+        if (error) throw new Error(error.message);
+        if (!data) throw new Error("Keine Daten von der API erhalten.");
 
-        product = await res.json();
-      } catch (networkErr) {
-        // Im Dev-Modus: Mock-Daten verwenden
+        setState((s) => ({ ...s, status: "translating", progress: 75 }));
+
+        // ── Antwort in ImportedProduct-Format umwandeln ──────────────────
+        const basePrice = parseFloat(data.price ?? "0");
+
+        product = {
+          source: "ebay",
+          source_url: url,
+          base_price: basePrice,
+          glb_price: calcGlbPrice(basePrice),
+          currency: data.currency ?? "EUR",
+          category: data.category ?? "Sonstiges",
+          images: [
+            ...(data.images ?? []),
+            ...(data.additionalImages ?? []),
+          ].slice(0, 8), // max 8 Bilder
+
+          translations: {
+            de: {
+              title: data.title ?? "",
+              description: data.description ?? "",
+            },
+            // Französisch + Lingala kommen von der Edge Function (Claude API)
+            fr: {
+              title: data.title_fr ?? data.title ?? "",
+              description: data.description_fr ?? data.description ?? "",
+            },
+            ln: {
+              title: data.title_ln ?? data.title ?? "",
+              description: data.description_ln ?? data.description ?? "",
+            },
+          },
+        };
+
+        setState((s) => ({ ...s, progress: 95 }));
+
+      } catch (apiErr) {
+        // Dev-Fallback: Mock-Daten wenn Edge Function nicht erreichbar
         console.warn(
-          "[GLB Import] Backend nicht erreichbar – verwende Mock-Daten.",
-          networkErr
+          "[GLB Import] Edge Function nicht erreichbar – verwende Mock.",
+          apiErr
         );
         product = { ...MOCK_RESPONSE, source_url: url };
       }
 
       setState({ status: "done", product, error: null, progress: 100 });
+
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Unbekannter Fehler";
@@ -106,8 +155,3 @@ export function useEbayImport() {
   return { state, importProduct, reset };
 }
 
-// ─── Helper ───────────────────────────────────────────────────────────────────
-
-function simulateDelay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
