@@ -18,51 +18,65 @@ import { QuoteRequestsManagement } from './QuoteRequestsManagement';
 interface AdminDashboardProps {
   isOpen: boolean;
   onClose: () => void;
-  onEbayImport?: () => void; // ← NEU: Callback für eBay Import Page
+  onEbayImport?: () => void;
 }
 
 type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics' | 'customers' | 'sellers' | 'quotes';
+type UserRole = 'admin' | 'staff' | null;
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose, onEbayImport }) => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [activeTab, setActiveTab] = useState<TabType>('products');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>(null);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingQuotes, setPendingQuotes] = useState(0);
 
+  const isAdmin = userRole === 'admin';
+  const isStaff = userRole === 'staff';
+  const hasAccess = isAdmin || isStaff;
+
   useEffect(() => {
-    const checkAdmin = async () => {
-      if (!user) { setIsAdmin(false); setCheckingAdmin(false); return; }
+    const checkRole = async () => {
+      if (!user) { setUserRole(null); setCheckingAdmin(false); return; }
       const { data } = await supabase
         .from('profiles')
         .select('is_admin, role')
         .eq('id', user.id)
         .single();
-      setIsAdmin(data?.is_admin === true || data?.role === 'admin');
+
+      if (data?.is_admin === true || data?.role === 'admin') {
+        setUserRole('admin');
+      } else if (data?.role === 'staff') {
+        setUserRole('staff');
+      } else {
+        setUserRole(null);
+      }
       setCheckingAdmin(false);
     };
-    if (isOpen) checkAdmin();
+    if (isOpen) checkRole();
   }, [user, isOpen]);
 
   useEffect(() => {
     const fetchBadges = async () => {
-      const { count: sellerCount } = await supabase
-        .from('seller_applications')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
-      setPendingCount(sellerCount || 0);
+      if (isAdmin) {
+        const { count: sellerCount } = await supabase
+          .from('seller_applications')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+        setPendingCount(sellerCount || 0);
 
-      const { count: quoteCount } = await supabase
-        .from('quote_requests')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
-      setPendingQuotes(quoteCount || 0);
+        const { count: quoteCount } = await supabase
+          .from('quote_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+        setPendingQuotes(quoteCount || 0);
+      }
     };
-    if (isAdmin) fetchBadges();
-  }, [isAdmin]);
+    if (hasAccess) fetchBadges();
+  }, [userRole]);
 
   if (!isOpen) return null;
 
@@ -76,7 +90,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!user || !hasAccess) {
     return (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
         <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
@@ -91,30 +105,50 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
     );
   }
 
-  const menuItems = [
-    { id: 'dashboard'  as TabType, icon: LayoutDashboard, label: 'Dashboard' },
-    { id: 'products'   as TabType, icon: Package,         label: t('products') },
-    { id: 'orders'     as TabType, icon: ShoppingBag,     label: t('order_management') },
-    { id: 'quotes'     as TabType, icon: FileText,        label: 'eBay Anfragen', badge: pendingQuotes },
-    { id: 'containers' as TabType, icon: Ship,            label: 'Containers' },
-    { id: 'statistics' as TabType, icon: BarChart3,       label: 'Statistiques' },
-    { id: 'customers'  as TabType, icon: Users,           label: 'Clients' },
-    { id: 'sellers'    as TabType, icon: Store,           label: 'Seller-Bewerbungen', badge: pendingCount },
+  // ── Menü je nach Rolle ────────────────────────────────────────────────────
+  const allMenuItems = [
+    { id: 'dashboard'  as TabType, icon: LayoutDashboard, label: 'Dashboard',           roles: ['admin'] },
+    { id: 'products'   as TabType, icon: Package,         label: t('products'),          roles: ['admin', 'staff'] },
+    { id: 'orders'     as TabType, icon: ShoppingBag,     label: t('order_management'),  roles: ['admin', 'staff'] },
+    { id: 'quotes'     as TabType, icon: FileText,        label: 'eBay Anfragen',        roles: ['admin'], badge: pendingQuotes },
+    { id: 'containers' as TabType, icon: Ship,            label: 'Containers',           roles: ['admin'] },
+    { id: 'statistics' as TabType, icon: BarChart3,       label: 'Statistiques',         roles: ['admin'] },
+    { id: 'customers'  as TabType, icon: Users,           label: 'Clients',              roles: ['admin', 'staff'] },
+    { id: 'sellers'    as TabType, icon: Store,           label: 'Seller-Bewerbungen',   roles: ['admin'], badge: pendingCount },
   ];
 
-  // ── Handler: Modal schließen + eBay Import View öffnen ─────────────────────
+  // Nur Menüpunkte anzeigen die der User sehen darf
+  const menuItems = allMenuItems.filter(item =>
+    item.roles.includes(userRole as string)
+  );
+
+  // Sicherstellen dass activeTab erlaubt ist
+  const allowedTabs = menuItems.map(m => m.id);
+  const currentTab = allowedTabs.includes(activeTab) ? activeTab : allowedTabs[0];
+
   const handleEbayImport = () => {
-    onClose();          // Admin-Modal schließen
-    onEbayImport?.();   // activeView auf 'ebay-import' setzen (via App.tsx)
+    onClose();
+    onEbayImport?.();
   };
 
   return (
     <div className="fixed inset-0 bg-gray-900 z-50 flex">
 
       {/* Sidebar */}
-      <div className={`bg-[#009543] text-white transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 flex flex-col`}>
+      <div className={`text-white transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 flex flex-col ${
+        isStaff ? 'bg-[#0A5EB0]' : 'bg-[#009543]'
+      }`}>
         <div className="p-4 border-b border-white border-opacity-20 flex items-center justify-between">
-          {!sidebarCollapsed && <h2 className="text-xl font-bold">Admin Dashboard</h2>}
+          {!sidebarCollapsed && (
+            <div>
+              <h2 className="text-lg font-bold">
+                {isStaff ? 'Mitarbeiter' : 'Admin Dashboard'}
+              </h2>
+              {isStaff && (
+                <p className="text-xs text-white/60 mt-0.5">Eingeschränkter Zugriff</p>
+              )}
+            </div>
+          )}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition"
@@ -131,20 +165,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition mb-1 relative ${
-                  activeTab === item.id ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-10'
+                  currentTab === item.id ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-10'
                 }`}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
-                {!sidebarCollapsed && (
-                  <span className="flex-1 text-left">{item.label}</span>
-                )}
-                {/* Badge ausgeklappt */}
+                {!sidebarCollapsed && <span className="flex-1 text-left">{item.label}</span>}
                 {!sidebarCollapsed && item.badge && item.badge > 0 ? (
                   <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                     {item.badge}
                   </span>
                 ) : null}
-                {/* Badge eingeklappt */}
                 {sidebarCollapsed && item.badge && item.badge > 0 ? (
                   <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {item.badge}
@@ -155,8 +185,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
           })}
         </nav>
 
-        {/* ── eBay Import Button (unten in der Sidebar) ────────────────────── */}
-        {onEbayImport && (
+        {/* eBay Import Button — nur für Admin */}
+        {isAdmin && onEbayImport && (
           <div className="p-3 border-t border-white border-opacity-20">
             <button
               onClick={handleEbayImport}
@@ -166,9 +196,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
               }`}
             >
               <Download className="w-5 h-5 flex-shrink-0" />
-              {!sidebarCollapsed && (
-                <span className="text-sm font-semibold">eBay Import</span>
-              )}
+              {!sidebarCollapsed && <span className="text-sm font-semibold">eBay Import</span>}
             </button>
           </div>
         )}
@@ -177,23 +205,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
       {/* Main Content */}
       <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
         <div className="bg-white border-b p-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {menuItems.find(item => item.id === activeTab)?.label}
-          </h1>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {menuItems.find(item => item.id === currentTab)?.label}
+            </h1>
+            {isStaff && (
+              <p className="text-xs text-gray-400 mt-0.5">Mitarbeiter-Zugriff</p>
+            )}
+          </div>
 
           <div className="flex items-center gap-3">
-            {/* ── eBay Import Button (oben rechts im Header) ───────────── */}
-            {onEbayImport && (
+            {isAdmin && onEbayImport && (
               <button
                 onClick={handleEbayImport}
                 className="flex items-center gap-2 px-4 py-2 bg-[#0052cc] text-white rounded-lg hover:bg-[#0747a6] transition text-sm font-medium shadow-sm"
-                title="Produkt von eBay automatisch importieren"
               >
                 <Download className="w-4 h-4" />
                 eBay Import
               </button>
             )}
-
             <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
               <X className="w-6 h-6" />
             </button>
@@ -201,20 +231,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
-          {activeTab === 'dashboard'  && <DashboardOverview />}
-          {activeTab === 'products'   && (
-            <ProductManagement
-              onEbayImport={handleEbayImport}
-            />
-          )}
-          {activeTab === 'orders'     && <OrderManagement />}
-          {activeTab === 'quotes'     && <QuoteRequestsManagement />}
-          {activeTab === 'containers' && <ContainerManagement />}
-          {activeTab === 'statistics' && <Statistics />}
-          {activeTab === 'customers'  && <CustomerManagement />}
-          {activeTab === 'sellers'    && <SellerApplicationsManagement />}
+          {currentTab === 'dashboard'  && <DashboardOverview />}
+          {currentTab === 'products'   && <ProductManagement onEbayImport={isAdmin ? handleEbayImport : undefined} />}
+          {currentTab === 'orders'     && <OrderManagement />}
+          {currentTab === 'quotes'     && <QuoteRequestsManagement />}
+          {currentTab === 'containers' && <ContainerManagement />}
+          {currentTab === 'statistics' && <Statistics />}
+          {currentTab === 'customers'  && <CustomerManagement />}
+          {currentTab === 'sellers'    && <SellerApplicationsManagement />}
         </div>
       </div>
     </div>
   );
 };
+
