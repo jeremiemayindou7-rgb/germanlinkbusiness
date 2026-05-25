@@ -310,7 +310,14 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
               />
               <select
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e) => {
+                  const selectedName = e.target.value;
+                  setFormData({
+                    ...formData,
+                    category:    selectedName,
+                    category_de: selectedName,
+                  });
+                }}
                 className="px-4 py-2 border rounded-lg"
               >
                 <option value="">-- Kategorie wählen --</option>
@@ -318,11 +325,11 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
                   .filter(cat => cat.parent_id === null)
                   .map(parent => (
                     <optgroup key={parent.id} label={`── ${parent.name_de}`}>
-                      <option value={parent.id}>{parent.name_de}</option>
+                      <option value={parent.name_de}>{parent.name_de}</option>
                       {categories
                         .filter(sub => sub.parent_id === parent.id)
                         .map(sub => (
-                          <option key={sub.id} value={sub.id}>
+                          <option key={sub.id} value={sub.name_de}>
                             &nbsp;&nbsp;&nbsp;{sub.name_de}
                           </option>
                         ))

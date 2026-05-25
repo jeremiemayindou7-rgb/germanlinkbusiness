@@ -20,39 +20,7 @@ function proxyImageUrl(url: string): string {
   return `https://images.weserv.nl/?url=${encodeURIComponent(url)}&w=800&q=85`;
 }
 
-// ── Kategorie-Mapping: eBay → GLB ─────────────────────────────────────────────
-function mapCategory(ebayCategory: string): string {
-  const cat = ebayCategory.toLowerCase();
-  if (cat.includes("traktor") || cat.includes("tractor") ||
-      cat.includes("auto") || cat.includes("motor") ||
-      cat.includes("fahrzeug") || cat.includes("kfz") ||
-      cat.includes("lkw") || cat.includes("pkw") ||
-      cat.includes("landmaschine") || cat.includes("sonstiges")) {
-    return "auto_motor";
-  }
-  if (cat.includes("elektronik") || cat.includes("computer") ||
-      cat.includes("handy") || cat.includes("tablet") ||
-      cat.includes("laptop") || cat.includes("phone") ||
-      cat.includes("telefon") || cat.includes("electronic")) {
-    return "electronics";
-  }
-  if (cat.includes("möbel") || cat.includes("furniture") ||
-      cat.includes("sofa") || cat.includes("tisch") ||
-      cat.includes("schrank") || cat.includes("stuhl")) {
-    return "furniture";
-  }
-  if (cat.includes("kleidung") || cat.includes("mode") ||
-      cat.includes("jacke") || cat.includes("schuhe") ||
-      cat.includes("clothing")) {
-    return "clothing";
-  }
-  if (cat.includes("haushalt") || cat.includes("küche") ||
-      cat.includes("garten") || cat.includes("werkzeug") ||
-      cat.includes("household")) {
-    return "household";
-  }
-  return "other";
-}
+
 
 export function SaveAction({ product, onSaved }: SaveActionProps) {
   const [status, setStatus] = useState<SaveStatus>("idle");
@@ -63,7 +31,9 @@ export function SaveAction({ product, onSaved }: SaveActionProps) {
     setError(null);
 
     try {
-      const category = mapCategory(product.category);
+      const category = product.category || 'Sonstiges';
+      // Lesbarer Name direkt aus eBay-Daten verwenden
+      const categoryReadable = category;
 
       // ── Alle Bild-URLs durch Proxy leiten ────────────────────────────────
       const proxiedImages = product.images.map(proxyImageUrl);
@@ -74,12 +44,12 @@ export function SaveAction({ product, onSaved }: SaveActionProps) {
         // Basis
         name:              product.translations.de.title,
         description:       product.translations.de.description,
-        category,
+        category:          categoryReadable,
         purchase_price:    product.base_price,
         sale_price:        product.glb_price,
         condition:         "good",
-        image_url:         mainImageUrl,       // ← Proxy-URL
-        images:            proxiedImages,      // ← Alle Proxy-URLs
+        image_url:         mainImageUrl,
+        images:            proxiedImages,
         stock_status:      "available",
         stock_quantity:    1,
 
@@ -90,9 +60,9 @@ export function SaveAction({ product, onSaved }: SaveActionProps) {
         description_de:    product.translations.de.description,
         description_fr:    product.translations.fr.description,
         description_ln:    product.translations.ln.description,
-        category_de:       category,
-        category_fr:       category,
-        category_ln:       category,
+        category_de:       categoryReadable,
+        category_fr:       categoryReadable,
+        category_ln:       categoryReadable,
 
         // eBay-Felder
         source_type:       "ebay",
