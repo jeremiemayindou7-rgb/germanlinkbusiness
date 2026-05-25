@@ -12,6 +12,14 @@ interface SaveActionProps {
 
 type SaveStatus = "idle" | "saving" | "success" | "error";
 
+// ── Bild-URL durch Proxy leiten (CORS-Fix für eBay) ──────────────────────────
+// Gespeicherte URLs müssen auch im Marketplace ladbar sein
+function proxyImageUrl(url: string): string {
+  if (!url) return url;
+  if (!url.includes('ebayimg.com') && !url.includes('ebay.com')) return url;
+  return `https://images.weserv.nl/?url=${encodeURIComponent(url)}&w=800&q=85`;
+}
+
 // ── Kategorie-Mapping: eBay → GLB ─────────────────────────────────────────────
 function mapCategory(ebayCategory: string): string {
   const cat = ebayCategory.toLowerCase();
@@ -57,7 +65,11 @@ export function SaveAction({ product, onSaved }: SaveActionProps) {
     try {
       const category = mapCategory(product.category);
 
-      // ── Supabase-Payload: passend zu deiner products-Tabelle ─────────────
+      // ── Alle Bild-URLs durch Proxy leiten ────────────────────────────────
+      const proxiedImages = product.images.map(proxyImageUrl);
+      const mainImageUrl  = proxiedImages[0] ?? "";
+
+      // ── Supabase-Payload ─────────────────────────────────────────────────
       const productData = {
         // Basis
         name:              product.translations.de.title,
@@ -66,8 +78,8 @@ export function SaveAction({ product, onSaved }: SaveActionProps) {
         purchase_price:    product.base_price,
         sale_price:        product.glb_price,
         condition:         "good",
-        image_url:         product.images[0] ?? "",
-        images:            product.images,
+        image_url:         mainImageUrl,       // ← Proxy-URL
+        images:            proxiedImages,      // ← Alle Proxy-URLs
         stock_status:      "available",
         stock_quantity:    1,
 

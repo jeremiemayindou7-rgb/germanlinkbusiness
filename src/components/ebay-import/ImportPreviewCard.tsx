@@ -7,11 +7,22 @@ interface ImportPreviewCardProps {
   product: ImportedProduct;
 }
 
+// ── eBay Bild-URLs durch Proxy leiten (CORS-Fix) ──────────────────────────────
+// eBay blockiert direkte Bildladungen von Drittseiten.
+// images.weserv.nl ist ein kostenloser, zuverlässiger Bild-Proxy mit CORS-Support.
+function proxyImageUrl(url: string): string {
+  if (!url) return url;
+  if (!url.includes('ebayimg.com') && !url.includes('ebay.com')) return url;
+  return `https://images.weserv.nl/?url=${encodeURIComponent(url)}&w=800&q=85`;
+}
+
 export function ImportPreviewCard({ product }: ImportPreviewCardProps) {
   const [activeImg, setActiveImg] = useState(0);
   const [imgError, setImgError] = useState<Record<number, boolean>>({});
 
-  const validImages = product.images.filter((_, i) => !imgError[i]);
+  // Alle Bilder durch Proxy leiten
+  const proxiedImages = product.images.map(proxyImageUrl);
+  const validImages = proxiedImages.filter((_, i) => !imgError[i]);
 
   return (
     <div className="glb-preview">
@@ -36,8 +47,8 @@ export function ImportPreviewCard({ product }: ImportPreviewCardProps) {
       </div>
 
       <div className="glb-preview__body">
-        {/* ── Bildergalerie ───────────────────────────────────────────── */}
-        {validImages.length > 0 && (
+        {/* ── Bildergalerie ── */}
+        {validImages.length > 0 ? (
           <div className="glb-gallery">
             <div className="glb-gallery__main">
               <img
@@ -68,9 +79,24 @@ export function ImportPreviewCard({ product }: ImportPreviewCardProps) {
               </div>
             )}
           </div>
+        ) : (
+          /* Fallback wenn alle Bilder fehlschlagen */
+          <div className="glb-gallery">
+            <div className="glb-gallery__main" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: '#f3f4f6', minHeight: 220, borderRadius: 8
+            }}>
+              <div style={{ textAlign: 'center', color: '#9ca3af' }}>
+                <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ margin: '0 auto 8px' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Z" />
+                </svg>
+                <p style={{ fontSize: '0.875rem' }}>Kein Bild verfügbar</p>
+              </div>
+            </div>
+          </div>
         )}
 
-        {/* ── Produkt-Info ───────────────────────────────────────────── */}
+        {/* ── Produkt-Info ── */}
         <div className="glb-preview__info">
           <p className="glb-preview__category">{product.category}</p>
           <h2 className="glb-preview__title">{product.translations.de.title}</h2>
@@ -122,3 +148,4 @@ export function ImportPreviewCard({ product }: ImportPreviewCardProps) {
     </div>
   );
 }
+
