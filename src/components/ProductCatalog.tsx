@@ -5,7 +5,6 @@ import { supabase } from '../lib/supabase';
 import { ProductCard } from './ProductCard';
 import { ProductDetail } from './ProductDetail';
 import { AuthModal } from './AuthModal';
-import { getProductField } from '../lib/translateProduct';
 import { getIconComponent } from '../lib/categoryIcons';
 
 interface Product {
@@ -48,6 +47,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
   const { t, language } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [allCategories, setAllCategories] = useState<Category[]>([]); // flat list for lookup
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,7 +65,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
 
   useEffect(() => {
     filterAndSortProducts();
-  }, [products, searchQuery, selectedCategory, sortBy]);
+  }, [products, searchQuery, selectedCategory, sortBy, allCategories]);
 
   const fetchCategories = async () => {
     try {
@@ -76,10 +76,13 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
 
       if (error) throw error;
 
+      const flat = data || [];
+      setAllCategories(flat); // speichere flat list für Lookup
+
       const categoryMap = new Map<string, Category>();
       const rootCategories: Category[] = [];
 
-      (data || []).forEach((cat) => {
+      flat.forEach((cat) => {
         categoryMap.set(cat.id, { ...cat, subcategories: [] });
       });
 
@@ -118,43 +121,79 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
     }
   };
 
+  // ── Kategorie-Name aus flat list holen ───────────────────────────────────────
+  const getCatNames = (catId: string): string[] => {
+    const cat = allCategories.find(c => c.id === catId);
+    if (!cat) return [];
+    return [cat.name_de, cat.name_fr, cat.name_ln].filter(Boolean);
+  };
+
+  // ── Alle Unterkategorie-IDs + Namen einer Elternkategorie ────────────────────
+  const getSubcategoryData = (parentId: string): { ids: string[], names: string[] } => {
+    const subs = allCategories.filter(c => c.parent_id === parentId);
+    return {
+      ids: subs.map(s => s.id),
+      names: subs.flatMap(s => [s.name_de, s.name_fr, s.name_ln]).filter(Boolean),
+    };
+  };
+
+  // ── Produkt matcht Kategorie wenn: ───────────────────────────────────────────
+  // 1. category_id stimmt überein (für Produkte mit category_id)
+  // 2. category String stimmt mit Kategorie-Name überein (für eBay-Imports)
+  // 3. Bei Elternkategorie: auch Unterkategorien berücksichtigen
+  const productMatchesCategory = (product: Product, categoryId: string): boolean => {
+    // Direkt per category_id
+    if (product.category_id === categoryId) return true;
+
+    // Kategorie-Namen der gewählten Kategorie
+    const catNames = getCatNames(categoryId);
+
+    // Produktkategorie-Felder
+    const productCatValues = [
+      product.category,
+      product.category_de,
+      product.category_fr,
+      product.category_ln,
+    ].filter(Boolean).map(v => v!.toLowerCase().trim());
+
+    // Direkt per Name
+    if (catNames.some(name =>
+      productCatValues.some(val => val === name.toLowerCase().trim() || val.includes(name.toLowerCase().trim()) || name.toLowerCase().trim().includes(val))
+    )) return true;
+
+    // Elternkategorie: auch Unterkategorien checken
+    const { ids: subIds, names: subNames } = getSubcategoryData(categoryId);
+
+    if (subIds.some(subId => product.category_id === subId)) return true;
+
+    if (subNames.some(name =>
+      productCatValues.some(val => val === name.toLowerCase().trim() || val.includes(name.toLowerCase().trim()))
+    )) return true;
+
+    return false;
+  };
+
   const filterAndSortProducts = () => {
     let filtered = [...products];
 
+    // Suche
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((p) => {
         const searchFields = [
-          p.name,
-          p.name_de,
-          p.name_fr,
-          p.name_ln,
-          p.description,
-          p.description_de,
-          p.description_fr,
-          p.description_ln
+          p.name, p.name_de, p.name_fr, p.name_ln,
+          p.description, p.description_de, p.description_fr, p.description_ln
         ].filter(Boolean);
-
-        return searchFields.some(field =>
-          field?.toLowerCase().includes(query)
-        );
+        return searchFields.some(field => field?.toLowerCase().includes(query));
       });
     }
 
+    // Kategorie-Filter
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter((p) => {
-        if (p.category_id === selectedCategory) return true;
-
-        const category = findCategoryById(selectedCategory);
-        if (category?.subcategories) {
-          return category.subcategories.some(sub => sub.id === p.category_id);
-        }
-
-        const categoryField = getProductField(p, 'category', language);
-        return p.category === selectedCategory || categoryField === t(selectedCategory);
-      });
+      filtered = filtered.filter(p => productMatchesCategory(p, selectedCategory));
     }
 
+    // Sortierung
     switch (sortBy) {
       case 'price_low_high':
         filtered.sort((a, b) => a.sale_price - b.sale_price);
@@ -162,25 +201,11 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
       case 'price_high_low':
         filtered.sort((a, b) => b.sale_price - a.sale_price);
         break;
-      case 'newest':
-        break;
     }
 
     setFilteredProducts(filtered);
   };
 
-  const findCategoryById = (id: string): Category | undefined => {
-    for (const cat of categories) {
-      if (cat.id === id) return cat;
-      if (cat.subcategories) {
-        const found = cat.subcategories.find(sub => sub.id === id);
-        if (found) return cat;
-      }
-    }
-    return undefined;
-  };
-  
-    // ── NEU: Kategorie-Filter für "Ähnliche Produkte" ─────────────────────────
   const handleCategoryFilter = (category: string) => {
     setSelectedCategory(category);
     setSelectedProductId(null);
@@ -220,7 +245,6 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
               className="w-full pl-10 pr-4 py-3 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] focus:border-transparent"
             />
           </div>
-
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="md:hidden flex items-center justify-center space-x-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
@@ -237,6 +261,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
                 {t('categories')}
               </label>
               <div className="space-y-2">
+                {/* Alle Kategorien */}
                 <button
                   onClick={() => setSelectedCategory('all')}
                   className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition flex items-center space-x-2 ${
@@ -273,11 +298,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
                             onClick={() => toggleCategory(cat.id)}
                             className="px-2 py-2 hover:bg-[#E5E5E5] rounded-lg transition"
                           >
-                            {isExpanded ? (
-                              <ChevronUp className="w-4 h-4 text-[#1C1C1C]" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4 text-[#1C1C1C]" />
-                            )}
+                            {isExpanded
+                              ? <ChevronUp className="w-4 h-4 text-[#1C1C1C]" />
+                              : <ChevronDown className="w-4 h-4 text-[#1C1C1C]" />
+                            }
                           </button>
                         )}
                       </div>
@@ -366,3 +390,4 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
     </div>
   );
 };
+
