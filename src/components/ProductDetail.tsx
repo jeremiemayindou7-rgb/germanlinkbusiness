@@ -39,7 +39,7 @@ interface ChatMessage {
 interface ProductDetailProps {
   productId: string;
   onClose: () => void;
-  onCategoryFilter?: (category: string) => void; // ← NEU
+  onCategoryFilter?: (category: string) => void;
 }
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose, onCategoryFilter }) => {
@@ -95,9 +95,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     try {
       const { data } = await supabase.from('admin_settings').select('value').eq('key', 'openai_api_key').maybeSingle();
       if (data?.value) initializeOpenAI(data.value);
-    } catch (error) {
-      console.error('Error loading API key:', error);
-    }
+    } catch (error) { console.error('Error loading API key:', error); }
   };
 
   const fetchProductDetails = async () => {
@@ -105,11 +103,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
       if (error) throw error;
       setProduct(data);
-    } catch (error) {
-      console.error('Error fetching product:', error);
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { console.error('Error fetching product:', error); }
+    finally { setLoading(false); }
   };
 
   const fetchReviews = async () => {
@@ -121,9 +116,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
         const avg = data.reduce((sum, r) => sum + r.rating, 0) / data.length;
         setAverageRating(Math.round(avg * 10) / 10);
       }
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-    }
+    } catch (error) { console.error('Error fetching reviews:', error); }
   };
 
   const fetchChatHistory = async () => {
@@ -132,9 +125,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       const { data, error } = await supabase.from('product_chats').select('*').eq('product_id', productId).eq('user_id', user.id).maybeSingle();
       if (error && error.code !== 'PGRST116') throw error;
       if (data) { setChatMessages(data.messages || []); setQuestionCount(data.question_count || 0); }
-    } catch (error) {
-      console.error('Error fetching chat history:', error);
-    }
+    } catch (error) { console.error('Error fetching chat history:', error); }
   };
 
   const handleAskQuestion = async () => {
@@ -160,11 +151,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       setChatMessages(updatedMessages);
       setQuestionCount(updatedCount);
       setUserQuestion('');
-    } catch (error: any) {
-      alert(error.message || 'Erreur lors de l\'envoi de la question');
-    } finally {
-      setChatLoading(false);
-    }
+    } catch (error: any) { alert(error.message || 'Erreur'); }
+    finally { setChatLoading(false); }
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -179,9 +167,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       setShowReviewForm(false);
       setReviewForm({ rating: 5, comment: '', reviewer_name: '' });
       fetchReviews();
-    } catch (error: any) {
-      alert(error.message || 'Erreur lors de la publication de l\'avis');
-    }
+    } catch (error: any) { alert(error.message); }
   };
 
   const handleAddToCart = async () => {
@@ -192,11 +178,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       await addToCart(product.id);
       setShowCartAdded(true);
       setTimeout(() => setShowCartAdded(false), 3000);
-    } catch (error: any) {
-      alert(error.message || 'Erreur lors de l\'ajout au panier');
-    } finally {
-      setAddingToCart(false);
-    }
+    } catch (error: any) { alert(error.message); }
+    finally { setAddingToCart(false); }
   };
 
   const handleSendMessage = async () => {
@@ -210,9 +193,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       setMessageText('');
       setShowMessageSent(true);
       setTimeout(() => setShowMessageSent(false), 3000);
-    } catch (error: any) {
-      alert(error.message || 'Erreur lors de l\'envoi du message');
-    }
+    } catch (error: any) { alert(error.message); }
   };
 
   const handleSubmitQuote = async () => {
@@ -234,83 +215,70 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       if (error) throw error;
       setQuoteSent(true);
       setShowQuoteForm(false);
-    } catch (error: any) {
-      alert(error.message || 'Fehler beim Senden der Anfrage');
-    } finally {
-      setQuoteLoading(false);
-    }
+    } catch (error: any) { alert(error.message); }
+    finally { setQuoteLoading(false); }
   };
 
-  // ── Badge je source_type ──────────────────────────────────────────────────
   const SourceBadge = () => {
     if (!product) return null;
     const badges = {
-      own:    { label: 'GLB Produkt',    color: 'bg-[#0A5EB0] text-white' },
-      vendor: { label: 'Händler',        color: 'bg-[#00A86B] text-white' },
-      ebay:   { label: 'eBay Import',    color: 'bg-orange-500 text-white' },
+      own:    { label: 'GLB Produkt', color: 'bg-[#0A5EB0] text-white' },
+      vendor: { label: 'Händler',     color: 'bg-[#00A86B] text-white' },
+      ebay:   { label: 'eBay Import', color: 'bg-orange-500 text-white' },
     };
     const b = badges[product.source_type] || badges.own;
     return <span className={`text-xs font-bold px-2 py-1 rounded-full ${b.color}`}>{b.label}</span>;
   };
 
-  // ── Aktions-Buttons ───────────────────────────────────────────────────────
   const ActionButtons = () => {
     if (!product) return null;
-
     if (product.source_type === 'ebay') {
       return (
         <div className="space-y-3">
-          {/* ── "Ähnliche Produkte" statt "Voir sur eBay" ─────────────── */}
           <button
-            onClick={() => {
-              onClose();
-              onCategoryFilter?.(product.category);
-            }}
-            className="w-full flex items-center justify-center gap-2 py-3 border-2 border-[#0A5EB0] text-[#0A5EB0] rounded-lg font-bold hover:bg-blue-50 transition"
+            onClick={() => { onClose(); onCategoryFilter?.(product.category); }}
+            className="w-full flex items-center justify-center gap-2 py-3 border-2 border-[#0A5EB0] text-[#0A5EB0] rounded-lg font-bold hover:bg-blue-50 transition text-sm"
           >
-            <Search className="w-5 h-5" />
+            <Search className="w-4 h-4" />
             Ähnliche Produkte anzeigen
           </button>
-
           {quoteSent ? (
-            <div className="bg-green-50 border border-green-300 text-green-700 rounded-lg p-4 text-center font-bold">
+            <div className="bg-green-50 border border-green-300 text-green-700 rounded-lg p-4 text-center font-bold text-sm">
               ✅ {t('quote_sent_success')}
             </div>
           ) : (
             <button
               onClick={() => setShowQuoteForm(!showQuoteForm)}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition shadow-md"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition text-sm"
             >
-              <FileText className="w-5 h-5" />
+              <FileText className="w-4 h-4" />
               {t('request_quote')}
             </button>
           )}
-
           {showQuoteForm && !quoteSent && (
-            <div className="border-2 border-orange-200 rounded-xl p-4 space-y-3 bg-orange-50">
-              <h4 className="font-bold text-[#1C1C1C]">{t('quote_form_title')}</h4>
-              <input type="text" placeholder={t('quote_name_placeholder')} value={quoteForm.customer_name}
-                onChange={e => setQuoteForm({ ...quoteForm, customer_name: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm" />
-              <input type="tel" placeholder={t('quote_phone_placeholder')} value={quoteForm.customer_phone}
-                onChange={e => setQuoteForm({ ...quoteForm, customer_phone: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm" />
-              <input type="text" placeholder={t('quote_location_placeholder')} value={quoteForm.customer_location}
-                onChange={e => setQuoteForm({ ...quoteForm, customer_location: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm" />
-              <input type="number" placeholder={t('quote_price_placeholder')} value={quoteForm.price_proposal}
-                onChange={e => setQuoteForm({ ...quoteForm, price_proposal: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm" />
+            <div className="border-2 border-orange-200 rounded-xl p-3 space-y-2 bg-orange-50">
+              <h4 className="font-bold text-[#1C1C1C] text-sm">{t('quote_form_title')}</h4>
+              {[
+                { ph: t('quote_name_placeholder'), key: 'customer_name', type: 'text' },
+                { ph: t('quote_phone_placeholder'), key: 'customer_phone', type: 'tel' },
+                { ph: t('quote_location_placeholder'), key: 'customer_location', type: 'text' },
+                { ph: t('quote_price_placeholder'), key: 'price_proposal', type: 'number' },
+              ].map(f => (
+                <input key={f.key} type={f.type} placeholder={f.ph}
+                  value={quoteForm[f.key as keyof typeof quoteForm]}
+                  onChange={e => setQuoteForm({ ...quoteForm, [f.key]: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm" />
+              ))}
               <textarea placeholder={t('quote_message_placeholder')} value={quoteForm.message}
                 onChange={e => setQuoteForm({ ...quoteForm, message: e.target.value })}
-                rows={3} className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-orange-400 text-sm resize-none" />
+                rows={2} className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm resize-none" />
               <div className="flex gap-2">
                 <button onClick={handleSubmitQuote} disabled={quoteLoading}
-                  className="flex-1 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition disabled:opacity-50">
+                  className="flex-1 py-2 bg-orange-500 text-white rounded-lg font-bold text-sm disabled:opacity-50">
                   {quoteLoading ? t('quote_sending') : t('quote_submit')}
                 </button>
                 <button onClick={() => setShowQuoteForm(false)}
-                  className="flex-1 py-2 border border-[#E5E5E5] rounded-lg font-bold text-gray-600 hover:bg-gray-100 transition">
+                  className="flex-1 py-2 border border-[#E5E5E5] rounded-lg font-bold text-sm text-gray-600">
                   {t('cancel')}
                 </button>
               </div>
@@ -319,22 +287,21 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
         </div>
       );
     }
-
     return (
       <div className="space-y-3">
         {showCartAdded && (
-          <div className="bg-[#00A86B] bg-opacity-10 text-[#00A86B] border border-[#00A86B] p-3 rounded-lg text-sm mb-3 font-bold">
+          <div className="bg-[#00A86B] bg-opacity-10 text-[#00A86B] border border-[#00A86B] p-3 rounded-lg text-sm font-bold">
             {t('added_to_cart') || 'Produit ajouté au panier!'}
           </div>
         )}
         <button onClick={handleAddToCart} disabled={addingToCart}
-          className="w-full flex items-center justify-center space-x-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed text-[#1C1C1C] shadow-md hover:shadow-lg">
+          className="w-full flex items-center justify-center gap-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition disabled:opacity-50 text-[#1C1C1C] text-sm">
           <ShoppingCart className="w-5 h-5" />
           <span>{addingToCart ? t('adding_to_cart') : t('add_to_cart')}</span>
         </button>
         {user && (
           <button onClick={() => setShowChat(!showChat)}
-            className="w-full flex items-center justify-center space-x-2 py-3 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg font-bold transition shadow-md hover:shadow-lg">
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg font-bold transition text-sm">
             <MessageCircle className="w-5 h-5" />
             <span>{t('ask_question')}</span>
           </button>
@@ -343,146 +310,143 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     );
   };
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg p-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#0A5EB0] border-t-transparent mx-auto"></div>
-        </div>
+  if (loading) return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+      <div className="bg-white rounded-lg p-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#0A5EB0] border-t-transparent mx-auto"></div>
       </div>
-    );
-  }
+    </div>
+  );
 
   if (!product) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg max-w-4xl w-full my-8 max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
-          <h2 className="text-xl font-bold text-gray-900">{t('product_details')}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center sm:p-4">
+      {/* Mobile: slide up from bottom; Desktop: centered modal */}
+      <div className="bg-white w-full sm:max-w-4xl sm:rounded-lg sm:my-8 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl">
+
+        {/* Sticky header */}
+        <div className="sticky top-0 bg-white border-b px-4 py-3 flex items-center justify-between z-10">
+          <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate pr-4">{t('product_details')}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition flex-shrink-0">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6">
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
+        <div className="p-3 sm:p-6">
+          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+
             {/* Bild */}
             <div>
-              <div className="relative pb-[100%] bg-gray-200 rounded-lg overflow-hidden mb-4">
+              <div className="relative pb-[75%] sm:pb-[100%] bg-gray-200 rounded-lg overflow-hidden mb-3">
                 {product.image_url && !imageError ? (
                   <img src={product.image_url} alt={product.name}
                     className="absolute inset-0 w-full h-full object-cover"
                     onError={() => setImageError(true)} />
-                ) : imageError ? (
+                ) : (
                   <img src={fallbackImage} alt={product.name}
                     className="absolute inset-0 w-full h-full object-cover" />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <ShoppingCart className="w-20 h-20 text-gray-400" />
-                  </div>
                 )}
               </div>
             </div>
 
             {/* Infos */}
             <div>
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <span className="text-sm text-[#0099CC] uppercase font-bold tracking-wide">{t(product.category)}</span>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="text-xs text-[#0099CC] uppercase font-bold">{t(product.category)}</span>
                 <span className="text-gray-300">•</span>
-                <span className="text-sm text-[#F4B400] font-bold bg-[#F4B400] bg-opacity-10 px-2 py-1 rounded">{t(product.condition)}</span>
+                <span className="text-xs text-[#F4B400] font-bold bg-[#F4B400] bg-opacity-10 px-2 py-0.5 rounded">{t(product.condition)}</span>
                 <SourceBadge />
               </div>
 
-              <h1 className="text-3xl font-bold text-[#1C1C1C] mb-4">{product.name}</h1>
+              <h1 className="text-lg sm:text-2xl font-bold text-[#1C1C1C] mb-2 sm:mb-3 leading-tight">{product.name}</h1>
 
               {averageRating > 0 && (
-                <div className="flex items-center space-x-2 mb-4">
+                <div className="flex items-center gap-2 mb-2">
                   <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} className={`w-5 h-5 ${star <= averageRating ? 'fill-[#FBDE4A] text-[#FBDE4A]' : 'text-gray-300'}`} />
+                    {[1,2,3,4,5].map(star => (
+                      <Star key={star} className={`w-4 h-4 ${star <= averageRating ? 'fill-[#FBDE4A] text-[#FBDE4A]' : 'text-gray-300'}`} />
                     ))}
                   </div>
-                  <span className="text-sm text-gray-600">{averageRating} ({reviews.length} {t('reviews')})</span>
+                  <span className="text-xs text-gray-600">{averageRating} ({reviews.length})</span>
                 </div>
               )}
 
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-[#1C1C1C] mb-2">{t('description')}</h3>
-                <p className="text-gray-600">{product.description}</p>
+              <div className="mb-3 sm:mb-4">
+                <h3 className="text-sm font-bold text-[#1C1C1C] mb-1">{t('description')}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed line-clamp-4 sm:line-clamp-none">{product.description}</p>
               </div>
 
-              {product.source_type !== 'ebay' && (
-                <div className="mb-6 bg-[#E5E5E5] bg-opacity-30 border border-[#E5E5E5] rounded-lg p-4">
-                  <h3 className="text-lg font-bold text-[#1C1C1C] mb-3">{t('write_message')}</h3>
-                  {!user && (
-                    <div className="bg-[#F4B400] bg-opacity-10 border border-[#F4B400] rounded-lg p-3 mb-3 text-sm">
-                      <div className="flex items-start space-x-2 mb-2">
-                        <Lock className="w-5 h-5 text-[#1C1C1C] flex-shrink-0 mt-0.5" />
-                        <span className="text-[#1C1C1C] font-bold">{t('login_anti_spam')}</span>
-                      </div>
-                    </div>
-                  )}
-                  {showMessageSent && (
-                    <div className="bg-[#00A86B] bg-opacity-10 text-[#00A86B] border border-[#00A86B] p-3 rounded-lg text-sm mb-3 font-bold">
-                      {t('message_sent_success')}
-                    </div>
-                  )}
-                  <div className="space-y-2">
-                    <textarea value={messageText} onChange={(e) => setMessageText(e.target.value)}
-                      placeholder={t('message_placeholder')} rows={3} disabled={!user}
-                      className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-none" />
-                    <button onClick={handleSendMessage}
-                      className="w-full flex items-center justify-center space-x-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition text-[#1C1C1C]">
-                      <MessageCircle className="w-5 h-5" />
-                      <span>{t('send_message')}</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* ── Preis: immer anzeigen, kein "Prix sur demande" ────────── */}
-              <div className="text-4xl font-bold text-[#00A86B] mb-6">
+              {/* Preis */}
+              <div className="text-2xl sm:text-3xl font-bold text-[#00A86B] mb-3 sm:mb-4">
                 {product.sale_price > 0
                   ? `${product.sale_price.toFixed(2)} €`
-                  : <span className="text-2xl text-gray-400">–</span>
-                }
+                  : <span className="text-xl text-gray-400">–</span>}
                 {product.source_type === 'ebay' && (
-                  <span className="block text-sm text-orange-500 font-normal mt-1">GLB-Preis inkl. 20% Aufschlag</span>
+                  <span className="block text-xs text-orange-500 font-normal mt-0.5">GLB-Preis inkl. 20% Aufschlag</span>
                 )}
               </div>
 
               <ActionButtons />
 
+              {/* Nachricht senden */}
+              {product.source_type !== 'ebay' && (
+                <div className="mt-3 sm:mt-4 bg-gray-50 border border-[#E5E5E5] rounded-lg p-3">
+                  <h3 className="text-sm font-bold text-[#1C1C1C] mb-2">{t('write_message')}</h3>
+                  {!user && (
+                    <div className="bg-[#F4B400] bg-opacity-10 border border-[#F4B400] rounded-lg p-2 mb-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <Lock className="w-4 h-4 text-[#1C1C1C] flex-shrink-0" />
+                        <span className="text-[#1C1C1C] font-bold">{t('login_anti_spam')}</span>
+                      </div>
+                    </div>
+                  )}
+                  {showMessageSent && (
+                    <div className="bg-[#00A86B] bg-opacity-10 text-[#00A86B] border border-[#00A86B] p-2 rounded-lg text-xs mb-2 font-bold">
+                      {t('message_sent_success')}
+                    </div>
+                  )}
+                  <textarea value={messageText} onChange={e => setMessageText(e.target.value)}
+                    placeholder={t('message_placeholder')} rows={2} disabled={!user}
+                    className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg disabled:bg-gray-100 resize-none text-sm mb-2" />
+                  <button onClick={handleSendMessage}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition text-[#1C1C1C] text-sm">
+                    <MessageCircle className="w-4 h-4" />
+                    <span>{t('send_message')}</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Chat */}
               {product.source_type !== 'ebay' && showChat && user && (
-                <div className="mt-4 border-2 border-[#0A5EB0] rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-bold text-[#1C1C1C]">{t('chat_with_ai')}</h3>
-                    <span className="text-sm text-[#0099CC] font-medium">
+                <div className="mt-3 border-2 border-[#0A5EB0] rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-bold text-[#1C1C1C] text-sm">{t('chat_with_ai')}</h3>
+                    <span className="text-xs text-[#0099CC] font-medium">
                       {t('questions_remaining').replace('{count}', String(3 - questionCount))}
                     </span>
                   </div>
-                  <div className="space-y-2 mb-3 max-h-60 overflow-y-auto">
+                  <div className="space-y-2 mb-2 max-h-40 overflow-y-auto">
                     {chatMessages.map((msg, idx) => (
-                      <div key={idx} className={`p-3 rounded-lg ${msg.role === 'user' ? 'bg-[#0A5EB0] text-white ml-8' : 'bg-[#E5E5E5] text-[#1C1C1C] mr-8'}`}>
-                        <p className="text-sm">{msg.content}</p>
+                      <div key={idx} className={`p-2 rounded-lg text-xs ${msg.role === 'user' ? 'bg-[#0A5EB0] text-white ml-4' : 'bg-[#E5E5E5] text-[#1C1C1C] mr-4'}`}>
+                        {msg.content}
                       </div>
                     ))}
                   </div>
                   {questionCount < 3 ? (
-                    <div className="flex space-x-2">
-                      <input type="text" value={userQuestion} onChange={(e) => setUserQuestion(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleAskQuestion()}
+                    <div className="flex gap-2">
+                      <input type="text" value={userQuestion} onChange={e => setUserQuestion(e.target.value)}
+                        onKeyPress={e => e.key === 'Enter' && handleAskQuestion()}
                         placeholder={t('type_your_question')} disabled={chatLoading}
-                        className="flex-1 px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0]" />
+                        className="flex-1 px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm" />
                       <button onClick={handleAskQuestion} disabled={chatLoading || !userQuestion.trim()}
-                        className="px-4 py-2 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg transition disabled:opacity-50 font-bold">
-                        <Send className="w-5 h-5" />
+                        className="px-3 py-2 bg-[#0A5EB0] text-white rounded-lg disabled:opacity-50">
+                        <Send className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
-                    <button onClick={() => { const msg = encodeURIComponent(`Bonjour, j'ai des questions sur le produit: ${product.name}`); window.open(`https://wa.me/?text=${msg}`, '_blank'); }}
-                      className="w-full py-3 bg-[#DC241F] hover:bg-[#b51d19] text-white rounded-lg font-medium transition">
+                    <button onClick={() => { const msg = encodeURIComponent(`Bonjour, questions sur: ${product.name}`); window.open(`https://wa.me/?text=${msg}`, '_blank'); }}
+                      className="w-full py-2 bg-[#DC241F] text-white rounded-lg text-sm font-medium">
                       {t('contact_support')}
                     </button>
                   )}
@@ -492,64 +456,61 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
           </div>
 
           {/* Reviews */}
-          <div className="border-t pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold text-[#1C1C1C]">{t('reviews')} ({reviews.length})</h3>
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-base sm:text-xl font-bold text-[#1C1C1C]">{t('reviews')} ({reviews.length})</h3>
               {user && !showReviewForm && (
                 <button onClick={() => setShowReviewForm(true)}
-                  className="px-4 py-2 bg-[#F4B400] hover:bg-[#0A5EB0] hover:text-white rounded-lg font-bold transition text-[#1C1C1C]">
+                  className="px-3 py-1.5 bg-[#F4B400] rounded-lg font-bold transition text-[#1C1C1C] text-sm">
                   {t('add_review')}
                 </button>
               )}
             </div>
 
             {showReviewForm && (
-              <form onSubmit={handleSubmitReview} className="bg-[#E5E5E5] bg-opacity-30 p-4 rounded-lg mb-6 border border-[#E5E5E5]">
+              <form onSubmit={handleSubmitReview} className="bg-gray-50 p-3 rounded-lg mb-4 border border-[#E5E5E5]">
                 <div className="mb-3">
-                  <label className="block text-sm font-bold text-[#1C1C1C] mb-2">{t('your_rating')}</label>
-                  <div className="flex space-x-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
+                  <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('your_rating')}</label>
+                  <div className="flex gap-1">
+                    {[1,2,3,4,5].map(star => (
                       <button key={star} type="button" onClick={() => setReviewForm({ ...reviewForm, rating: star })}>
-                        <Star className={`w-8 h-8 ${star <= reviewForm.rating ? 'fill-[#FBDE4A] text-[#FBDE4A]' : 'text-gray-300'}`} />
+                        <Star className={`w-7 h-7 ${star <= reviewForm.rating ? 'fill-[#FBDE4A] text-[#FBDE4A]' : 'text-gray-300'}`} />
                       </button>
                     ))}
                   </div>
                 </div>
-                <div className="mb-3">
-                  <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('your_review')}</label>
-                  <textarea value={reviewForm.comment} onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                    rows={3} className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0] resize-none" />
-                </div>
-                <div className="mb-3">
-                  <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('your_name_optional')}</label>
-                  <input type="text" value={reviewForm.reviewer_name} onChange={(e) => setReviewForm({ ...reviewForm, reviewer_name: e.target.value })}
-                    className="w-full px-4 py-2 border border-[#E5E5E5] rounded-lg focus:ring-2 focus:ring-[#0A5EB0]" />
-                </div>
-                <div className="flex space-x-2">
-                  <button type="submit" className="flex-1 py-2 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg font-bold transition">{t('submit_review')}</button>
-                  <button type="button" onClick={() => setShowReviewForm(false)} className="flex-1 py-2 bg-[#E5E5E5] hover:bg-[#1C1C1C] hover:text-white rounded-lg font-medium transition">{t('cancel')}</button>
+                <textarea value={reviewForm.comment} onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                  rows={2} placeholder={t('your_review')}
+                  className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm resize-none mb-2" />
+                <input type="text" value={reviewForm.reviewer_name}
+                  onChange={e => setReviewForm({ ...reviewForm, reviewer_name: e.target.value })}
+                  placeholder={t('your_name_optional')}
+                  className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm mb-2" />
+                <div className="flex gap-2">
+                  <button type="submit" className="flex-1 py-2 bg-[#0A5EB0] text-white rounded-lg font-bold text-sm">{t('submit_review')}</button>
+                  <button type="button" onClick={() => setShowReviewForm(false)} className="flex-1 py-2 bg-[#E5E5E5] rounded-lg font-medium text-sm">{t('cancel')}</button>
                 </div>
               </form>
             )}
 
             {reviews.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">{t('no_reviews')}</p>
+              <p className="text-gray-500 text-center py-6 text-sm">{t('no_reviews')}</p>
             ) : (
-              <div className="space-y-4">
-                {reviews.map((review) => (
-                  <div key={review.id} className="border-b pb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
+              <div className="space-y-3">
+                {reviews.map(review => (
+                  <div key={review.id} className="border-b pb-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
                         <div className="flex">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className={`w-4 h-4 ${star <= review.rating ? 'fill-[#FBDE4A] text-[#FBDE4A]' : 'text-gray-300'}`} />
+                          {[1,2,3,4,5].map(star => (
+                            <Star key={star} className={`w-3.5 h-3.5 ${star <= review.rating ? 'fill-[#FBDE4A] text-[#FBDE4A]' : 'text-gray-300'}`} />
                           ))}
                         </div>
-                        <span className="font-medium text-gray-900">{review.reviewer_name || 'Anonyme'}</span>
+                        <span className="font-medium text-sm text-gray-900">{review.reviewer_name || 'Anonyme'}</span>
                       </div>
-                      <span className="text-sm text-gray-500">{new Date(review.created_at).toLocaleDateString()}</span>
+                      <span className="text-xs text-gray-500">{new Date(review.created_at).toLocaleDateString()}</span>
                     </div>
-                    {review.comment && <p className="text-gray-600">{review.comment}</p>}
+                    {review.comment && <p className="text-gray-600 text-sm">{review.comment}</p>}
                   </div>
                 ))}
               </div>

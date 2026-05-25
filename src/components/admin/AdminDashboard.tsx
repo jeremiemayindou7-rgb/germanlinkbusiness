@@ -132,10 +132,54 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-900 z-50 flex">
+    <div className="fixed inset-0 bg-gray-900 z-50 flex flex-col md:flex-row">
 
-      {/* Sidebar */}
-      <div className={`text-white transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 flex flex-col ${
+      {/* ── MOBILE: Top Bar mit Tabs ── */}
+      <div className={`md:hidden flex items-center justify-between px-3 py-2 text-white flex-shrink-0 ${isStaff ? 'bg-[#0A5EB0]' : 'bg-[#009543]'}`}>
+        <div>
+          <p className="text-sm font-bold">{isStaff ? 'Mitarbeiter' : 'Admin'}</p>
+          {isStaff && <p className="text-[10px] text-white/60">Eingeschränkter Zugriff</p>}
+        </div>
+        <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* ── MOBILE: Bottom Navigation ── */}
+      <div className={`md:hidden fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center py-2 px-1 text-white border-t border-white/20 ${isStaff ? 'bg-[#0A5EB0]' : 'bg-[#009543]'}`}>
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition relative ${
+                currentTab === item.id ? 'bg-white/20' : 'hover:bg-white/10'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-[9px] font-medium leading-none">{item.label.split('-')[0].split(' ')[0]}</span>
+              {item.badge && item.badge > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
+                  {item.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+        {isAdmin && onEbayImport && (
+          <button
+            onClick={handleEbayImport}
+            className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg hover:bg-white/10 transition"
+          >
+            <Download className="w-5 h-5" />
+            <span className="text-[9px] font-medium leading-none">eBay</span>
+          </button>
+        )}
+      </div>
+
+      {/* ── DESKTOP: Sidebar ── */}
+      <div className={`hidden md:flex flex-col text-white transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 ${
         isStaff ? 'bg-[#0A5EB0]' : 'bg-[#009543]'
       }`}>
         <div className="p-4 border-b border-white border-opacity-20 flex items-center justify-between">
@@ -190,10 +234,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
           <div className="p-3 border-t border-white border-opacity-20">
             <button
               onClick={handleEbayImport}
-              title="Produkt von eBay importieren"
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 transition ${
-                sidebarCollapsed ? 'justify-center' : ''
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 transition ${sidebarCollapsed ? 'justify-center' : ''}`}
             >
               <Download className="w-5 h-5 flex-shrink-0" />
               {!sidebarCollapsed && <span className="text-sm font-semibold">eBay Import</span>}
@@ -204,22 +245,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
-        <div className="bg-white border-b p-4 flex items-center justify-between">
+        {/* Desktop Header */}
+        <div className="hidden md:flex bg-white border-b p-4 items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               {menuItems.find(item => item.id === currentTab)?.label}
             </h1>
-            {isStaff && (
-              <p className="text-xs text-gray-400 mt-0.5">Mitarbeiter-Zugriff</p>
-            )}
+            {isStaff && <p className="text-xs text-gray-400 mt-0.5">Mitarbeiter-Zugriff</p>}
           </div>
-
           <div className="flex items-center gap-3">
             {isAdmin && onEbayImport && (
-              <button
-                onClick={handleEbayImport}
-                className="flex items-center gap-2 px-4 py-2 bg-[#0052cc] text-white rounded-lg hover:bg-[#0747a6] transition text-sm font-medium shadow-sm"
-              >
+              <button onClick={handleEbayImport} className="flex items-center gap-2 px-4 py-2 bg-[#0052cc] text-white rounded-lg hover:bg-[#0747a6] transition text-sm font-medium">
                 <Download className="w-4 h-4" />
                 eBay Import
               </button>
@@ -230,7 +266,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Mobile: current tab title */}
+        <div className="md:hidden bg-white border-b px-4 py-2.5">
+          <h1 className="text-base font-bold text-gray-900">
+            {menuItems.find(item => item.id === currentTab)?.label}
+          </h1>
+        </div>
+
+        {/* Content — pb-20 on mobile for bottom nav */}
+        <div className="flex-1 overflow-y-auto p-3 md:p-6 pb-24 md:pb-6">
           {currentTab === 'dashboard'  && <DashboardOverview />}
           {currentTab === 'products'   && <ProductManagement onEbayImport={isAdmin ? handleEbayImport : undefined} />}
           {currentTab === 'orders'     && <OrderManagement />}

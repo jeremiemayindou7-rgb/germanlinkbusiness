@@ -835,7 +835,7 @@ export const ChatBot: React.FC = () => {
   // ── Proactive bubble ──
   if (!isOpen && showProactive) {
     return (
-      <div className="fixed bottom-24 right-6 z-50 animate-fade-in">
+      <div className="fixed bottom-36 md:bottom-24 right-4 md:right-6 z-50 animate-fade-in">
         <div className="bg-white rounded-2xl shadow-2xl p-4 max-w-xs border-2 border-green-500">
           <button
             onClick={() => setShowProactive(false)}
@@ -862,7 +862,7 @@ export const ChatBot: React.FC = () => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-2xl overflow-hidden border-2 border-white hover:scale-110 transition-transform z-50 animate-pulse-slow"
+        className="fixed bottom-20 md:bottom-6 right-4 md:right-6 w-14 h-14 rounded-full shadow-2xl overflow-hidden border-2 border-white hover:scale-110 transition-transform z-50 animate-pulse-slow"
         aria-label="Chat öffnen"
       >
         <img src={CHATBOT_AVATAR_URL} alt="Chat" className="w-full h-full object-cover" />
@@ -875,8 +875,8 @@ export const ChatBot: React.FC = () => {
     <div
       className={`fixed z-50 ${
         isMobile ? 'inset-0 bg-white' :
-        isMinimized ? 'bottom-6 right-6 w-80' :
-        'bottom-6 right-6 w-96 h-[580px]'
+        isMinimized ? 'bottom-20 md:bottom-6 right-4 md:right-6 w-80' :
+        'bottom-20 md:bottom-6 right-4 md:right-6 w-96 h-[580px]'
       } rounded-2xl shadow-2xl flex flex-col`}
       style={{ maxHeight: isMobile ? '100vh' : '620px' }}
     >
