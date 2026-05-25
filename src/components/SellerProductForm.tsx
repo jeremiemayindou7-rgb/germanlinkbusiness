@@ -25,8 +25,12 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
   const { t } = useLanguage();
   const { user, session } = useAuth();
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeSlot, setActiveSlot] = useState<number>(0);
+
+  // ── Ein file input pro Slot (iOS/Tablet fix) ─────────────────────────────
+  const fileInput0 = useRef<HTMLInputElement>(null);
+  const fileInput1 = useRef<HTMLInputElement>(null);
+  const fileInput2 = useRef<HTMLInputElement>(null);
+  const fileInputRefs = [fileInput0, fileInput1, fileInput2];
 
   // 3 Bild-Slots
   const [images, setImages] = useState<ImageSlot[]>([
@@ -40,17 +44,15 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
     condition: 'good', description: ''
   });
 
-  // Bild-Slot anklicken → Datei-Dialog öffnen
+  // Bild-Slot anklicken → Datei-Dialog öffnen (slot-spezifisch für iOS/Tablet)
   const openFileDialog = (slotIndex: number) => {
-    setActiveSlot(slotIndex);
-    fileInputRef.current?.click();
+    fileInputRefs[slotIndex]?.current?.click();
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>, slotIndex: number) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    // Reset input so same file can be selected again
     e.target.value = '';
+    if (!file) return;
 
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
       alert(`Bild zu groß! Maximal ${MAX_SIZE_MB}MB erlaubt.`);
@@ -60,7 +62,7 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
     const reader = new FileReader();
     reader.onload = () => {
       setImages(prev => prev.map((img, i) =>
-        i === activeSlot
+        i === slotIndex
           ? { ...img, file, preview: reader.result as string, url: null }
           : img
       ));
@@ -229,13 +231,18 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
               ))}
             </div>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageSelect}
-              className="hidden"
-            />
+            {/* 3 versteckte file inputs — einer pro Slot */}
+            {fileInputRefs.map((ref, i) => (
+              <input
+                key={i}
+                ref={ref}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={(e) => handleImageSelect(e, i)}
+                className="hidden"
+              />
+            ))}
 
             <p className="text-xs text-gray-400 mt-1.5">
               💡 Das erste Bild wird als Hauptbild im Marketplace angezeigt.
