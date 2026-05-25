@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LanguageProvider } from './contexts/LanguageContext';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LandingPage } from './components/LandingPage';
 import { Header } from './components/Header';
@@ -20,9 +20,11 @@ import { SellerApplyForm } from './components/SellerApplyForm';
 import { SellerDashboard } from './components/SellerDashboard';
 import { EbayImportPage } from './components/EbayImportPage';
 import { HowItWorksPage } from './components/HowItWorksPage';
+import { CookieConsent } from './components/CookieConsent';
 
 function AppContent() {
   const { user } = useAuth();
+  const { language } = useLanguage();
   const [showLanding, setShowLanding] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -71,11 +73,17 @@ function AppContent() {
           onGetStarted={() => setShowLanding(false)}
           onNavigate={(view) => {
             setShowLanding(false);
-            // needs one tick for showLanding state to flush
             setTimeout(() => setActiveView(view), 0);
           }}
         />
         <ChatBot />
+        <CookieConsent
+          language={language as 'de' | 'fr' | 'ln'}
+          onPrivacyClick={() => {
+            setShowLanding(false);
+            setTimeout(() => setActiveView('impressum'), 0);
+          }}
+        />
       </>
     );
   }
@@ -201,6 +209,10 @@ function AppContent() {
       <OrderTracking isOpen={ordersOpen} onClose={() => setOrdersOpen(false)} />
       <Notifications isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
       <ChatBot />
+      <CookieConsent
+        language={language as 'de' | 'fr' | 'ln'}
+        onPrivacyClick={() => setActiveView('impressum')}
+      />
 
       {showSellerApply && <SellerApplyForm onClose={() => setShowSellerApply(false)} />}
     </div>
