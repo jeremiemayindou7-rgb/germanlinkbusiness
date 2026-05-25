@@ -376,7 +376,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       </header>
 
       {/* ── HERO ── */}
-      <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, justifyContent: 'flex-end', padding: '0 4vw 8vh', position: 'relative', overflow: 'hidden', paddingTop: '80px' }}>
+      <section style={{ minHeight: 'clamp(600px, 100vh, 100vh)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'flex-end', padding: '0 4vw clamp(3rem, 8vh, 8vh)', position: 'relative', overflow: 'hidden', paddingTop: '80px' }}>
         {/* Background */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: 'linear-gradient(to top, rgba(7,16,32,0.98) 0%, rgba(7,16,32,0.65) 45%, rgba(7,16,32,0.25) 100%), url("https://images.unsplash.com/photo-1553413077-190dd305871c?w=1600&q=80") center/cover no-repeat' }}></div>
         {/* Flag bar top */}
@@ -397,11 +397,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
             <span style={{ color: '#F4B400', fontStyle: 'italic' }}>{t.hero.titleAccent}</span>
           </h1>
 
-          <p style={{ fontSize: 'clamp(1rem, 1.4vw, 1.2rem)', color: '#e8edf2', fontWeight: 400, lineHeight: 1.7, maxWidth: 560, marginBottom: '2.5rem', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+          <p style={{ fontSize: 'clamp(1rem, 1.4vw, 1.2rem)', color: '#e8edf2', fontWeight: 400, lineHeight: 1.7, maxWidth: 560, marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
             {t.hero.subtitle}
           </p>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.75rem', marginBottom: '3.5rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.75rem', marginBottom: 'clamp(1.5rem, 3vw, 3.5rem)' }}>
             {/* Acheter → Marketplace/ProductCatalog */}
             <button onClick={() => go('marketplace')} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>
               {t.hero.btn1}
@@ -417,7 +417,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '2.5rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 'clamp(1rem, 3vw, 2.5rem)', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             {[
               { num: t.hero.stat1num, label: t.hero.stat1label },
               { num: t.hero.stat2num, label: t.hero.stat2label },
@@ -436,13 +436,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how" style={{ padding: '6rem 4vw', background: '#071020' }}>
+      <section id="how" style={{ padding: 'clamp(2.5rem, 6vw, 6rem) 4vw', background: '#071020' }}>
         <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.how.tag}</div>
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.how.title}</h2>
-        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: '3rem' }}>{t.how.subtitle}</p>
+        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem, 4vw, 3rem)' }}>{t.how.subtitle}</p>
 
         {/* Route bar */}
-        <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 4, padding: '1rem 1.5rem', marginBottom: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' as const, fontSize: '0.85rem' }}>
+        <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 4, padding: '1rem 1.5rem', marginBottom: 'clamp(1.5rem, 4vw, 3rem)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' as const, fontSize: '0.85rem' }}>
           {t.how.route.map((stop, i) => (
             <React.Fragment key={i}>
               <span>{stop}</span>
@@ -454,7 +454,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
         {/* Steps */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1px', background: 'rgba(255,255,255,0.06)' }}>
           {t.how.steps.map((step, i) => (
-            <div key={i} style={{ background: '#071020', padding: '2rem 1.5rem', textAlign: 'center' as const }}>
+            <div key={i} style={{ background: '#071020', padding: 'clamp(1rem, 3vw, 2rem) 1.5rem', textAlign: 'center' as const }}>
               <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#0a1628', border: '2px solid #F4B400', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', fontSize: '1.2rem', fontWeight: 900, color: '#F4B400', margin: '0 auto 1.2rem' }}>{step.num}</div>
               <div style={{ fontSize: '1.5rem', marginBottom: '0.6rem' }}>{step.icon}</div>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.5rem' }}>{step.title}</h3>
@@ -465,10 +465,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       </section>
 
       {/* ── WHY GLB ── */}
-      <section id="why" style={{ padding: '6rem 4vw', background: '#0a1628' }}>
+      <section id="why" style={{ padding: 'clamp(2.5rem, 6vw, 6rem) 4vw', background: '#0a1628' }}>
         <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.why.tag}</div>
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.why.title}</h2>
-        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: '3rem' }}>{t.why.subtitle}</p>
+        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem, 4vw, 3rem)' }}>{t.why.subtitle}</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5px', background: 'rgba(255,255,255,0.06)' }}>
           {t.why.cards.map((card, i) => (
             <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '2.2rem 1.8rem' }}>
@@ -481,10 +481,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       </section>
 
       {/* ── CATEGORIES ── */}
-      <section id="categories" style={{ padding: '6rem 4vw', background: '#071020' }}>
+      <section id="categories" style={{ padding: 'clamp(2.5rem, 6vw, 6rem) 4vw', background: '#071020' }}>
         <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.cats.tag}</div>
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.cats.title}</h2>
-        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: '3rem' }}>{t.cats.subtitle}</p>
+        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem, 4vw, 3rem)' }}>{t.cats.subtitle}</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '1rem' }}>
           {t.cats.items.map((cat, i) => (
             <div
@@ -501,7 +501,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       </section>
 
       {/* ── SELLER ── */}
-      <section id="seller" style={{ padding: '6rem 4vw', background: 'linear-gradient(135deg, #071a10 0%, #0a1628 50%, #071020 100%)', position: 'relative', overflow: 'hidden' }}>
+      <section id="seller" style={{ padding: 'clamp(2.5rem, 6vw, 6rem) 4vw', background: 'linear-gradient(135deg, #071a10 0%, #0a1628 50%, #071020 100%)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -80, right: -80, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(26,143,115,0.15) 0%, transparent 70%)', zIndex: 0 }}></div>
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 680 }}>
           <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#5dcaa5', fontWeight: 600, marginBottom: '0.75rem' }}>{t.seller.tag}</div>
@@ -525,13 +525,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       </section>
 
       {/* ── SOCIAL PROOF ── */}
-      <section id="proof" style={{ padding: '6rem 4vw', background: '#0a1628' }}>
+      <section id="proof" style={{ padding: 'clamp(2.5rem, 6vw, 6rem) 4vw', background: '#0a1628' }}>
         <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.proof.tag}</div>
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.proof.title}</h2>
-        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: '3rem' }}>{t.proof.subtitle}</p>
+        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem, 4vw, 3rem)' }}>{t.proof.subtitle}</p>
 
         {/* Stats row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1.5px', background: 'rgba(255,255,255,0.06)', marginBottom: '3rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1.5px', background: 'rgba(255,255,255,0.06)', marginBottom: 'clamp(1.5rem, 4vw, 3rem)' }}>
           {t.proof.stats.map((s, i) => (
             <div key={i} style={{ background: '#0a1628', padding: '2.2rem 1.5rem', textAlign: 'center' as const }}>
               <div style={{ fontFamily: 'Georgia, serif', fontSize: '2.8rem', fontWeight: 900, color: '#F4B400', lineHeight: 1 }}>{s.num}</div>
@@ -554,7 +554,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section style={{ background: '#F4B400', textAlign: 'center' as const, padding: '6rem 4vw' }}>
+      <section style={{ background: '#F4B400', textAlign: 'center' as const, padding: 'clamp(2.5rem, 6vw, 6rem) 4vw' }}>
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 900, color: '#0a1628', marginBottom: '1rem' }}>{t.cta.title}</h2>
         <p style={{ color: 'rgba(10,22,40,0.7)', maxWidth: 500, margin: '0 auto 2.5rem', lineHeight: 1.7 }}>{t.cta.subtitle}</p>
         <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' as const, gap: '1rem' }}>
