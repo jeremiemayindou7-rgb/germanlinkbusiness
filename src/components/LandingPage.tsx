@@ -402,8 +402,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.75rem', marginBottom: 'clamp(1.5rem, 3vw, 3.5rem)' }}>
-            {/* Acheter → Marketplace/ProductCatalog */}
-            <button onClick={() => go('marketplace')} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>
+            {/* Acheter → ProductCatalog (dashboard) */}
+            <button onClick={() => go('dashboard')} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase' as const, padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>
               {t.hero.btn1}
             </button>
             {/* Vendre → Seller Program */}
@@ -558,8 +558,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 900, color: '#0a1628', marginBottom: '1rem' }}>{t.cta.title}</h2>
         <p style={{ color: 'rgba(10,22,40,0.7)', maxWidth: 500, margin: '0 auto 2.5rem', lineHeight: 1.7 }}>{t.cta.subtitle}</p>
         <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' as const, gap: '1rem' }}>
-          {/* Acheter → Marketplace */}
-          <button onClick={() => go('marketplace')} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn1}</button>
+          {/* Acheter → ProductCatalog */}
+          <button onClick={() => go('dashboard')} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn1}</button>
           {/* Seller werden → Seller Program */}
           <button onClick={() => go('seller')} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn2}</button>
           {/* Nous contacter → Mentions légales / Impressum */}
