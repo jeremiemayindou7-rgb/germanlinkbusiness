@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, ShoppingCart, User, LogOut, Shield, Bell, Package } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../hooks/useCart';
+import { supabase } from '../lib/supabase';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface HeaderProps {
@@ -11,7 +12,6 @@ interface HeaderProps {
   onAdminClick: () => void;
   onOrdersClick: () => void;
   onNotificationsClick: () => void;
-  // NEW: controls the mobile sidebar drawer
   onMenuClick?: () => void;
 }
 
@@ -26,6 +26,23 @@ export const Header: React.FC<HeaderProps> = ({
   const { t } = useLanguage();
   const { user, isAdmin, signOut } = useAuth();
   const { cartCount } = useCart();
+  const [isStaff, setIsStaff] = useState(false);
+
+  // Staff-Rolle prüfen
+  useEffect(() => {
+    const checkStaff = async () => {
+      if (!user || isAdmin) { setIsStaff(false); return; }
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      setIsStaff(data?.role === 'staff');
+    };
+    checkStaff();
+  }, [user, isAdmin]);
+
+  const hasAdminAccess = isAdmin || isStaff;
 
   const handleSignOut = async () => {
     try {
@@ -111,13 +128,14 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     <Package className="w-6 h-6 text-[#1C1C1C]" />
                   </button>
-                  {isAdmin && (
+                  {hasAdminAccess && (
                     <button
                       onClick={onAdminClick}
                       className="p-2 hover:bg-gray-100 rounded-lg transition"
                       aria-label={t('admin')}
+                      title={isStaff ? 'Mitarbeiter-Bereich' : 'Admin'}
                     >
-                      <Shield className="w-6 h-6 text-[#1C1C1C]" />
+                      <Shield className={`w-6 h-6 ${isStaff ? 'text-[#0A5EB0]' : 'text-[#1C1C1C]'}`} />
                     </button>
                   )}
                   <button
