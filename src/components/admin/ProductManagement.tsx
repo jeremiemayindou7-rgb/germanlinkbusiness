@@ -367,20 +367,12 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
                 className="px-4 py-2 border rounded-lg"
               />
               <input
-                type="url"
+                type="text"
                 placeholder="URL Image"
                 value={formData.image_url}
                 onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                onBlur={(e) => {
-                  const url = e.target.value.trim();
-                  if (url && !url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i)) {
-                    alert('Bitte geben Sie eine gültige Bild-URL ein (jpg, jpeg, png, gif, webp, svg)');
-                  }
-                }}
-                pattern="https?://.+\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?"
-                title="Bitte geben Sie eine gültige Bild-URL ein"
                 className="px-4 py-2 border rounded-lg"
-              />
+              /> 
             </div>
             <textarea
               placeholder="Description"
