@@ -253,10 +253,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
             <div className="border-2 border-orange-200 rounded-xl p-3 space-y-2 bg-orange-50">
               <h4 className="font-bold text-[#1C1C1C] text-sm">{t('quote_form_title')}</h4>
               {[
-                { ph: t('quote_name_placeholder'), key: 'customer_name', type: 'text' },
-                { ph: t('quote_phone_placeholder'), key: 'customer_phone', type: 'tel' },
-                { ph: t('quote_location_placeholder'), key: 'customer_location', type: 'text' },
-                { ph: t('quote_price_placeholder'), key: 'price_proposal', type: 'number' },
+                { ph: t('quote_name_placeholder'),     key: 'customer_name',     type: 'text'   },
+                { ph: t('quote_phone_placeholder'),    key: 'customer_phone',    type: 'tel'    },
+                { ph: t('quote_location_placeholder'), key: 'customer_location', type: 'text'   },
+                { ph: t('quote_price_placeholder'),    key: 'price_proposal',    type: 'number' },
               ].map(f => (
                 <input key={f.key} type={f.type} placeholder={f.ph}
                   value={quoteForm[f.key as keyof typeof quoteForm]}
@@ -281,7 +281,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
         </div>
       );
     }
-    // GLB/eigene Produkte → Commander
+    // GLB / eigene Produkte → Commander
     return (
       <div className="space-y-3">
         <button
@@ -320,11 +320,25 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
   if (!product) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center sm:p-4">
-      {/* Mobile: slide up from bottom; Desktop: centered modal */}
-      <div className="bg-white w-full sm:max-w-4xl sm:rounded-lg sm:my-8 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl">
+    /*
+     * KEY FIX: on mobile the overlay starts at the very top (inset-0),
+     * but the white panel uses `mt-16` to sit *below* the sticky header (h-16).
+     * On desktop it stays as a centered modal with sm:items-center.
+     *
+     * The panel itself is NOT fixed to the bottom — it scrolls from below the header.
+     */
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex flex-col sm:items-center sm:justify-center sm:p-4">
 
-        {/* Sticky header */}
+      {/* ── Mobile: panel fills screen below header ── */}
+      <div
+        className="
+          bg-white w-full flex-1 overflow-y-auto
+          mt-16 sm:mt-0
+          sm:max-w-4xl sm:rounded-2xl sm:max-h-[90vh] sm:flex-none sm:w-full
+          rounded-t-2xl
+        "
+      >
+        {/* Sticky header inside modal */}
         <div className="sticky top-0 bg-white border-b px-4 py-3 flex items-center justify-between z-10">
           <h2 className="text-base sm:text-xl font-bold text-gray-900 truncate pr-4">{t('product_details')}</h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition flex-shrink-0">
@@ -454,7 +468,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
             </div>
           </div>
 
-          {/* ── Ähnliche Produkte (nur für eBay, vor Reviews) ── */}
+          {/* Ähnliche Produkte (nur für eBay) */}
           {product.source_type === 'ebay' && similarProducts.length > 0 && (
             <div className="border-t pt-4 mb-4">
               <h3 className="text-base font-bold text-[#1C1C1C] mb-3">
@@ -553,6 +567,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
           </div>
         </div>
       </div>
+
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       {showCheckout && product && (
         <CheckoutModal

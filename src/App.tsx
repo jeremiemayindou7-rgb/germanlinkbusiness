@@ -26,7 +26,7 @@ function AppContent() {
   const { user } = useAuth();
   const { language } = useLanguage();
 
-  // ── Hash-basiertes Routing: View aus URL lesen ─────────────────────────────
+  // ── Hash-basiertes Routing ─────────────────────────────────────────────────
   const getInitialView = () => {
     const hash = window.location.hash.replace('#', '');
     const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import'];
@@ -37,7 +37,6 @@ function AppContent() {
     const hash = window.location.hash.replace('#', '');
     const params = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    // Zeige Landing wenn kein Hash UND kein reset-Link
     if (params.get('reset') === 'true' || hashParams.get('type') === 'recovery') return false;
     if (hash && hash !== '') return false;
     return true;
@@ -54,9 +53,9 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
   const [activeView, setActiveView] = useState(getInitialView);
   const [showSellerApply, setShowSellerApply] = useState(false);
+  // sidebarOpen is only used for desktop (lg+) hamburger — mobile has no sidebar
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // ── View ändern + Hash in URL schreiben ───────────────────────────────────
   const navigateTo = (view: string) => {
     setActiveView(view);
     setShowLanding(false);
@@ -190,17 +189,23 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header receives onMenuClick to open the drawer */}
       <Header
         onAuthClick={() => setAuthModalOpen(true)}
         onCartClick={() => setCartOpen(true)}
         onAdminClick={() => setAdminDashboardOpen(true)}
+        // Desktop hamburger only — mobile has no sidebar
         onMenuClick={() => setSidebarOpen(true)}
         onHelpClick={() => navigateTo('how-it-works')}
+        // ← NEW: Package icon opens "Mes commandes"
+        onOrdersClick={() => setOrdersOpen(true)}
       />
 
       <div className="flex">
-        {/* Sidebar receives mobileOpen + onMobileClose */}
+        {/*
+         * Sidebar is desktop-only (hidden on mobile via CSS inside Sidebar.tsx).
+         * mobileOpen / onMobileClose props are still passed for API compatibility
+         * but the mobile drawer JSX has been removed from Sidebar.tsx.
+         */}
         <Sidebar
           activeView={activeView}
           onViewChange={navigateTo}
