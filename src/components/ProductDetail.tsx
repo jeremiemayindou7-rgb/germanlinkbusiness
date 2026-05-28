@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShoppingCart, Star, MessageCircle, Send, Lock, FileText, Search } from 'lucide-react';
+import { X, ShoppingCart, Star, MessageCircle, Send, Lock, FileText } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { useCart } from '../hooks/useCart';
 import { supabase } from '../lib/supabase';
 import { chatWithProduct } from '../lib/openai';
 import { initializeOpenAI } from '../lib/openai';
 import { AuthModal } from './AuthModal';
+import { CheckoutModal } from './CheckoutModal';
 
 interface Product {
   id: string;
@@ -42,10 +42,9 @@ interface ProductDetailProps {
   onCategoryFilter?: (category: string) => void;
 }
 
-export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose, onCategoryFilter }) => {
-  const { t } = useLanguage();
+export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose }) => {
+  const { t, language } = useLanguage();
   const { user } = useAuth();
-  const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,8 +58,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [messageText, setMessageText] = useState('');
   const [showMessageSent, setShowMessageSent] = useState(false);
-  const [addingToCart, setAddingToCart] = useState(false);
-  const [showCartAdded, setShowCartAdded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const [showQuoteForm, setShowQuoteForm] = useState(false);
@@ -73,6 +70,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     message: '',
     price_proposal: '',
   });
+  const [similarProducts, setSimilarProducts] = useState<any[]>([]);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const fallbackImage = 'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg';
 
@@ -91,6 +90,17 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     }
   }, [productId, user]);
 
+  const fetchSimilarProducts = async (category: string) => {
+    const { data } = await supabase
+      .from('products')
+      .select('id, name, name_fr, name_de, sale_price, image_url, source_type')
+      .eq('stock_status', 'available')
+      .eq('category', category)
+      .neq('id', productId)
+      .limit(3);
+    setSimilarProducts(data || []);
+  };
+
   const loadOpenAIKey = async () => {
     try {
       const { data } = await supabase.from('admin_settings').select('value').eq('key', 'openai_api_key').maybeSingle();
@@ -103,6 +113,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
       if (error) throw error;
       setProduct(data);
+      if (data?.category) fetchSimilarProducts(data.category);
     } catch (error) { console.error('Error fetching product:', error); }
     finally { setLoading(false); }
   };
@@ -170,18 +181,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     } catch (error: any) { alert(error.message); }
   };
 
-  const handleAddToCart = async () => {
-    if (!user) { setShowAuthModal(true); return; }
-    if (!product) return;
-    setAddingToCart(true);
-    try {
-      await addToCart(product.id);
-      setShowCartAdded(true);
-      setTimeout(() => setShowCartAdded(false), 3000);
-    } catch (error: any) { alert(error.message); }
-    finally { setAddingToCart(false); }
-  };
-
   const handleSendMessage = async () => {
     if (!user) { setShowAuthModal(true); return; }
     if (!messageText.trim()) return;
@@ -235,13 +234,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     if (product.source_type === 'ebay') {
       return (
         <div className="space-y-3">
-          <button
-            onClick={() => { onClose(); onCategoryFilter?.(product.category); }}
-            className="w-full flex items-center justify-center gap-2 py-3 border-2 border-[#0A5EB0] text-[#0A5EB0] rounded-lg font-bold hover:bg-blue-50 transition text-sm"
-          >
-            <Search className="w-4 h-4" />
-            Ähnliche Produkte anzeigen
-          </button>
           {quoteSent ? (
             <div className="bg-green-50 border border-green-300 text-green-700 rounded-lg p-4 text-center font-bold text-sm">
               ✅ {t('quote_sent_success')}
@@ -252,7 +244,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
               className="w-full flex items-center justify-center gap-2 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition text-sm"
             >
               <FileText className="w-4 h-4" />
-              {t('request_quote')}
+              {language === 'de' ? 'Preis mit Lieferung erhalten'
+                : language === 'ln' ? 'Zwa prix na livraison'
+                : 'Obtenir le prix avec livraison'}
             </button>
           )}
           {showQuoteForm && !quoteSent && (
@@ -287,17 +281,22 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
         </div>
       );
     }
+    // GLB/eigene Produkte → Commander
     return (
       <div className="space-y-3">
-        {showCartAdded && (
-          <div className="bg-[#00A86B] bg-opacity-10 text-[#00A86B] border border-[#00A86B] p-3 rounded-lg text-sm font-bold">
-            {t('added_to_cart') || 'Produit ajouté au panier!'}
-          </div>
-        )}
-        <button onClick={handleAddToCart} disabled={addingToCart}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-[#F4B400] hover:bg-[#FF6F00] rounded-lg font-bold transition disabled:opacity-50 text-[#1C1C1C] text-sm">
+        <button
+          onClick={() => {
+            if (!user) { setShowAuthModal(true); return; }
+            setShowCheckout(true);
+          }}
+          className="w-full flex items-center justify-center gap-2 py-3 bg-[#009543] hover:bg-[#007a36] text-white rounded-lg font-bold transition text-sm shadow-md"
+        >
           <ShoppingCart className="w-5 h-5" />
-          <span>{addingToCart ? t('adding_to_cart') : t('add_to_cart')}</span>
+          <span>
+            {language === 'de' ? 'Commander'
+              : language === 'ln' ? 'Singa'
+              : 'Commander'}
+          </span>
         </button>
         {user && (
           <button onClick={() => setShowChat(!showChat)}
@@ -455,6 +454,42 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
             </div>
           </div>
 
+          {/* ── Ähnliche Produkte (nur für eBay, vor Reviews) ── */}
+          {product.source_type === 'ebay' && similarProducts.length > 0 && (
+            <div className="border-t pt-4 mb-4">
+              <h3 className="text-base font-bold text-[#1C1C1C] mb-3">
+                {language === 'de' ? '🔍 Ähnliche Produkte'
+                  : language === 'ln' ? '🔍 Biloko ya ndenge moko'
+                  : '🔍 Produits similaires'}
+              </h3>
+              <div className="grid grid-cols-3 gap-2">
+                {similarProducts.map(p => {
+                  const name = p[`name_${language}`] || p.name;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => { /* reuse onViewDetails */ }}
+                      className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 cursor-pointer hover:border-[#0A5EB0] transition"
+                    >
+                      <div className="relative pb-[75%] bg-gray-100">
+                        <img
+                          src={p.image_url || '/glblogo.png'}
+                          alt={name}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={e => (e.currentTarget.src = '/glblogo.png')}
+                        />
+                      </div>
+                      <div className="p-2">
+                        <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-tight">{name}</p>
+                        <p className="text-xs font-bold text-[#0A5EB0] mt-1">{p.sale_price.toFixed(0)} €</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Reviews */}
           <div className="border-t pt-4">
             <div className="flex items-center justify-between mb-3">
@@ -519,6 +554,18 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
         </div>
       </div>
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      {showCheckout && product && (
+        <CheckoutModal
+          isOpen={showCheckout}
+          onClose={() => setShowCheckout(false)}
+          singleProduct={{
+            id: product.id,
+            name: product.name,
+            sale_price: product.sale_price,
+            source_type: product.source_type,
+          }}
+        />
+      )}
     </div>
   );
 };

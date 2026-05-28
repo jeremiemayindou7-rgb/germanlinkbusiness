@@ -5,12 +5,21 @@ import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
+interface SingleProduct {
+  id: string;
+  name: string;
+  sale_price: number;
+  source_type?: string;
+}
+
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // ── NEU: direkter Kauf aus ProductDetail ──
+  singleProduct?: SingleProduct;
 }
 
-export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose }) => {
+export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, singleProduct }) => {
   const { t } = useLanguage();
   const { cartItems, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
@@ -24,19 +33,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
   const [agbError, setAgbError] = useState(false);
 
   const shippingCost = 50;
-  const subtotal = cartTotal;
+
+  // Einzel-Produkt oder Warenkorb
+  const subtotal = singleProduct
+    ? singleProduct.sale_price
+    : cartTotal;
+
   const total = subtotal + shippingCost;
   const amountToPay = paymentOption === 'deposit' ? total * 0.5 : total;
 
   const handlePayment = async () => {
-    if (!user || cartItems.length === 0) return;
-
+    if (!user) return;
     if (!agbAccepted) { setAgbError(true); return; }
-
-    if (!customerPhone.trim()) {
-      alert(t('phone_required'));
-      return;
-    }
+    if (!customerPhone.trim()) { alert(t('phone_required')); return; }
 
     setLoading(true);
     setAgbError(false);
@@ -44,50 +53,51 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
     try {
       const orderNum = `CEE-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-      const orderItems = cartItems.map(item => ({
-        product_id: item.product_id,
-        product_name: item.product?.name || '',
-        quantity: item.quantity,
-        price: item.product?.sale_price || 0,
-        source_type: (item.product as any)?.source_type || 'own',
-      }));
+      const orderItems = singleProduct
+        ? [{ product_id: singleProduct.id, product_name: singleProduct.name, quantity: 1, price: singleProduct.sale_price, source_type: singleProduct.source_type || 'own' }]
+        : cartItems.map(item => ({
+            product_id: item.product_id,
+            product_name: item.product?.name || '',
+            quantity: item.quantity,
+            price: item.product?.sale_price || 0,
+            source_type: (item.product as any)?.source_type || 'own',
+          }));
 
       const { data: newOrder, error } = await supabase.from('orders').insert({
-        order_number: orderNum,
-        user_id: user.id,
-        items: orderItems,
+        order_number:     orderNum,
+        user_id:          user.id,
+        items:            orderItems,
         subtotal,
-        shipping_cost: shippingCost,
-        total_amount: total,
-        payment_option: paymentOption,
-        payment_method: paymentMethod,
-        customer_phone: customerPhone,
-        payment_status: 'pending',
-        order_status: 'awaiting_payment',
-        source_type: 'own',
+        shipping_cost:    shippingCost,
+        total_amount:     total,
+        payment_option:   paymentOption,
+        payment_method:   paymentMethod,
+        customer_phone:   customerPhone,
+        payment_status:   'pending',
+        order_status:     'awaiting_payment',
+        source_type:      'own',
         next_shipment_date: '2026-02-15',
-        agb_accepted: true,
-        agb_accepted_at: new Date().toISOString(),
+        agb_accepted:     true,
+        agb_accepted_at:  new Date().toISOString(),
       }).select().single();
 
       if (error) throw error;
 
+      // Email-Bestätigung
       try {
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-        const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+        await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseKey}` },
           body: JSON.stringify({ orderId: newOrder.id, type: 'order_confirmation' })
         });
-        if (!emailResponse.ok) console.error('Failed to send order confirmation email');
-      } catch (emailError) {
-        console.error('Email service error:', emailError);
-      }
+      } catch (e) { console.error('Email error:', e); }
 
       setOrderNumber(orderNum);
       setOrderCompleted(true);
-      await clearCart();
+      if (!singleProduct) await clearCart();
+
     } catch (error) {
       console.error('Error creating order:', error);
       alert(t('order_error'));
@@ -109,6 +119,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
+
+        {/* Header */}
         <div className="bg-white border-b p-4 flex items-center justify-between rounded-t-lg flex-shrink-0">
           <h2 className="text-xl font-bold text-gray-900">
             {orderCompleted ? `✓ ${t('order_confirmed_header')}` : t('checkout')}
@@ -120,7 +132,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
 
         <div className="p-6 overflow-y-auto flex-1">
           {orderCompleted ? (
-            // ── BESTÄTIGUNG ──
             <div className="space-y-6">
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
                 <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
@@ -132,7 +143,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                 </div>
               </div>
 
-              {/* ── LemFi Bestätigung ── */}
               {paymentMethod === 'lemfi' && (
                 <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
                   <h4 className="font-bold text-yellow-900 mb-3 flex items-center gap-2">
@@ -144,14 +154,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                     <p><strong>{t('recipient')}:</strong> GermanLink Business GmbH</p>
                     <p><strong>IBAN:</strong> DE89 3704 0044 0532 0130 00</p>
                     <p className="text-red-700 font-bold"><strong>{t('mandatory_reference')}:</strong> {orderNumber}</p>
-                    <p className="pt-2 border-t border-yellow-200 text-xs">
-                      {t('email_instructions_sent')}
-                    </p>
+                    <p className="pt-2 border-t border-yellow-200 text-xs">{t('email_instructions_sent')}</p>
                   </div>
                 </div>
               )}
 
-              {/* ── UBA Bestätigung ── */}
               {paymentMethod === 'uba_congo' && (
                 <div className="bg-blue-50 border-2 border-blue-400 rounded-lg p-4">
                   <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
@@ -159,53 +166,44 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                     {t('uba_next_steps_title')}
                   </h4>
                   <div className="space-y-3 text-sm text-blue-900 bg-white rounded p-4">
-                    <div className="flex items-center gap-2 text-base font-bold">
-                      <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">1</span>
-                      {t('uba_step1')}
-                    </div>
-                    <p className="ml-8 text-gray-600">
-                      {t('uba_step1_sub')} <strong className="text-blue-800">{customerPhone}</strong>
-                    </p>
-                    <div className="flex items-center gap-2 text-base font-bold mt-3">
-                      <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">2</span>
-                      {t('uba_step2')}
-                    </div>
-                    <p className="ml-8 text-gray-600">
-                      {t('uba_step2_sub')}
-                    </p>
-                    <div className="flex items-center gap-2 text-base font-bold mt-3">
-                      <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">3</span>
-                      {t('uba_step3')}
-                    </div>
-                    <p className="ml-8 font-mono bg-blue-50 px-3 py-2 rounded border border-blue-200 text-blue-800 font-bold">
-                      {orderNumber}
-                    </p>
-                    <p className="ml-8 text-xs text-gray-500">{t('recipient')}: GermanLink Business GmbH</p>
-                    <p className="pt-2 border-t border-blue-200 text-xs text-blue-700">
-                      {t('email_instructions_sent')}
-                    </p>
+                    {[1,2,3].map(n => (
+                      <div key={n}>
+                        <div className="flex items-center gap-2 font-bold">
+                          <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">{n}</span>
+                          {t(`uba_step${n}`)}
+                        </div>
+                        <p className="ml-8 text-gray-600 text-xs mt-0.5">{t(`uba_step${n}_sub`)}</p>
+                      </div>
+                    ))}
+                    <p className="font-mono bg-blue-50 px-3 py-2 rounded border border-blue-200 text-blue-800 font-bold ml-8">{orderNumber}</p>
+                    <p className="pt-2 border-t border-blue-200 text-xs text-blue-700">{t('email_instructions_sent')}</p>
                   </div>
                 </div>
               )}
 
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-yellow-800 text-sm">
-                  <strong>{t('next_shipment')}:</strong> 15/02/2026
-                </p>
-                <p className="text-yellow-700 text-xs mt-1">
-                  {t('next_shipment_desc')}
-                </p>
+                <p className="text-yellow-800 text-sm"><strong>{t('next_shipment')}:</strong> 15/02/2026</p>
               </div>
 
-              <button onClick={handleClose} className="w-full py-3 bg-[#009543] hover:bg-[#007a36] text-white rounded-lg font-medium transition">
+              <button onClick={handleClose} className="w-full py-3 bg-[#009543] text-white rounded-lg font-medium">
                 {t('close')}
               </button>
             </div>
           ) : (
-            // ── CHECKOUT FORMULAR ── (KEIN Demo-Banner mehr)
             <div className="space-y-6">
 
-              {/* ── Telefonnummer – PFLICHTFELD für alle ── */}
+              {/* Produkt-Info wenn Direktkauf */}
+              {singleProduct && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-0.5">Produkt</p>
+                    <p className="font-bold text-sm text-gray-900 truncate max-w-[280px]">{singleProduct.name}</p>
+                  </div>
+                  <p className="font-bold text-[#0A5EB0] text-lg">{singleProduct.sale_price.toFixed(2)} €</p>
+                </div>
+              )}
+
+              {/* Telefon */}
               <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
                 <label className="block">
                   <span className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-2">
@@ -216,70 +214,56 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                   <input
                     type="tel"
                     value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    onChange={e => setCustomerPhone(e.target.value)}
                     placeholder="+243 XXX XXX XXX oder +242 XXX XXX XXX"
-                    required
-                    className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
-                  <p className="text-xs text-blue-600 mt-1">
-                    {t('phone_contact_note')}
-                  </p>
+                  <p className="text-xs text-blue-600 mt-1">{t('phone_contact_note')}</p>
                 </label>
               </div>
 
               {/* Zahlungsoption */}
               <div className="space-y-3">
                 <h3 className="font-bold text-gray-900">{t('payment_options')}</h3>
-                <label className="flex items-start space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-                  <input type="radio" name="payment" value="full" checked={paymentOption === 'full'}
-                    onChange={() => setPaymentOption('full')} className="mt-1" />
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">{t('full_payment')}</div>
-                    <div className="text-sm text-gray-600">{t('pay_now_prefix')} {total.toFixed(2)} € {t('pay_now_suffix')}</div>
-                  </div>
-                </label>
-                <label className="flex items-start space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-                  <input type="radio" name="payment" value="deposit" checked={paymentOption === 'deposit'}
-                    onChange={() => setPaymentOption('deposit')} className="mt-1" />
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">{t('deposit_50')}</div>
-                    <div className="text-sm text-gray-600">
-                      {t('pay_now_prefix')} {(total * 0.5).toFixed(2)} € {t('deposit_rest_note')}
+                {[
+                  { val: 'full',    label: t('full_payment'),  sub: `${t('pay_now_prefix')} ${total.toFixed(2)} € ${t('pay_now_suffix')}` },
+                  { val: 'deposit', label: t('deposit_50'),    sub: `${t('pay_now_prefix')} ${(total*0.5).toFixed(2)} € ${t('deposit_rest_note')}` },
+                ].map(opt => (
+                  <label key={opt.val} className="flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="radio" name="payment" value={opt.val}
+                      checked={paymentOption === opt.val}
+                      onChange={() => setPaymentOption(opt.val as 'full' | 'deposit')}
+                      className="mt-1" />
+                    <div>
+                      <div className="font-medium text-gray-900">{opt.label}</div>
+                      <div className="text-sm text-gray-600">{opt.sub}</div>
                     </div>
-                  </div>
-                </label>
+                  </label>
+                ))}
               </div>
 
               {/* Zahlungsmethode */}
               <div className="space-y-3">
                 <h3 className="font-bold text-gray-900">{t('payment_method_title')}</h3>
-
-                <label className="flex items-start space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-                  <input type="radio" name="paymentMethod" value="lemfi" checked={paymentMethod === 'lemfi'}
-                    onChange={() => setPaymentMethod('lemfi')} className="mt-1" />
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">{t('lemfi_method_name')}</div>
-                    <div className="text-sm text-gray-600">{t('lemfi_method_desc')}</div>
-                  </div>
-                </label>
-
-                <label className="flex items-start space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition">
-                  <input type="radio" name="paymentMethod" value="uba_congo" checked={paymentMethod === 'uba_congo'}
-                    onChange={() => setPaymentMethod('uba_congo')} className="mt-1" />
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">{t('uba_method_name')}</div>
-                    <div className="text-sm text-gray-600">{t('uba_method_desc')}</div>
-                  </div>
-                </label>
-
-                {/* UBA Info-Box */}
+                {[
+                  { val: 'lemfi',     label: t('lemfi_method_name'),  sub: t('lemfi_method_desc') },
+                  { val: 'uba_congo', label: t('uba_method_name'),    sub: t('uba_method_desc') },
+                ].map(m => (
+                  <label key={m.val} className="flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="radio" name="paymentMethod" value={m.val}
+                      checked={paymentMethod === m.val}
+                      onChange={() => setPaymentMethod(m.val as 'lemfi' | 'uba_congo')}
+                      className="mt-1" />
+                    <div>
+                      <div className="font-medium text-gray-900">{m.label}</div>
+                      <div className="text-sm text-gray-600">{m.sub}</div>
+                    </div>
+                  </label>
+                ))}
                 {paymentMethod === 'uba_congo' && (
                   <div className="ml-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 space-y-1">
                     <p className="font-bold">{t('uba_how_it_works')}</p>
-                    <p>① {t('uba_info_step1')}</p>
-                    <p>② {t('uba_info_step2')}</p>
-                    <p>③ {t('uba_info_step3')}</p>
-                    <p>④ {t('uba_info_step4')}</p>
+                    {[1,2,3,4].map(n => <p key={n}>{'①②③④'[n-1]} {t(`uba_info_step${n}`)}</p>)}
                   </div>
                 )}
               </div>
@@ -287,77 +271,68 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
               {/* Preisübersicht */}
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                 <div className="flex justify-between text-gray-600">
-                  <span>{t('subtotal')}</span>
-                  <span>{subtotal.toFixed(2)} €</span>
+                  <span>{t('subtotal')}</span><span>{subtotal.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>{t('shipping')}</span>
-                  <span>{shippingCost.toFixed(2)} €</span>
+                  <span>{t('shipping')}</span><span>{shippingCost.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t">
-                  <span>{t('total')}</span>
-                  <span className="text-[#009543]">{total.toFixed(2)} €</span>
+                  <span>{t('total')}</span><span className="text-[#009543]">{total.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between text-xl font-bold text-[#DC241F] pt-2 border-t-2 border-[#DC241F]">
-                  <span>{t('to_pay_now')}</span>
-                  <span>{amountToPay.toFixed(2)} €</span>
+                  <span>{t('to_pay_now')}</span><span>{amountToPay.toFixed(2)} €</span>
                 </div>
               </div>
 
               {/* AGB */}
               <div className="space-y-4">
-                <div className="flex items-start space-x-3 p-4 border-2 rounded-lg">
+                <div className="flex items-start gap-3 p-4 border-2 rounded-lg">
                   <input type="checkbox" id="agb-checkbox" checked={agbAccepted}
-                    onChange={(e) => { setAgbAccepted(e.target.checked); setAgbError(false); }}
-                    className="mt-1 w-4 h-4 text-[#009543] border-gray-300 rounded focus:ring-[#009543]" />
+                    onChange={e => { setAgbAccepted(e.target.checked); setAgbError(false); }}
+                    className="mt-1 w-4 h-4 text-[#009543] rounded" />
                   <label htmlFor="agb-checkbox" className="flex-1 text-sm text-gray-700">
                     {t('agb_prefix')}
                     <a href="/agb" target="_blank" rel="noopener noreferrer"
-                      className="text-[#009543] hover:text-[#007a36] underline font-medium mx-1">
-                      {t('agb_link_text')}
-                    </a>
+                      className="text-[#009543] underline font-medium mx-1">{t('agb_link_text')}</a>
                     {t('agb_suffix')}
                   </label>
                 </div>
-
                 {agbError && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2">
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                     <p className="text-sm text-red-800">{t('agb_error')}</p>
                   </div>
                 )}
 
-                {/* LemFi Button */}
                 {paymentMethod === 'lemfi' && (
                   <>
-                    <div className="flex items-center justify-center space-x-3 p-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
+                    <div className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
                       <CreditCard className="w-8 h-8 text-white" />
                       <span className="text-2xl font-bold text-white">LemFi</span>
                     </div>
-                    <button onClick={handlePayment} disabled={loading || !agbAccepted || !customerPhone.trim()}
-                      className="w-full py-4 bg-[#009543] hover:bg-[#007a36] text-white rounded-lg font-bold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button onClick={handlePayment}
+                      disabled={loading || !agbAccepted || !customerPhone.trim()}
+                      className="w-full py-4 bg-[#009543] text-white rounded-lg font-bold text-lg disabled:opacity-50">
                       {loading ? t('processing_btn') : t('pay_with_lemfi')}
                     </button>
                     <a href="https://lemfi.com" target="_blank" rel="noopener noreferrer"
-                      className="block text-center py-3 border-2 border-gray-300 hover:border-gray-400 rounded-lg font-medium transition">
+                      className="block text-center py-3 border-2 border-gray-300 rounded-lg font-medium">
                       {t('register_lemfi')} →
                     </a>
                   </>
                 )}
 
-                {/* UBA Button */}
                 {paymentMethod === 'uba_congo' && (
-                  <button onClick={handlePayment} disabled={loading || !agbAccepted || !customerPhone.trim()}
-                    className="w-full py-4 bg-[#009543] hover:bg-[#007a36] text-white rounded-lg font-bold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button onClick={handlePayment}
+                    disabled={loading || !agbAccepted || !customerPhone.trim()}
+                    className="w-full py-4 bg-[#009543] text-white rounded-lg font-bold text-lg disabled:opacity-50">
                     {loading ? t('processing_btn') : t('uba_submit_btn')}
                   </button>
                 )}
               </div>
 
               <div className="bg-[#FBDE4A] bg-opacity-20 p-4 rounded-lg text-center">
-                <p className="text-sm">
-                  <span className="font-bold">{t('next_shipment')}:</span> 15/02/2026
-                </p>
+                <p className="text-sm"><span className="font-bold">{t('next_shipment')}:</span> 15/02/2026</p>
               </div>
             </div>
           )}

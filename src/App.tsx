@@ -25,7 +25,25 @@ import { CookieConsent } from './components/CookieConsent';
 function AppContent() {
   const { user } = useAuth();
   const { language } = useLanguage();
-  const [showLanding, setShowLanding] = useState(true);
+
+  // ── Hash-basiertes Routing: View aus URL lesen ─────────────────────────────
+  const getInitialView = () => {
+    const hash = window.location.hash.replace('#', '');
+    const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import'];
+    return validViews.includes(hash) ? hash : 'dashboard';
+  };
+
+  const getInitialShowLanding = () => {
+    const hash = window.location.hash.replace('#', '');
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    // Zeige Landing wenn kein Hash UND kein reset-Link
+    if (params.get('reset') === 'true' || hashParams.get('type') === 'recovery') return false;
+    if (hash && hash !== '') return false;
+    return true;
+  };
+
+  const [showLanding, setShowLanding] = useState(getInitialShowLanding);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -34,11 +52,16 @@ function AppContent() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [currentRoute, setCurrentRoute] = useState<string>('/');
   const [activeTab, setActiveTab] = useState('home');
-  const [activeView, setActiveView] = useState('dashboard');
+  const [activeView, setActiveView] = useState(getInitialView);
   const [showSellerApply, setShowSellerApply] = useState(false);
-
-  // ── NEW: mobile sidebar drawer state ──────────────────────────────────────
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ── View ändern + Hash in URL schreiben ───────────────────────────────────
+  const navigateTo = (view: string) => {
+    setActiveView(view);
+    setShowLanding(false);
+    window.location.hash = view;
+  };
 
   React.useEffect(() => {
     const path = window.location.pathname;
@@ -48,11 +71,13 @@ function AppContent() {
     if (path === '/how-it-works') {
       setShowLanding(false);
       setActiveView('how-it-works');
+      window.location.hash = 'how-it-works';
       return;
     }
     if (path === '/impressum') {
       setShowLanding(false);
       setActiveView('impressum');
+      window.location.hash = 'impressum';
       return;
     }
     const params = new URLSearchParams(window.location.search);
@@ -70,10 +95,10 @@ function AppContent() {
     return (
       <>
         <LandingPage
-          onGetStarted={() => setShowLanding(false)}
+          onGetStarted={() => { setShowLanding(false); window.location.hash = 'dashboard'; }}
           onNavigate={(view) => {
             setShowLanding(false);
-            setTimeout(() => setActiveView(view), 0);
+            setTimeout(() => navigateTo(view), 0);
           }}
         />
         <ChatBot />
@@ -81,7 +106,7 @@ function AppContent() {
           language={language as 'de' | 'fr' | 'ln'}
           onPrivacyClick={() => {
             setShowLanding(false);
-            setTimeout(() => setActiveView('impressum'), 0);
+            setTimeout(() => navigateTo('impressum'), 0);
           }}
         />
       </>
@@ -90,22 +115,18 @@ function AppContent() {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if (tab === 'upload') {
-      setAdminDashboardOpen(true);
-    } else if (tab === 'messages') {
-      setNotificationsOpen(true);
-    } else if (tab === 'profile') {
-      setAuthModalOpen(true);
+    if (tab === 'home') {
+      setShowLanding(true);
+      window.location.hash = '';
     } else if (tab === 'marketplace') {
-      setActiveView('marketplace');
-    } else if (tab === 'home') {
-      setActiveView('dashboard');
+      navigateTo('marketplace');
     } else if (tab === 'seller') {
-      if (user) {
-        setActiveView('seller');
-      } else {
-        setAuthModalOpen(true);
-      }
+      if (user) navigateTo('seller');
+      else setAuthModalOpen(true);
+    } else if (tab === 'orders') {
+      setOrdersOpen(true);
+    } else if (tab === 'help') {
+      navigateTo('how-it-works');
     }
   };
 
@@ -113,7 +134,7 @@ function AppContent() {
     if (activeView === 'how-it-works') {
       if (!user) {
         setAuthModalOpen(true);
-        setActiveView('dashboard');
+        navigateTo('dashboard');
         return null;
       }
       return <HowItWorksPage />;
@@ -121,8 +142,8 @@ function AppContent() {
     if (activeView === 'impressum') return <HowItWorksPage initialTab="impressum" />;
     if (activeView === 'ebay-import') return (
       <EbayImportPage
-        onBack={() => setActiveView('dashboard')}
-        onSaved={() => setActiveView('dashboard')}
+        onBack={() => navigateTo('dashboard')}
+        onSaved={() => navigateTo('dashboard')}
       />
     );
     if (activeView === 'marketplace') return <MarketplaceSearch />;
@@ -174,16 +195,16 @@ function AppContent() {
         onAuthClick={() => setAuthModalOpen(true)}
         onCartClick={() => setCartOpen(true)}
         onAdminClick={() => setAdminDashboardOpen(true)}
-        onOrdersClick={() => setOrdersOpen(true)}
-        onNotificationsClick={() => setNotificationsOpen(true)}
         onMenuClick={() => setSidebarOpen(true)}
+        onHelpClick={() => navigateTo('how-it-works')}
       />
 
       <div className="flex">
         {/* Sidebar receives mobileOpen + onMobileClose */}
         <Sidebar
           activeView={activeView}
-          onViewChange={setActiveView}
+          onViewChange={navigateTo}
+          onGoHome={() => { setShowLanding(true); window.location.hash = ''; }}
           mobileOpen={sidebarOpen}
           onMobileClose={() => setSidebarOpen(false)}
         />
@@ -203,7 +224,7 @@ function AppContent() {
         onClose={() => setAdminDashboardOpen(false)}
         onEbayImport={() => {
           setAdminDashboardOpen(false);
-          setActiveView('ebay-import');
+          navigateTo('ebay-import');
         }}
       />
       <OrderTracking isOpen={ordersOpen} onClose={() => setOrdersOpen(false)} />
@@ -211,7 +232,7 @@ function AppContent() {
       <ChatBot />
       <CookieConsent
         language={language as 'de' | 'fr' | 'ln'}
-        onPrivacyClick={() => setActiveView('impressum')}
+        onPrivacyClick={() => navigateTo('impressum')}
       />
 
       {showSellerApply && <SellerApplyForm onClose={() => setShowSellerApply(false)} />}
