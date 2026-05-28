@@ -445,21 +445,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(1rem,3vw,2.5rem)', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            {[
-              { num: t.hero.stat1num, label: t.hero.stat1label },
-              { num: t.hero.stat2num, label: t.hero.stat2label },
-              { num: t.hero.stat3num, label: t.hero.stat3label },
-              { num: t.hero.stat4num, label: t.hero.stat4label },
-            ].map((s, i) => (
-              <div key={i}>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', fontWeight: 900, color: '#f5f2eb', lineHeight: 1 }}>
-                  {s.num.replace('+','').replace('×','')}<span style={{ color: '#F4B400' }}>{s.num.includes('+') ? '+' : s.num.includes('×') ? '×' : ''}</span>
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#8fa3b8', letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: '0.2rem' }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
