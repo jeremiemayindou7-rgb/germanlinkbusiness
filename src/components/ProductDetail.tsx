@@ -327,15 +327,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
      *
      * The panel itself is NOT fixed to the bottom — it scrolls from below the header.
      */
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex flex-col sm:items-center sm:justify-center sm:p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-3 sm:p-4">
 
-      {/* ── Mobile: panel fills screen below header ── */}
+      {/* ── Centered modal on all screen sizes — pb-20 keeps content above bottom nav ── */}
       <div
         className="
-          bg-white w-full flex-1 overflow-y-auto
-          mt-16 sm:mt-0
-          sm:max-w-4xl sm:rounded-2xl sm:max-h-[90vh] sm:flex-none sm:w-full
-          rounded-t-2xl
+          bg-white w-full max-w-4xl rounded-2xl overflow-y-auto
+          max-h-[calc(100vh-5rem)]
         "
       >
         {/* Sticky header inside modal */}
