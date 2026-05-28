@@ -134,12 +134,11 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
         name_de:           form.name,
         title:             form.name,
         category:          form.category,
+        purchase_price:    parseFloat(form.sale_price), // ← Pflichtfeld
         sale_price:        parseFloat(form.sale_price),
         condition:         form.condition,
         description:       form.description,
-        // Erstes Bild als Hauptbild
         image_url:         imageUrls[0] || null,
-        // Alle Bilder als Array (falls Spalte existiert)
         images:            imageUrls.length > 0 ? imageUrls : null,
         stock_status:      'available',
         seller_id:         user.id,
