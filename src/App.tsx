@@ -20,6 +20,7 @@ import { SellerApplyForm } from './components/SellerApplyForm';
 import { SellerDashboard } from './components/SellerDashboard';
 import { EbayImportPage } from './components/EbayImportPage';
 import { HowItWorksPage } from './components/HowItWorksPage';
+import { AboutPage } from './components/AboutPage';
 import { CookieConsent } from './components/CookieConsent';
 
 function AppContent() {
@@ -29,7 +30,7 @@ function AppContent() {
   // ── Hash-basiertes Routing ─────────────────────────────────────────────────
   const getInitialView = () => {
     const hash = window.location.hash.replace('#', '');
-    const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import'];
+    const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import', 'about'];
     return validViews.includes(hash) ? hash : 'dashboard';
   };
 
@@ -139,6 +140,7 @@ function AppContent() {
       return <HowItWorksPage />;
     }
     if (activeView === 'impressum') return <HowItWorksPage initialTab="impressum" />;
+    if (activeView === 'about') return <AboutPage onNavigate={navigateTo} />;
     if (activeView === 'ebay-import') return (
       <EbayImportPage
         onBack={() => navigateTo('dashboard')}

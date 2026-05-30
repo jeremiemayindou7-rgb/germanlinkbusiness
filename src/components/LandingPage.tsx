@@ -133,6 +133,7 @@ const translations = {
       contact: 'Kontakt',
       agb: 'AGB & Lieferbedingungen',
       how: 'So funktioniert GLB',
+      about: 'Über GLB',
       copyright: '2026 GermanLink Business. Deutsche Qualität für den Kongo.',
     },
   },
@@ -230,6 +231,7 @@ const translations = {
       contact: 'Contact',
       agb: 'CGV & Conditions de livraison',
       how: 'Comment fonctionne GLB',
+      about: 'À propos de GLB',
       copyright: '2026 GermanLink Business. Qualité allemande pour le Congo.',
     },
   },
@@ -327,6 +329,7 @@ const translations = {
       contact: 'Contact',
       agb: 'Mibeko ya vente & livraison',
       how: 'Ndenge GLB esalaka',
+      about: 'Biso GLB',
       copyright: '2026 GermanLink Business. Qualité ya Allemagne pona Congo.',
     },
   },
@@ -632,8 +635,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
             <button onClick={() => window.location.href = '/agb'} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
               {t.footer.agb}
             </button>
+          
             <button onClick={() => go('how-it-works')} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
               {t.footer.how}
+            </button>
+            <button onClick={() => go('about')} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
+              {t.footer.about}
             </button>
           </div>
           <p style={{ fontSize: '0.78rem', color: '#8fa3b8' }}>© {t.footer.copyright}</p>
