@@ -71,6 +71,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     price_proposal: '',
   });
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
+  const [currentProductId, setCurrentProductId] = useState<string>(productId);
   const [showCheckout, setShowCheckout] = useState(false);
 
   const fallbackImage = 'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg';
@@ -88,7 +89,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       fetchChatHistory();
       loadOpenAIKey();
     }
-  }, [productId, user]);
+  }, [currentProductId, user]);
 
   const fetchSimilarProducts = async (category: string) => {
     const { data } = await supabase
@@ -96,7 +97,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       .select('id, name, name_fr, name_de, sale_price, image_url, source_type')
       .eq('stock_status', 'available')
       .eq('category', category)
-      .neq('id', productId)
+      .neq('id', currentProductId)
       .limit(3);
     setSimilarProducts(data || []);
   };
@@ -110,7 +111,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
 
   const fetchProductDetails = async () => {
     try {
-      const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
+      const { data, error } = await supabase.from('products').select('*').eq('id', currentProductId).single();
       if (error) throw error;
       setProduct(data);
       if (data?.category) fetchSimilarProducts(data.category);
@@ -120,7 +121,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
 
   const fetchReviews = async () => {
     try {
-      const { data, error } = await supabase.from('reviews').select('*').eq('product_id', productId).order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('reviews').select('*').eq('product_id', currentProductId).order('created_at', { ascending: false });
       if (error) throw error;
       setReviews(data || []);
       if (data && data.length > 0) {
@@ -133,7 +134,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
   const fetchChatHistory = async () => {
     if (!user) return;
     try {
-      const { data, error } = await supabase.from('product_chats').select('*').eq('product_id', productId).eq('user_id', user.id).maybeSingle();
+      const { data, error } = await supabase.from('product_chats').select('*').eq('product_id', currentProductId).eq('user_id', user.id).maybeSingle();
       if (error && error.code !== 'PGRST116') throw error;
       if (data) { setChatMessages(data.messages || []); setQuestionCount(data.question_count || 0); }
     } catch (error) { console.error('Error fetching chat history:', error); }
@@ -153,11 +154,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       const newAssistantMessage: ChatMessage = { role: 'assistant', content: response, timestamp: Date.now() };
       const updatedMessages = [...chatMessages, newUserMessage, newAssistantMessage];
       const updatedCount = questionCount + 1;
-      const { data: existingChat } = await supabase.from('product_chats').select('id').eq('product_id', productId).eq('user_id', user.id).maybeSingle();
+      const { data: existingChat } = await supabase.from('product_chats').select('id').eq('product_id', currentProductId).eq('user_id', user.id).maybeSingle();
       if (existingChat) {
         await supabase.from('product_chats').update({ messages: updatedMessages, question_count: updatedCount }).eq('id', existingChat.id);
       } else {
-        await supabase.from('product_chats').insert({ product_id: productId, user_id: user.id, messages: updatedMessages, question_count: updatedCount });
+        await supabase.from('product_chats').insert({ product_id: currentProductId, user_id: user.id, messages: updatedMessages, question_count: updatedCount });
       }
       setChatMessages(updatedMessages);
       setQuestionCount(updatedCount);
@@ -171,7 +172,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     if (!user || !product) return;
     try {
       const { error } = await supabase.from('reviews').insert({
-        product_id: productId, user_id: user.id, rating: reviewForm.rating,
+        product_id: currentProductId, user_id: user.id, rating: reviewForm.rating,
         comment: reviewForm.comment, reviewer_name: reviewForm.reviewer_name || 'Anonyme',
       });
       if (error) throw error;
@@ -186,7 +187,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     if (!messageText.trim()) return;
     try {
       const { error } = await supabase.from('notifications').insert({
-        user_id: user.id, product_id: productId, type: 'message', message: messageText, read: false,
+        user_id: user.id, product_id: currentProductId, type: 'message', message: messageText, read: false,
       });
       if (error) throw error;
       setMessageText('');
@@ -203,7 +204,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     setQuoteLoading(true);
     try {
       const { error } = await supabase.from('quote_requests').insert({
-        product_id: productId,
+        product_id: currentProductId,
         customer_name: quoteForm.customer_name,
         customer_phone: quoteForm.customer_phone,
         customer_location: quoteForm.customer_location || null,
@@ -463,7 +464,17 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                     {similarProducts.map(p => {
                       const name = p[`name_${language}`] || p.name;
                       return (
-                        <div key={p.id} className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 cursor-pointer hover:border-[#0A5EB0] transition">
+                        <div key={p.id} onClick={() => {
+                            setCurrentProductId(p.id);
+                            setProduct(null);
+                            setLoading(true);
+                            setShowQuoteForm(false);
+                            setQuoteSent(false);
+                            setShowChat(false);
+                            setImageError(false);
+                            setChatMessages([]);
+                            setQuestionCount(0);
+                          }} className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 cursor-pointer hover:border-[#0A5EB0] transition">
                           <div className="relative pb-[75%] bg-gray-100">
                             <img src={p.image_url || '/glblogo.png'} alt={name}
                               className="absolute inset-0 w-full h-full object-cover"
@@ -551,7 +562,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
           isOpen={showCheckout}
           onClose={() => setShowCheckout(false)}
           singleProduct={{
-            id: product.id,
+            id: currentProductId,
             name: product.name,
             sale_price: product.sale_price,
             source_type: product.source_type,
