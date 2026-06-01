@@ -250,8 +250,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
         so it sits above the bottom nav (h-16 = 4rem).
         On desktop (md+) no bottom nav exists so mb-0.
       */}
-      <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-3 py-3 pb-20 md:pb-3">
-        <div className="bg-white w-full max-w-4xl rounded-2xl flex flex-col max-h-full overflow-hidden">
+      <div className="modal-overlay">
+        <div className="modal-panel sm:max-w-4xl">
 
           {/* ── Sticky header ── */}
           <div className="flex-shrink-0 border-b px-4 py-3 flex items-center justify-between">
@@ -262,7 +262,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
           </div>
 
           {/* ── Scrollable body ── */}
-          <div className="overflow-y-auto flex-1">
+          <div className="modal-scroll-body">
             <div className="p-3 sm:p-6">
               <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
 

@@ -105,10 +105,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
      * Mobile: panel slides up from bottom, starts 4rem below top (below header).
      * Desktop: centered modal.
      */
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center">
+    <div className="modal-overlay">
       <div
-        className="bg-white w-full sm:max-w-2xl sm:rounded-lg rounded-t-2xl flex flex-col"
-        style={{ maxHeight: 'calc(100dvh - 4rem)' }}
+        className="modal-panel sm:max-w-2xl"
       >
         {/* ── Header (never scrolls) ── */}
         <div className="flex-shrink-0 bg-white border-b px-4 py-3 sm:p-4 flex items-center justify-between rounded-t-2xl sm:rounded-t-lg">
@@ -121,7 +120,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
         </div>
 
         {/* ── Scrollable body — pb-24 ensures last button clears bottom nav ── */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-6 pb-24 sm:pb-6">
+        <div className="modal-scroll-body px-4 py-4 sm:p-6">
           {orderCompleted ? (
             <div className="space-y-6">
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">

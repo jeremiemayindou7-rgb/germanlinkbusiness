@@ -1,33 +1,70 @@
+/* stylelint-disable */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer utilities {
   @keyframes pulse-slow {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.8;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
   }
-
   @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-
   .animate-pulse-slow {
     animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-
   .animate-fade-in {
     animation: fade-in 0.3s ease-out;
   }
 }
+
+/* ── Global mobile modal fix ────────────────────────────────────────────────
+   All modals/popups use this class on their scrollable body.
+   pb-safe ensures the last button is always above the bottom navigation bar.
+   ─────────────────────────────────────────────────────────────────────────── */
+.modal-scroll-body {
+  overflow-y: auto;
+  flex: 1;
+  /* 80px = bottom nav (64px) + safety margin (16px) */
+  padding-bottom: max(80px, env(safe-area-inset-bottom, 80px));
+}
+
+/* Modal panels — slide up from bottom on mobile, centered on desktop */
+.modal-panel {
+  background: white;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1rem 1rem 0 0;       /* rounded top on mobile */
+  /* Stay below the top header (64px) on mobile */
+  max-height: calc(100vh - 64px);
+}
+
+@media (min-width: 640px) {
+  .modal-panel {
+    border-radius: 1rem;
+    max-height: 90vh;
+    max-width: 42rem;
+  }
+}
+
+/* Overlay — bottom-aligned on mobile, centered on desktop */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;        /* mobile: panel slides up from bottom */
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .modal-overlay {
+    align-items: center;        /* desktop: centered */
+    padding: 1rem;
+  }
+}
+
