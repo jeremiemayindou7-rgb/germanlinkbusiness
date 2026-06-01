@@ -229,80 +229,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     return <span className={`text-xs font-bold px-2 py-1 rounded-full ${b.color}`}>{b.label}</span>;
   };
 
-  const ActionButtons = () => {
-    if (!product) return null;
-    if (product.source_type === 'ebay') {
-      return (
-        <div className="space-y-3">
-          {quoteSent ? (
-            <div className="bg-green-50 border border-green-300 text-green-700 rounded-lg p-4 text-center font-bold text-sm">
-              ✅ {t('quote_sent_success')}
-            </div>
-          ) : (
-            <button
-              onClick={() => setShowQuoteForm(!showQuoteForm)}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition text-sm"
-            >
-              <FileText className="w-4 h-4" />
-              {language === 'de' ? 'Preis mit Lieferung erhalten'
-                : language === 'ln' ? 'Zwa prix na livraison'
-                : 'Obtenir le prix avec livraison'}
-            </button>
-          )}
-          {showQuoteForm && !quoteSent && (
-            <div className="border-2 border-orange-200 rounded-xl p-3 space-y-2 bg-orange-50">
-              <h4 className="font-bold text-[#1C1C1C] text-sm">{t('quote_form_title')}</h4>
-              {[
-                { ph: t('quote_name_placeholder'),     key: 'customer_name',     type: 'text'   },
-                { ph: t('quote_phone_placeholder'),    key: 'customer_phone',    type: 'tel'    },
-                { ph: t('quote_location_placeholder'), key: 'customer_location', type: 'text'   },
-                { ph: t('quote_price_placeholder'),    key: 'price_proposal',    type: 'number' },
-              ].map(f => (
-                <input key={f.key} type={f.type} placeholder={f.ph}
-                  value={quoteForm[f.key as keyof typeof quoteForm]}
-                  onChange={e => setQuoteForm({ ...quoteForm, [f.key]: e.target.value })}
-                  className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm" />
-              ))}
-              <textarea placeholder={t('quote_message_placeholder')} value={quoteForm.message}
-                onChange={e => setQuoteForm({ ...quoteForm, message: e.target.value })}
-                rows={2} className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm resize-none" />
-              <div className="flex gap-2">
-                <button onClick={handleSubmitQuote} disabled={quoteLoading}
-                  className="flex-1 py-2 bg-orange-500 text-white rounded-lg font-bold text-sm disabled:opacity-50">
-                  {quoteLoading ? t('quote_sending') : t('quote_submit')}
-                </button>
-                <button onClick={() => setShowQuoteForm(false)}
-                  className="flex-1 py-2 border border-[#E5E5E5] rounded-lg font-bold text-sm text-gray-600">
-                  {t('cancel')}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    }
-    return (
-      <div className="space-y-3">
-        <button
-          onClick={() => {
-            if (!user) { setShowAuthModal(true); return; }
-            setShowCheckout(true);
-          }}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-[#009543] hover:bg-[#007a36] text-white rounded-lg font-bold transition text-sm shadow-md"
-        >
-          <ShoppingCart className="w-5 h-5" />
-          <span>{language === 'de' ? 'Commander' : language === 'ln' ? 'Singa' : 'Commander'}</span>
-        </button>
-        {user && (
-          <button onClick={() => setShowChat(!showChat)}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg font-bold transition text-sm">
-            <MessageCircle className="w-5 h-5" />
-            <span>{t('ask_question')}</span>
-          </button>
-        )}
-      </div>
-    );
-  };
+
 
   if (loading) return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
@@ -388,7 +315,80 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                     )}
                   </div>
 
-                  <ActionButtons />
+                  {/* ── Action Buttons (inline — no nested component to avoid focus loss) ── */}
+              {product.source_type === 'ebay' ? (
+                <div className="space-y-3">
+                  {quoteSent ? (
+                    <div className="bg-green-50 border border-green-300 text-green-700 rounded-lg p-4 text-center font-bold text-sm">
+                      ✅ {t('quote_sent_success')}
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowQuoteForm(!showQuoteForm)}
+                      className="w-full flex items-center justify-center gap-2 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition text-sm"
+                    >
+                      <FileText className="w-4 h-4" />
+                      {language === 'de' ? 'Preis mit Lieferung erhalten'
+                        : language === 'ln' ? 'Zwa prix na livraison'
+                        : 'Obtenir le prix avec livraison'}
+                    </button>
+                  )}
+                  {showQuoteForm && !quoteSent && (
+                    <div className="border-2 border-orange-200 rounded-xl p-3 bg-orange-50">
+                      <h4 className="font-bold text-[#1C1C1C] text-sm mb-2">{t('quote_form_title')}</h4>
+                      <input type="text" placeholder={t('quote_name_placeholder')}
+                        value={quoteForm.customer_name}
+                        onChange={e => setQuoteForm(prev => ({ ...prev, customer_name: e.target.value }))}
+                        className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm mb-2" />
+                      <input type="tel" placeholder={t('quote_phone_placeholder')}
+                        value={quoteForm.customer_phone}
+                        onChange={e => setQuoteForm(prev => ({ ...prev, customer_phone: e.target.value }))}
+                        className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm mb-2" />
+                      <input type="text" placeholder={t('quote_location_placeholder')}
+                        value={quoteForm.customer_location}
+                        onChange={e => setQuoteForm(prev => ({ ...prev, customer_location: e.target.value }))}
+                        className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm mb-2" />
+                      <input type="number" placeholder={t('quote_price_placeholder')}
+                        value={quoteForm.price_proposal}
+                        onChange={e => setQuoteForm(prev => ({ ...prev, price_proposal: e.target.value }))}
+                        className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm mb-2" />
+                      <textarea placeholder={t('quote_message_placeholder')} value={quoteForm.message}
+                        onChange={e => setQuoteForm(prev => ({ ...prev, message: e.target.value }))}
+                        rows={2} className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-sm resize-none mb-2" />
+                      <div className="flex gap-2">
+                        <button onClick={handleSubmitQuote} disabled={quoteLoading}
+                          className="flex-1 py-2 bg-orange-500 text-white rounded-lg font-bold text-sm disabled:opacity-50">
+                          {quoteLoading ? t('quote_sending') : t('quote_submit')}
+                        </button>
+                        <button onClick={() => setShowQuoteForm(false)}
+                          className="flex-1 py-2 border border-[#E5E5E5] rounded-lg font-bold text-sm text-gray-600">
+                          {t('cancel')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      if (!user) { setShowAuthModal(true); return; }
+                      setShowCheckout(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-[#009543] hover:bg-[#007a36] text-white rounded-lg font-bold transition text-sm shadow-md"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    <span>{language === 'de' ? 'Commander' : language === 'ln' ? 'Singa' : 'Commander'}</span>
+                  </button>
+                  {user && (
+                    <button onClick={() => setShowChat(!showChat)}
+                      className="w-full flex items-center justify-center gap-2 py-3 bg-[#0A5EB0] hover:bg-[#00A86B] text-white rounded-lg font-bold transition text-sm">
+                      <MessageCircle className="w-5 h-5" />
+                      <span>{t('ask_question')}</span>
+                    </button>
+                  )}
+                </div>
+              )}
 
                   {product.source_type !== 'ebay' && (
                     <div className="mt-3 sm:mt-4 bg-gray-50 border border-[#E5E5E5] rounded-lg p-3">
