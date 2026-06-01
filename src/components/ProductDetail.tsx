@@ -250,8 +250,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
         so it sits above the bottom nav (h-16 = 4rem).
         On desktop (md+) no bottom nav exists so mb-0.
       */}
-      <div className="modal-overlay">
-        <div className="modal-panel sm:max-w-4xl">
+      <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.65)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'0.75rem'}}>
+        <div style={{background:'white',width:'100%',maxWidth:'56rem',display:'flex',flexDirection:'column',borderRadius:'1rem',maxHeight:'calc(100vh - 144px)',overflow:'hidden'}}>
 
           {/* ── Sticky header ── */}
           <div className="flex-shrink-0 border-b px-4 py-3 flex items-center justify-between">
@@ -262,7 +262,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
           </div>
 
           {/* ── Scrollable body ── */}
-          <div className="modal-scroll-body">
+          <div style={{overflowY:'auto',flex:1,paddingBottom:'80px'}}>
             <div className="p-3 sm:p-6">
               <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
 
@@ -552,7 +552,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
                 )}
               </div>
             </div>
-          </div>{/* end scrollable body */}
+          </div>
         </div>
       </div>
 

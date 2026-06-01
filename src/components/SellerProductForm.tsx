@@ -127,9 +127,9 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
      *         starts below the header (top-16) via maxHeight calc.
      * Desktop: centered modal as before.
      */
-    <div className="modal-overlay">
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.65)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'0.75rem'}}>
       <div
-        className="modal-panel sm:max-w-lg"
+        style={{background:'white',width:'100%',maxWidth:'32rem',display:'flex',flexDirection:'column',borderRadius:'1rem',maxHeight:'calc(100vh - 144px)',overflow:'hidden'}}
       >
         {/* ── Header (fixed, never scrolls) ── */}
         <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 sm:p-6 border-b border-[#E5E5E5]">
@@ -140,7 +140,7 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
         </div>
 
         {/* ── Scrollable content ── */}
-        <div className="modal-scroll-body px-4 py-4 sm:p-6 space-y-4">
+        <div style={{overflowY:"auto",flex:1,paddingBottom:"80px"}} className="px-4 py-4 sm:p-6 space-y-4">
 
           {/* 3 Bild-Slots */}
           <div>
