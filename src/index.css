@@ -20,51 +20,53 @@
   }
 }
 
-/* ── Global mobile modal fix ────────────────────────────────────────────────
-   All modals/popups use this class on their scrollable body.
-   pb-safe ensures the last button is always above the bottom navigation bar.
+/* ── Global modal fix ───────────────────────────────────────────────────────
+   Centered on ALL screen sizes.
+   Bottom nav (64px) is compensated via padding-bottom in scroll body.
    ─────────────────────────────────────────────────────────────────────────── */
-.modal-scroll-body {
-  overflow-y: auto;
-  flex: 1;
-  /* 80px = bottom nav (64px) + safety margin (16px) */
-  padding-bottom: max(80px, env(safe-area-inset-bottom, 80px));
-}
 
-/* Modal panels — slide up from bottom on mobile, centered on desktop */
-.modal-panel {
-  background: white;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  border-radius: 1rem 1rem 0 0;       /* rounded top on mobile */
-  /* Stay below the top header (64px) on mobile */
-  max-height: calc(100vh - 64px);
-}
-
-@media (min-width: 640px) {
-  .modal-panel {
-    border-radius: 1rem;
-    max-height: 90vh;
-    max-width: 42rem;
-  }
-}
-
-/* Overlay — bottom-aligned on mobile, centered on desktop */
+/* 1. Overlay — always centered, covers full screen */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   z-index: 50;
   display: flex;
-  align-items: flex-end;        /* mobile: panel slides up from bottom */
+  align-items: center;
   justify-content: center;
+  padding: 0.75rem;
 }
 
+/* 2. Panel — centered, leaves room for header (64px) and bottom nav (64px) */
+.modal-panel {
+  background: white;
+  width: 100%;
+  max-width: 42rem;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1rem;
+  /* 64px header + 64px bottom nav + 16px margin = 144px total */
+  max-height: calc(100vh - 144px);
+  overflow: hidden;
+}
+
+/* Desktop: more space available */
 @media (min-width: 640px) {
-  .modal-overlay {
-    align-items: center;        /* desktop: centered */
-    padding: 1rem;
+  .modal-panel {
+    max-height: 90vh;
   }
 }
 
+/* 3. Scrollable body — padding-bottom pushes content above bottom nav */
+.modal-scroll-body {
+  overflow-y: auto;
+  flex: 1;
+  /* 80px = bottom nav (64px) + 16px extra safety */
+  padding-bottom: 80px;
+}
+
+@media (min-width: 640px) {
+  .modal-scroll-body {
+    padding-bottom: 1.5rem;
+  }
+}
