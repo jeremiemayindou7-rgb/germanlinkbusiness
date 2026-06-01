@@ -20,12 +20,6 @@
   }
 }
 
-/* ── Global modal fix ───────────────────────────────────────────────────────
-   Centered on ALL screen sizes.
-   Bottom nav (64px) is compensated via padding-bottom in scroll body.
-   ─────────────────────────────────────────────────────────────────────────── */
-
-/* 1. Overlay — always centered, covers full screen */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -37,7 +31,6 @@
   padding: 0.75rem;
 }
 
-/* 2. Panel — centered, leaves room for header (64px) and bottom nav (64px) */
 .modal-panel {
   background: white;
   width: 100%;
@@ -45,23 +38,19 @@
   display: flex;
   flex-direction: column;
   border-radius: 1rem;
-  /* 64px header + 64px bottom nav + 16px margin = 144px total */
   max-height: calc(100vh - 144px);
   overflow: hidden;
 }
 
-/* Desktop: more space available */
 @media (min-width: 640px) {
   .modal-panel {
     max-height: 90vh;
   }
 }
 
-/* 3. Scrollable body — padding-bottom pushes content above bottom nav */
 .modal-scroll-body {
   overflow-y: auto;
   flex: 1;
-  /* 80px = bottom nav (64px) + 16px extra safety */
   padding-bottom: 80px;
 }
 
