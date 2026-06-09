@@ -24,17 +24,17 @@ interface OrderTrackingProps {
 }
 
 const orderStatuses = [
-  { key: 'pending',           label: 'Bestellung eingegangen',                    labelFr: 'Commande reçue',                  icon: CheckCircle, color: 'bg-gray-500' },
-  { key: 'awaiting_payment',  label: 'Versandkosten gesendet – Zahlung ausstehend', labelFr: 'Frais envoyés – En attente',      icon: CreditCard,  color: 'bg-yellow-500' },
-  { key: 'paid',              label: 'Zahlung bestätigt',                          labelFr: 'Paiement confirmé',               icon: CheckCircle, color: 'bg-green-500' },
-  { key: 'pickup_scheduled',  label: 'Abholung geplant',                           labelFr: 'Enlèvement planifié',             icon: Truck,       color: 'bg-blue-400' },
-  { key: 'in_warehouse',      label: 'Im deutschen Lager',                         labelFr: 'En entrepôt Allemagne',           icon: Warehouse,   color: 'bg-blue-500' },
-  { key: 'in_container',      label: 'Im Container',                               labelFr: 'Dans le conteneur',               icon: Package,     color: 'bg-blue-600' },
-  { key: 'shipped',           label: 'Auf dem Schiff',                             labelFr: 'En mer',                          icon: Ship,        color: 'bg-indigo-500' },
-  { key: 'arrived_port',      label: 'Hafen erreicht',                             labelFr: 'Arrivé au port',                  icon: Anchor,      color: 'bg-purple-500' },
-  { key: 'customs_clearance', label: 'Verzollung läuft',                           labelFr: 'Dédouanement en cours',           icon: AlertCircle, color: 'bg-orange-500' },
-  { key: 'out_for_delivery',  label: 'Fahrer unterwegs',                           labelFr: 'En cours de livraison',           icon: Truck,       color: 'bg-green-400' },
-  { key: 'delivered',         label: 'Geliefert ✓',                                labelFr: 'Livré ✓',                         icon: Home,        color: 'bg-green-600' },
+  { key: 'pending',           label: 'Bestellung eingegangen',                     labelFr: 'Commande reçue',               labelLn: 'Commande ekómi',              icon: CheckCircle, color: 'bg-gray-500' },
+  { key: 'awaiting_payment',  label: 'Versandkosten gesendet – Zahlung ausstehend', labelFr: 'Frais envoyés – En attente',   labelLn: 'Ba frais etindamaki – Kozela', icon: CreditCard,  color: 'bg-yellow-500' },
+  { key: 'paid',              label: 'Zahlung bestätigt',                           labelFr: 'Paiement confirmé',            labelLn: 'Kofuta elongobani',            icon: CheckCircle, color: 'bg-green-500' },
+  { key: 'pickup_scheduled',  label: 'Abholung geplant',                            labelFr: 'Enlèvement planifié',          labelLn: 'Kokanga elongobani',           icon: Truck,       color: 'bg-blue-400' },
+  { key: 'in_warehouse',      label: 'Im deutschen Lager',                          labelFr: 'En entrepôt Allemagne',        labelLn: 'Na entrepôt ya Allemagne',     icon: Warehouse,   color: 'bg-blue-500' },
+  { key: 'in_container',      label: 'Im Container',                                labelFr: 'Dans le conteneur',            labelLn: 'Na conteneur',                 icon: Package,     color: 'bg-blue-600' },
+  { key: 'shipped',           label: 'Auf dem Schiff',                              labelFr: 'En mer',                       labelLn: 'Na mayi – bateau ezali na nzela',icon: Ship,       color: 'bg-indigo-500' },
+  { key: 'arrived_port',      label: 'Hafen erreicht',                              labelFr: 'Arrivé au port',               labelLn: 'Ekómi na port',                icon: Anchor,      color: 'bg-purple-500' },
+  { key: 'customs_clearance', label: 'Verzollung läuft',                            labelFr: 'Dédouanement en cours',        labelLn: 'Douane ezali kosala',          icon: AlertCircle, color: 'bg-orange-500' },
+  { key: 'out_for_delivery',  label: 'Fahrer unterwegs',                            labelFr: 'En cours de livraison',        labelLn: 'Moteur azali na nzela',        icon: Truck,       color: 'bg-green-400' },
+  { key: 'delivered',         label: 'Geliefert ✓',                                 labelFr: 'Livré ✓',                      labelLn: 'Ekabola ✓',                    icon: Home,        color: 'bg-green-600' },
 ];
 
 const statusMapping: Record<string, number> = {
@@ -44,11 +44,24 @@ const statusMapping: Record<string, number> = {
 };
 
 export const OrderTracking: React.FC<OrderTrackingProps> = ({ isOpen, onClose }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  // ── Label je Sprache ─────────────────────────────────────────────────────
+  const getStatusLabel = (status: typeof orderStatuses[0]) => {
+    if (language === 'fr') return status.labelFr;
+    if (language === 'ln') return status.labelLn;
+    return status.label;
+  };
+
+  const getCurrentStatusLabel = (statusKey: string) => {
+    const found = orderStatuses.find(s => s.key === statusKey);
+    if (!found) return statusKey;
+    return getStatusLabel(found);
+  };
 
   useEffect(() => {
     if (isOpen && user) fetchOrders();
@@ -89,16 +102,17 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ isOpen, onClose })
     return 'bg-green-200 text-green-900';
   };
 
-  const getCurrentStatusLabel = (status: string) => {
-    const found = orderStatuses.find(s => s.key === status);
-    return found ? found.label : status;
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center sm:p-4">
-      <div className="bg-white w-full sm:max-w-2xl sm:rounded-lg rounded-t-2xl max-h-[92vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-end sm:items-center justify-center sm:p-4"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
+      <div
+        className="bg-white w-full sm:max-w-2xl rounded-t-2xl sm:rounded-lg flex flex-col"
+        style={{ maxHeight: 'min(92dvh, calc(100dvh - 64px))', WebkitOverflowScrolling: 'touch' }}
+      >
 
         {/* Header */}
         <div className="sticky top-0 bg-white border-b px-4 py-3 flex items-center justify-between flex-shrink-0">
@@ -205,10 +219,11 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ isOpen, onClose })
                         <div className="flex-1 pt-1 min-w-0">
                           <p className={`text-xs sm:text-sm font-semibold ${
                             isCompleted ? 'text-[#009543]' : isCurrent ? 'text-gray-900' : 'text-gray-300'
-                          }`}>{status.label}</p>
+                          }`}>{getStatusLabel(status)}</p>
                           {isCurrent && (
                             <span className="inline-flex items-center gap-1 text-[10px] bg-green-50 text-green-700 border border-green-200 rounded-full px-1.5 py-0.5 mt-0.5">
-                              <Clock className="w-2.5 h-2.5" /> En cours
+                              <Clock className="w-2.5 h-2.5" />
+                             {language === 'de' ? 'Aktuell' : language === 'ln' ? "Sik'oyo" : 'En cours'}
                             </span>
                           )}
                         </div>
