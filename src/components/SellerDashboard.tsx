@@ -11,13 +11,20 @@ import { SellerProductForm } from './SellerProductForm';
 // ── Status Badge ──────────────────────────────────────────────────────────────
 const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const map: Record<string, { label: string; className: string }> = {
-    pending:    { label: 'Ausstehend',  className: 'bg-yellow-100 text-yellow-700' },
-    confirmed:  { label: 'Bestätigt',  className: 'bg-blue-100 text-blue-700' },
-    paid:       { label: 'Bezahlt',    className: 'bg-purple-100 text-purple-700' },
-    shipped:    { label: 'Versendet',  className: 'bg-indigo-100 text-indigo-700' },
-    delivered:  { label: 'Geliefert',  className: 'bg-green-100 text-green-700' },
-    cancelled:  { label: 'Storniert',  className: 'bg-red-100 text-red-700' },
-    inquiry:    { label: 'Anfrage',    className: 'bg-orange-100 text-orange-700' },
+    pending:           { label: 'Ausstehend',         className: 'bg-yellow-100 text-yellow-700' },
+    awaiting_payment:  { label: 'Zahlung ausstehend', className: 'bg-orange-100 text-orange-700' },
+    paid:              { label: 'Bezahlt',            className: 'bg-purple-100 text-purple-700' },
+    pickup_scheduled:  { label: 'Abholung geplant',  className: 'bg-blue-100 text-blue-700' },
+    in_warehouse:      { label: 'Im Lager',           className: 'bg-blue-100 text-blue-700' },
+    in_container:      { label: 'Im Container',       className: 'bg-blue-200 text-blue-800' },
+    shipped:           { label: 'Versendet',          className: 'bg-indigo-100 text-indigo-700' },
+    arrived_port:      { label: 'Im Hafen',           className: 'bg-purple-100 text-purple-700' },
+    customs_clearance: { label: 'Verzollung',         className: 'bg-orange-100 text-orange-700' },
+    out_for_delivery:  { label: 'Fahrer unterwegs',   className: 'bg-green-100 text-green-700' },
+    delivered:         { label: 'Geliefert ✓',        className: 'bg-green-200 text-green-800' },
+    cancelled:         { label: 'Storniert',          className: 'bg-red-100 text-red-700' },
+    confirmed:         { label: 'Bestätigt',          className: 'bg-blue-100 text-blue-700' },
+    inquiry:           { label: 'Anfrage',            className: 'bg-orange-100 text-orange-700' },
   };
   const s = map[status] ?? { label: status, className: 'bg-gray-100 text-gray-600' };
   return (
@@ -60,20 +67,30 @@ export const SellerDashboard: React.FC = () => {
         .order('created_at', { ascending: false });
       setProducts(prods || []);
 
-      // Bestellungen/Anfragen für alle Seller-Produkte laden
+      // Bestellungen laden die Seller-Produkte enthalten
       if (prods && prods.length > 0) {
         const productIds = prods.map((p: any) => p.id);
-        const { data: orderData } = await supabase
+
+        const { data: allOrders } = await supabase
           .from('orders')
-          .select(`
-            id, status, created_at, total_amount, quantity,
-            product_id,
-            products ( name, image_url ),
-            profiles ( full_name, email )
-          `)
-          .in('product_id', productIds)
+          .select('id, order_number, order_status, payment_status, total_amount, items, created_at, customer_phone, user_id')
           .order('created_at', { ascending: false });
-        setOrders(orderData || []);
+
+        // Nur Bestellungen behalten die mind. ein Seller-Produkt enthalten
+        const sellerOrders = (allOrders || []).filter(order => {
+          const items = order.items || [];
+          return items.some((item: any) => productIds.includes(item.product_id));
+        });
+
+        // Bestellungen mit seller-relevanten Items anreichern
+        const enriched = sellerOrders.map(order => ({
+          ...order,
+          sellerItems: (order.items || []).filter((item: any) =>
+            productIds.includes(item.product_id)
+          ),
+        }));
+
+        setOrders(enriched);
       }
     }
 
@@ -84,15 +101,19 @@ export const SellerDashboard: React.FC = () => {
     if (!confirm(t('confirm_delete'))) return;
     await supabase.from('products').delete().eq('id', id);
     setProducts(p => p.filter(x => x.id !== id));
-    setOrders(o => o.filter(x => x.product_id !== id));
+    setOrders(o => o.filter(order =>
+      !order.sellerItems?.every((item: any) => item.product_id === id)
+    ));
   };
 
   // Bestellungen pro Produkt gruppieren
   const ordersForProduct = (productId: string) =>
-    orders.filter(o => o.product_id === productId);
+    orders.filter(order =>
+      order.sellerItems?.some((item: any) => item.product_id === productId)
+    );
 
   const totalOrders   = orders.length;
-  const pendingOrders = orders.filter(o => o.status === 'pending').length;
+  const pendingOrders = orders.filter(o => o.order_status === 'pending').length;
 
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) return (
@@ -208,14 +229,12 @@ export const SellerDashboard: React.FC = () => {
           ) : products.map(p => {
             const productOrders = ordersForProduct(p.id);
             const isExpanded = expandedProduct === p.id;
-            // Hauptbild: images[0] oder image_url
             const mainImage = (p.images && p.images[0]) || p.image_url || '/glblogo.png';
 
             return (
               <div key={p.id} className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm overflow-hidden">
                 {/* Produkt-Zeile */}
                 <div className="flex gap-3 items-center p-4">
-                  {/* Bilder-Stack */}
                   <div className="relative flex-shrink-0 w-16 h-16">
                     <img
                       src={mainImage}
@@ -223,7 +242,6 @@ export const SellerDashboard: React.FC = () => {
                       className="w-16 h-16 rounded-lg object-cover"
                       onError={e => (e.currentTarget.src = '/glblogo.png')}
                     />
-                    {/* Zusätzliche Bilder Indikator */}
                     {p.images && p.images.length > 1 && (
                       <div className="absolute -bottom-1 -right-1 bg-[#0A5EB0] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                         +{p.images.length - 1}
@@ -263,7 +281,7 @@ export const SellerDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Alle Bilder Vorschau (wenn > 1) */}
+                {/* Alle Bilder Vorschau */}
                 {p.images && p.images.length > 1 && (
                   <div className="px-4 pb-3 flex gap-2">
                     {p.images.map((imgUrl: string, idx: number) => (
@@ -284,25 +302,42 @@ export const SellerDashboard: React.FC = () => {
                     <p className="text-xs font-bold text-gray-500 px-4 py-2 uppercase tracking-wide">
                       Bestellungen für dieses Produkt
                     </p>
-                    {productOrders.map(order => (
-                      <div key={order.id} className="flex items-center gap-3 px-4 py-3 border-t border-gray-100">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#1C1C1C] truncate">
-                            {order.profiles?.full_name || order.profiles?.email || 'Kunde'}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {new Date(order.created_at).toLocaleDateString('de-DE')}
-                            {order.quantity && ` · ${order.quantity}×`}
-                          </p>
+                    {productOrders.map(order => {
+                      const relevantItem = order.sellerItems?.find(
+                        (item: any) => item.product_id === p.id
+                      );
+                      return (
+                        <div key={order.id} className="flex items-center gap-3 px-4 py-3 border-t border-gray-100">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-[#1C1C1C] truncate">
+                              {order.order_number || 'Bestellung'}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              📅 {new Date(order.created_at).toLocaleDateString('de-DE')}
+                              {relevantItem?.quantity && ` · ${relevantItem.quantity}×`}
+                            </p>
+                            {order.customer_phone && (
+                              <p className="text-xs text-gray-500">📞 {order.customer_phone}</p>
+                            )}
+                          </div>
+                          {relevantItem && (
+                            <p className="text-sm font-bold text-[#0A5EB0]">
+                              {(relevantItem.price * relevantItem.quantity).toFixed(2)} €
+                            </p>
+                          )}
+                          <div className="flex flex-col items-end gap-1">
+                            <OrderStatusBadge status={order.order_status}/>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                              order.payment_status === 'paid'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-yellow-100 text-yellow-700'
+                            }`}>
+                              {order.payment_status === 'paid' ? '✅ Bezahlt' : '⏳ Ausstehend'}
+                            </span>
+                          </div>
                         </div>
-                        {order.total_amount && (
-                          <p className="text-sm font-bold text-[#0A5EB0]">
-                            {order.total_amount.toFixed(2)} €
-                          </p>
-                        )}
-                        <OrderStatusBadge status={order.status}/>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -324,35 +359,49 @@ export const SellerDashboard: React.FC = () => {
             <div className="space-y-3">
               {orders.map(order => (
                 <div key={order.id} className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-4">
-                  <div className="flex items-start gap-3">
-                    <img
-                      src={order.products?.image_url || '/glblogo.png'}
-                      alt={order.products?.name}
-                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                      onError={e => (e.currentTarget.src = '/glblogo.png')}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-[#1C1C1C] text-sm truncate">
-                        {order.products?.name || 'Produkt'}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        👤 {order.profiles?.full_name || order.profiles?.email || 'Kunde'}
-                      </p>
+
+                  {/* Bestellnummer & Status */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="font-bold text-sm text-[#1C1C1C]">{order.order_number}</p>
                       <p className="text-xs text-gray-400">
                         📅 {new Date(order.created_at).toLocaleDateString('de-DE', {
                           day: '2-digit', month: 'short', year: 'numeric'
                         })}
-                        {order.quantity && ` · Menge: ${order.quantity}`}
                       </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5">
-                      <OrderStatusBadge status={order.status}/>
-                      {order.total_amount && (
-                        <p className="text-sm font-bold text-[#0A5EB0]">
-                          {order.total_amount.toFixed(2)} €
-                        </p>
+                      {order.customer_phone && (
+                        <p className="text-xs text-gray-500">📞 {order.customer_phone}</p>
                       )}
                     </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <OrderStatusBadge status={order.order_status}/>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        order.payment_status === 'paid'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {order.payment_status === 'paid' ? '✅ Bezahlt' : '⏳ Ausstehend'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Seller-Produkte in dieser Bestellung */}
+                  <div className="space-y-2">
+                    {order.sellerItems?.map((item: any, idx: number) => (
+                      <div key={idx} className="flex items-center gap-3 bg-gray-50 rounded-lg p-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-[#1C1C1C] truncate">
+                            {item.product_name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Menge: {item.quantity} · {item.price?.toFixed(2)} € / Stück
+                          </p>
+                        </div>
+                        <p className="text-sm font-bold text-[#0A5EB0] flex-shrink-0">
+                          {(item.price * item.quantity).toFixed(2)} €
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
