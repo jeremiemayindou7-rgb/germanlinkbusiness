@@ -34,7 +34,6 @@ interface ProductCardProps {
   onCategoryFilter?: (category: string) => void;
 }
 
-// ── Anfrage-Formular für eBay Produkte ───────────────────────────────────────
 interface QuoteFormProps {
   product: Product;
   productName: string;
@@ -44,11 +43,7 @@ interface QuoteFormProps {
 
 const QuoteFormModal: React.FC<QuoteFormProps> = ({ product, productName, onClose, t }) => {
   const [form, setForm] = useState({
-    customer_name: '',
-    customer_phone: '',
-    customer_location: '',
-    price_proposal: '',
-    message: '',
+    customer_name: '', customer_phone: '', customer_location: '', price_proposal: '', message: '',
   });
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -61,13 +56,13 @@ const QuoteFormModal: React.FC<QuoteFormProps> = ({ product, productName, onClos
     setLoading(true);
     try {
       const { error } = await supabase.from('quote_requests').insert({
-        product_id:        product.id,
-        customer_name:     form.customer_name,
-        customer_phone:    form.customer_phone,
+        product_id: product.id,
+        customer_name: form.customer_name,
+        customer_phone: form.customer_phone,
         customer_location: form.customer_location || null,
-        price_proposal:    form.price_proposal ? parseFloat(form.price_proposal) : null,
-        message:           form.message || null,
-        status:            'pending',
+        price_proposal: form.price_proposal ? parseFloat(form.price_proposal) : null,
+        message: form.message || null,
+        status: 'pending',
       });
       if (error) throw error;
       setSent(true);
@@ -79,11 +74,14 @@ const QuoteFormModal: React.FC<QuoteFormProps> = ({ product, productName, onClos
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-      <div className="bg-white w-full sm:max-w-sm rounded-2xl shadow-2xl overflow-hidden">
+    <div
+      style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.65)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'0.75rem',paddingBottom:'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))'}}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{background:'white',width:'100%',maxWidth:'24rem',display:'flex',flexDirection:'column',borderRadius:'1rem',maxHeight:'calc(100dvh - 144px)',overflow:'hidden'}}>
 
         {/* Header */}
-        <div className="bg-[#FF6F00] text-white px-4 py-3 flex items-center justify-between">
+        <div className="flex-shrink-0 bg-[#FF6F00] text-white px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MessageCircle className="w-4 h-4" />
             <span className="font-bold text-sm">{t('request_quote')}</span>
@@ -93,95 +91,59 @@ const QuoteFormModal: React.FC<QuoteFormProps> = ({ product, productName, onClos
           </button>
         </div>
 
-        {sent ? (
-          <div className="p-6 text-center">
-            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Send className="w-7 h-7 text-green-600" />
-            </div>
-            <p className="font-bold text-gray-900 mb-1">{t('quote_sent_success')}</p>
-            <p className="text-xs text-gray-500 mb-4">GLB vous contactera bientôt.</p>
-            <button onClick={onClose}
-              className="w-full py-2.5 bg-[#FF6F00] text-white rounded-xl font-bold text-sm">
-              Fermer
-            </button>
-          </div>
-        ) : (
-          <div className="p-4 space-y-3">
-            <p className="text-xs text-gray-500 font-medium truncate">
-              📦 {productName}
-            </p>
-
-            <p className="text-xs font-bold text-gray-700">{t('quote_form_title')}</p>
-
-            <input
-              type="text"
-              placeholder={`${t('quote_name_placeholder')} *`}
-              value={form.customer_name}
-              onChange={e => setForm({ ...form, customer_name: e.target.value })}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00]"
-            />
-            <input
-              type="tel"
-              placeholder={`${t('quote_phone_placeholder')} *`}
-              value={form.customer_phone}
-              onChange={e => setForm({ ...form, customer_phone: e.target.value })}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00]"
-            />
-            <input
-              type="text"
-              placeholder={t('quote_location_placeholder')}
-              value={form.customer_location}
-              onChange={e => setForm({ ...form, customer_location: e.target.value })}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00]"
-            />
-            <input
-              type="number"
-              placeholder={t('quote_price_placeholder')}
-              value={form.price_proposal}
-              onChange={e => setForm({ ...form, price_proposal: e.target.value })}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00]"
-            />
-            <textarea
-              placeholder={t('quote_message_placeholder')}
-              value={form.message}
-              onChange={e => setForm({ ...form, message: e.target.value })}
-              rows={2}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00] resize-none"
-            />
-
-            <div className="flex gap-2 pt-1">
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="flex-1 py-2.5 bg-[#FF6F00] text-white rounded-xl font-bold text-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
-              >
-                {loading ? '...' : (
-                  <>
-                    <Send className="w-3.5 h-3.5" />
-                    {t('quote_submit')}
-                  </>
-                )}
-              </button>
-              <button
-                onClick={onClose}
-                className="flex-1 py-2.5 border border-gray-200 rounded-xl font-bold text-sm text-gray-600"
-              >
-                {t('cancel')}
+        {/* Scrollbarer Inhalt */}
+        <div style={{overflowY:'auto',flex:1}}>
+          {sent ? (
+            <div className="p-6 text-center">
+              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Send className="w-7 h-7 text-green-600" />
+              </div>
+              <p className="font-bold text-gray-900 mb-1">{t('quote_sent_success')}</p>
+              <p className="text-xs text-gray-500 mb-4">GLB vous contactera bientôt.</p>
+              <button onClick={onClose} className="w-full py-2.5 bg-[#FF6F00] text-white rounded-xl font-bold text-sm">
+                Fermer
               </button>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="p-4 space-y-3">
+              <p className="text-xs text-gray-500 font-medium truncate">📦 {productName}</p>
+              <p className="text-xs font-bold text-gray-700">{t('quote_form_title')}</p>
+
+              {[
+                { key: 'customer_name',     type: 'text',   ph: `${t('quote_name_placeholder')} *`  },
+                { key: 'customer_phone',    type: 'tel',    ph: `${t('quote_phone_placeholder')} *`  },
+                { key: 'customer_location', type: 'text',   ph: t('quote_location_placeholder')       },
+                { key: 'price_proposal',    type: 'number', ph: t('quote_price_placeholder')          },
+              ].map(f => (
+                <input key={f.key} type={f.type} placeholder={f.ph}
+                  value={form[f.key as keyof typeof form]}
+                  onChange={e => setForm({ ...form, [f.key]: e.target.value })}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00]" />
+              ))}
+              <textarea placeholder={t('quote_message_placeholder')} value={form.message}
+                onChange={e => setForm({ ...form, message: e.target.value })}
+                rows={2} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00] resize-none" />
+
+              <div className="flex gap-2 pt-1 pb-2">
+                <button onClick={handleSubmit} disabled={loading}
+                  className="flex-1 py-2.5 bg-[#FF6F00] text-white rounded-xl font-bold text-sm disabled:opacity-50 flex items-center justify-center gap-1.5">
+                  {loading ? '...' : <><Send className="w-3.5 h-3.5" />{t('quote_submit')}</>}
+                </button>
+                <button onClick={onClose}
+                  className="flex-1 py-2.5 border border-gray-200 rounded-xl font-bold text-sm text-gray-600">
+                  {t('cancel')}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-// ── ProductCard ───────────────────────────────────────────────────────────────
 export const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  onViewDetails,
-  onAuthRequired,
-  onCartOpen,
+  product, onViewDetails, onAuthRequired, onCartOpen,
 }) => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
@@ -192,10 +154,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [showQuoteForm, setShowQuoteForm] = useState(false);
 
   const isEbay = product.source_type === 'ebay';
-
-  const productName = (product[`name_${language}` as keyof Product] as string)
-    || product.name || '';
-
+  const productName = (product[`name_${language}` as keyof Product] as string) || product.name || '';
   const fallbackImage = '/glblogo.png';
   const showFallback = !product.image_url || imageError;
   const imageSrc = showFallback ? fallbackImage : product.image_url!;
@@ -215,64 +174,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const handleContactClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowQuoteForm(true);
-  };
-
   return (
     <>
       <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-[#E5E5E5]">
-
-        {/* Image */}
-        <div
-          className="relative pb-[75%] bg-gray-100 cursor-pointer"
-          onClick={() => onViewDetails?.(product.id)}
-        >
-          <img
-            src={imageSrc}
-            alt={productName}
-            className={`absolute inset-0 w-full h-full transition-transform duration-300 hover:scale-105 ${
-              showFallback ? 'object-contain p-6 opacity-70' : 'object-cover'
-            }`}
-            loading="lazy"
-            onError={() => setImageError(true)}
-          />
+        <div className="relative pb-[75%] bg-gray-100 cursor-pointer" onClick={() => onViewDetails?.(product.id)}>
+          <img src={imageSrc} alt={productName}
+            className={`absolute inset-0 w-full h-full transition-transform duration-300 hover:scale-105 ${showFallback ? 'object-contain p-6 opacity-70' : 'object-cover'}`}
+            loading="lazy" onError={() => setImageError(true)} />
           <div className="absolute top-3 right-3">
-            <span className="bg-[#F4B400] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-              {t(product.condition)}
-            </span>
+            <span className="bg-[#F4B400] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">{t(product.condition)}</span>
           </div>
           {isEbay && (
             <div className="absolute top-3 left-3">
-              <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow">
-                eBay
-              </span>
+              <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow">eBay</span>
             </div>
           )}
         </div>
 
-        {/* Info */}
         <div className="p-4">
-          <h3
-            className="text-base font-semibold text-[#1C1C1C] mb-3 line-clamp-2 min-h-[3rem] cursor-pointer hover:text-[#0A5EB0] transition leading-snug"
-            onClick={() => onViewDetails?.(product.id)}
-          >
-            {productName}
-          </h3>
+          <h3 className="text-base font-semibold text-[#1C1C1C] mb-3 line-clamp-2 min-h-[3rem] cursor-pointer hover:text-[#0A5EB0] transition leading-snug"
+            onClick={() => onViewDetails?.(product.id)}>{productName}</h3>
 
-          {/* Preis */}
           <div className="flex items-center justify-between mb-3">
             <div className="text-2xl font-bold text-[#0A5EB0]">
-              {product.sale_price > 0
-                ? `${product.sale_price.toFixed(2)} €`
-                : <span className="text-lg text-gray-400">–</span>}
+              {product.sale_price > 0 ? `${product.sale_price.toFixed(2)} €` : <span className="text-lg text-gray-400">–</span>}
             </div>
-            {isEbay && (
-              <span className="text-xs text-orange-500 font-semibold bg-orange-50 px-2 py-0.5 rounded-full">
-                GLB-Preis
-              </span>
-            )}
+            {isEbay && <span className="text-xs text-orange-500 font-semibold bg-orange-50 px-2 py-0.5 rounded-full">GLB-Preis</span>}
           </div>
 
           <div className="flex items-center text-sm text-gray-600 mb-4">
@@ -286,23 +213,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           )}
 
-          {/* ── Buttons ── */}
           {isEbay ? (
-            /* eBay: nur "Contacter le vendeur" → Formular */
-            <button
-              onClick={handleContactClick}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg font-bold text-sm transition shadow-md"
-            >
+            <button onClick={e => { e.stopPropagation(); setShowQuoteForm(true); }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg font-bold text-sm transition shadow-md">
               <MessageCircle className="w-4 h-4" />
               <span>{t('contact_seller') || 'Contacter le vendeur'}</span>
             </button>
           ) : (
-            /* Eigene Produkte: nur "Ajouter au panier" */
-            <button
-              onClick={handleAddToCart}
-              disabled={adding}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg font-bold text-sm transition disabled:opacity-50 shadow-md"
-            >
+            <button onClick={handleAddToCart} disabled={adding}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#FF6F00] hover:bg-[#E66000] text-white rounded-lg font-bold text-sm transition disabled:opacity-50 shadow-md">
               <ShoppingCart className="w-4 h-4" />
               <span>{adding ? '...' : t('add_to_cart') || 'Ajouter au panier'}</span>
             </button>
@@ -310,14 +229,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      {/* Quote Formular Modal */}
       {showQuoteForm && (
-        <QuoteFormModal
-          product={product}
-          productName={productName}
-          onClose={() => setShowQuoteForm(false)}
-          t={t}
-        />
+        <QuoteFormModal product={product} productName={productName}
+          onClose={() => setShowQuoteForm(false)} t={t} />
       )}
     </>
   );

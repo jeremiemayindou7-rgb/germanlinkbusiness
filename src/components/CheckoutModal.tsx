@@ -15,6 +15,7 @@ interface SingleProduct {
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // ── NEU: direkter Kauf aus ProductDetail ──
   singleProduct?: SingleProduct;
 }
 
@@ -32,7 +33,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
   const [agbError, setAgbError] = useState(false);
 
   const shippingCost = 50;
-  const subtotal = singleProduct ? singleProduct.sale_price : cartTotal;
+
+  // Einzel-Produkt oder Warenkorb
+  const subtotal = singleProduct
+    ? singleProduct.sale_price
+    : cartTotal;
+
   const total = subtotal + shippingCost;
   const amountToPay = paymentOption === 'deposit' ? total * 0.5 : total;
 
@@ -46,6 +52,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
 
     try {
       const orderNum = `CEE-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
       const orderItems = singleProduct
         ? [{ product_id: singleProduct.id, product_name: singleProduct.name, quantity: 1, price: singleProduct.sale_price, source_type: singleProduct.source_type || 'own' }]
         : cartItems.map(item => ({
@@ -57,17 +64,26 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
           }));
 
       const { data: newOrder, error } = await supabase.from('orders').insert({
-        order_number: orderNum, user_id: user.id, items: orderItems,
-        subtotal, shipping_cost: shippingCost, total_amount: total,
-        payment_option: paymentOption, payment_method: paymentMethod,
-        customer_phone: customerPhone, payment_status: 'pending',
-        order_status: 'awaiting_payment', source_type: 'own',
+        order_number:     orderNum,
+        user_id:          user.id,
+        items:            orderItems,
+        subtotal,
+        shipping_cost:    shippingCost,
+        total_amount:     total,
+        payment_option:   paymentOption,
+        payment_method:   paymentMethod,
+        customer_phone:   customerPhone,
+        payment_status:   'pending',
+        order_status:     'awaiting_payment',
+        source_type:      'own',
         next_shipment_date: '2026-02-15',
-        agb_accepted: true, agb_accepted_at: new Date().toISOString(),
+        agb_accepted:     true,
+        agb_accepted_at:  new Date().toISOString(),
       }).select().single();
 
       if (error) throw error;
 
+      // Email-Bestätigung
       try {
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -101,30 +117,30 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
   if (!isOpen) return null;
 
   return (
-    /*
-     * Mobile: panel slides up from bottom, starts 4rem below top (below header).
-     * Desktop: centered modal.
-     */
-    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.65)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'0.75rem'}}>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-end sm:items-center justify-center sm:p-4"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
       <div
-        style={{background:'white',width:'100%',maxWidth:'42rem',display:'flex',flexDirection:'column',borderRadius:'1rem',maxHeight:'calc(100vh - 144px)',overflow:'hidden'}}
+        className="bg-white w-full sm:max-w-2xl rounded-t-2xl sm:rounded-lg flex flex-col"
+        style={{ maxHeight: 'min(92dvh, calc(100dvh - 64px))', WebkitOverflowScrolling: 'touch' }}
       >
-        {/* ── Header (never scrolls) ── */}
-        <div className="flex-shrink-0 bg-white border-b px-4 py-3 sm:p-4 flex items-center justify-between rounded-t-2xl sm:rounded-t-lg">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+
+        {/* Header */}
+        <div className="bg-white border-b p-4 flex items-center justify-between rounded-t-lg flex-shrink-0">
+          <h2 className="text-xl font-bold text-gray-900">
             {orderCompleted ? `✓ ${t('order_confirmed_header')}` : t('checkout')}
           </h2>
           <button onClick={handleClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
-            <X className="w-5 h-5"/>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* ── Scrollable body — pb-24 ensures last button clears bottom nav ── */}
-        <div style={{overflowY:"auto",flex:1,paddingBottom:"80px"}} className="px-4 py-4 sm:p-6">
+        <div className="p-6 overflow-y-auto flex-1" style={{paddingBottom:'80px', WebkitOverflowScrolling:'touch' as any}}>
           {orderCompleted ? (
             <div className="space-y-6">
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
-                <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4"/>
+                <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-green-900 mb-2">{t('order_confirmed_title')}</h3>
                 <p className="text-green-700 mb-4">{t('order_confirmed_desc')}</p>
                 <div className="bg-white rounded-lg p-4 inline-block">
@@ -136,7 +152,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
               {paymentMethod === 'lemfi' && (
                 <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
                   <h4 className="font-bold text-yellow-900 mb-3 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5"/>
+                    <AlertCircle className="w-5 h-5" />
                     {t('lemfi_payment_instructions')}
                   </h4>
                   <div className="space-y-2 text-sm text-yellow-900 bg-white rounded p-3">
@@ -152,7 +168,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
               {paymentMethod === 'uba_congo' && (
                 <div className="bg-blue-50 border-2 border-blue-400 rounded-lg p-4">
                   <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
-                    <Phone className="w-5 h-5"/>
+                    <Phone className="w-5 h-5" />
                     {t('uba_next_steps_title')}
                   </h4>
                   <div className="space-y-3 text-sm text-blue-900 bg-white rounded p-4">
@@ -182,11 +198,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
           ) : (
             <div className="space-y-6">
 
+              {/* Produkt-Info wenn Direktkauf */}
               {singleProduct && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-500 mb-0.5">Produit</p>
-                    <p className="font-bold text-sm text-gray-900 truncate max-w-[200px] sm:max-w-[280px]">{singleProduct.name}</p>
+                    <p className="text-xs text-gray-500 mb-0.5">Produkt</p>
+                    <p className="font-bold text-sm text-gray-900 truncate max-w-[280px]">{singleProduct.name}</p>
                   </div>
                   <p className="font-bold text-[#0A5EB0] text-lg">{singleProduct.sale_price.toFixed(2)} €</p>
                 </div>
@@ -196,14 +213,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
               <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
                 <label className="block">
                   <span className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-2">
-                    <Phone className="w-4 h-4 text-blue-600"/>
+                    <Phone className="w-4 h-4 text-blue-600" />
                     {t('phone_whatsapp_label')}
                     <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">{t('required_field')}</span>
                   </span>
-                  <input type="tel" value={customerPhone}
+                  <input
+                    type="tel"
+                    value={customerPhone}
                     onChange={e => setCustomerPhone(e.target.value)}
                     placeholder="+243 XXX XXX XXX oder +242 XXX XXX XXX"
-                    className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+                    className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
                   <p className="text-xs text-blue-600 mt-1">{t('phone_contact_note')}</p>
                 </label>
               </div>
@@ -219,7 +239,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                     <input type="radio" name="payment" value={opt.val}
                       checked={paymentOption === opt.val}
                       onChange={() => setPaymentOption(opt.val as 'full' | 'deposit')}
-                      className="mt-1"/>
+                      className="mt-1" />
                     <div>
                       <div className="font-medium text-gray-900">{opt.label}</div>
                       <div className="text-sm text-gray-600">{opt.sub}</div>
@@ -239,7 +259,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                     <input type="radio" name="paymentMethod" value={m.val}
                       checked={paymentMethod === m.val}
                       onChange={() => setPaymentMethod(m.val as 'lemfi' | 'uba_congo')}
-                      className="mt-1"/>
+                      className="mt-1" />
                     <div>
                       <div className="font-medium text-gray-900">{m.label}</div>
                       <div className="text-sm text-gray-600">{m.sub}</div>
@@ -270,12 +290,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 </div>
               </div>
 
-              {/* AGB + Bezahlen */}
+              {/* AGB */}
               <div className="space-y-4">
                 <div className="flex items-start gap-3 p-4 border-2 rounded-lg">
                   <input type="checkbox" id="agb-checkbox" checked={agbAccepted}
                     onChange={e => { setAgbAccepted(e.target.checked); setAgbError(false); }}
-                    className="mt-1 w-4 h-4 text-[#009543] rounded"/>
+                    className="mt-1 w-4 h-4 text-[#009543] rounded" />
                   <label htmlFor="agb-checkbox" className="flex-1 text-sm text-gray-700">
                     {t('agb_prefix')}
                     <a href="/agb" target="_blank" rel="noopener noreferrer"
@@ -285,7 +305,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 </div>
                 {agbError && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0"/>
+                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                     <p className="text-sm text-red-800">{t('agb_error')}</p>
                   </div>
                 )}
@@ -293,7 +313,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 {paymentMethod === 'lemfi' && (
                   <>
                     <div className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
-                      <CreditCard className="w-8 h-8 text-white"/>
+                      <CreditCard className="w-8 h-8 text-white" />
                       <span className="text-2xl font-bold text-white">LemFi</span>
                     </div>
                     <button onClick={handlePayment}

@@ -26,11 +26,13 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
   const { user, session } = useAuth();
   const [loading, setLoading] = useState(false);
 
+  // ── Ein file input pro Slot (iOS/Tablet fix) ─────────────────────────────
   const fileInput0 = useRef<HTMLInputElement>(null);
   const fileInput1 = useRef<HTMLInputElement>(null);
   const fileInput2 = useRef<HTMLInputElement>(null);
   const fileInputRefs = [fileInput0, fileInput1, fileInput2];
 
+  // 3 Bild-Slots
   const [images, setImages] = useState<ImageSlot[]>([
     { file: null, preview: '', uploading: false, url: null },
     { file: null, preview: '', uploading: false, url: null },
@@ -42,6 +44,7 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
     condition: 'good', description: ''
   });
 
+  // Bild-Slot anklicken → Datei-Dialog öffnen (slot-spezifisch für iOS/Tablet)
   const openFileDialog = (slotIndex: number) => {
     fileInputRefs[slotIndex]?.current?.click();
   };
@@ -50,14 +53,18 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
+
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
       alert(`Bild zu groß! Maximal ${MAX_SIZE_MB}MB erlaubt.`);
       return;
     }
+
     const reader = new FileReader();
     reader.onload = () => {
       setImages(prev => prev.map((img, i) =>
-        i === slotIndex ? { ...img, file, preview: reader.result as string, url: null } : img
+        i === slotIndex
+          ? { ...img, file, preview: reader.result as string, url: null }
+          : img
       ));
     };
     reader.readAsDataURL(file);
@@ -65,50 +72,80 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
 
   const removeImage = (slotIndex: number) => {
     setImages(prev => prev.map((img, i) =>
-      i === slotIndex ? { file: null, preview: '', uploading: false, url: null } : img
+      i === slotIndex
+        ? { file: null, preview: '', uploading: false, url: null }
+        : img
     ));
   };
 
+  // Alle Bilder hochladen → URLs zurückgeben
   const uploadAllImages = async (): Promise<string[]> => {
     const urls: string[] = [];
+
     for (let i = 0; i < images.length; i++) {
       const slot = images[i];
       if (!slot.file) continue;
-      setImages(prev => prev.map((img, idx) => idx === i ? { ...img, uploading: true } : img));
+
+      setImages(prev => prev.map((img, idx) =>
+        idx === i ? { ...img, uploading: true } : img
+      ));
+
       try {
         const fileExt = slot.file.name.split('.').pop();
         const fileName = `${user!.id}_${Date.now()}_${i}.${fileExt}`;
         const filePath = `products/${fileName}`;
-        const { error } = await supabase.storage.from('product-images').upload(filePath, slot.file, { upsert: true });
+
+        const { error } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, slot.file, { upsert: true });
+
         if (error) throw error;
-        const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
+
+        const { data: urlData } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
         urls.push(urlData.publicUrl);
-        setImages(prev => prev.map((img, idx) => idx === i ? { ...img, uploading: false, url: urlData.publicUrl } : img));
+
+        setImages(prev => prev.map((img, idx) =>
+          idx === i ? { ...img, uploading: false, url: urlData.publicUrl } : img
+        ));
       } catch (err: any) {
         console.error(`Bild ${i + 1} Upload fehlgeschlagen:`, err);
-        setImages(prev => prev.map((img, idx) => idx === i ? { ...img, uploading: false } : img));
+        setImages(prev => prev.map((img, idx) =>
+          idx === i ? { ...img, uploading: false } : img
+        ));
       }
     }
+
     return urls;
   };
 
   const handleSubmit = async () => {
     if (!user || !session) { alert('Bitte erst einloggen!'); return; }
     if (!form.name || !form.sale_price) return;
+
     setLoading(true);
     try {
       const imageUrls = await uploadAllImages();
+
       const { error } = await supabase.from('products').insert({
-        name: form.name, name_de: form.name, title: form.name,
-        category: form.category,
-        purchase_price: parseFloat(form.sale_price),
-        sale_price: parseFloat(form.sale_price),
-        condition: form.condition, description: form.description,
-        image_url: imageUrls[0] || null,
-        images: imageUrls.length > 0 ? imageUrls : null,
-        stock_status: 'available', seller_id: user.id,
-        is_seller_product: true, location: 'Deutschland',
+        name:              form.name,
+        name_de:           form.name,
+        title:             form.name,
+        category:          form.category,
+        purchase_price:    parseFloat(form.sale_price), // ← Pflichtfeld
+        sale_price:        parseFloat(form.sale_price),
+        condition:         form.condition,
+        description:       form.description,
+        image_url:         imageUrls[0] || null,
+        images:            imageUrls.length > 0 ? imageUrls : null,
+        stock_status:      'available',
+        seller_id:         user.id,
+        is_seller_product: true,
+        location:          'Deutschland',
       });
+
       if (error) throw error;
       onSuccess();
     } catch (err: any) {
@@ -122,27 +159,24 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
   const filledSlots = images.filter(img => img.file).length;
 
   return (
-    /*
-     * Mobile: overlay fills screen, panel slides up from bottom (items-end),
-     *         starts below the header (top-16) via maxHeight calc.
-     * Desktop: centered modal as before.
-     */
-    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.65)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'0.75rem'}}>
+    <div
+      style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.65)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'0.75rem',paddingBottom:'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))'}}
+    >
       <div
-        style={{background:'white',width:'100%',maxWidth:'32rem',display:'flex',flexDirection:'column',borderRadius:'1rem',maxHeight:'calc(100vh - 144px)',overflow:'hidden'}}
+        style={{background:'white',width:'100%',maxWidth:'32rem',display:'flex',flexDirection:'column',borderRadius:'1rem',maxHeight:'calc(100dvh - 144px)',overflow:'hidden'}}
       >
-        {/* ── Header (fixed, never scrolls) ── */}
-        <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 sm:p-6 border-b border-[#E5E5E5]">
+        {/* Header — fixiert, scrollt nicht */}
+        <div className="flex-shrink-0 flex items-center justify-between p-4 sm:p-6 border-b border-[#E5E5E5]">
           <h2 className="text-lg sm:text-xl font-bold text-[#1C1C1C]">{t('seller_new_product')}</h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
             <X className="w-5 h-5"/>
           </button>
         </div>
 
-        {/* ── Scrollable content ── */}
-        <div style={{overflowY:"auto",flex:1,paddingBottom:"80px"}} className="px-4 py-4 sm:p-6 space-y-4">
+        {/* Scrollbarer Inhalt */}
+        <div className="flex-1 p-4 sm:p-6 space-y-4 overflow-y-auto" style={{WebkitOverflowScrolling:'touch' as any}}>
 
-          {/* 3 Bild-Slots */}
+          {/* ── 3 Bild-Slots ── */}
           <div>
             <label className="block text-sm font-bold text-[#1C1C1C] mb-2">
               Produktbilder
@@ -150,23 +184,34 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
                 ({filledSlots}/{MAX_IMAGES} · max. {MAX_SIZE_MB}MB pro Bild)
               </span>
             </label>
+
             <div className="grid grid-cols-3 gap-2">
               {images.map((img, i) => (
                 <div key={i} className="relative aspect-square">
                   {img.preview ? (
+                    /* Bild vorhanden */
                     <div className="w-full h-full rounded-xl overflow-hidden border-2 border-[#0A5EB0] relative">
-                      <img src={img.preview} alt={`Bild ${i + 1}`} className="w-full h-full object-cover"/>
+                      <img
+                        src={img.preview}
+                        alt={`Bild ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Uploading Overlay */}
                       {img.uploading && (
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                           <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"/>
                         </div>
                       )}
+                      {/* Remove Button */}
                       {!img.uploading && (
-                        <button onClick={() => removeImage(i)}
-                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                        <button
+                          onClick={() => removeImage(i)}
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition"
+                        >
                           <X className="w-3 h-3"/>
                         </button>
                       )}
+                      {/* Slot-Nummer */}
                       {i === 0 && (
                         <div className="absolute bottom-1 left-1 bg-[#0A5EB0] text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                           Haupt
@@ -174,19 +219,34 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
                       )}
                     </div>
                   ) : (
-                    <button onClick={() => openFileDialog(i)}
-                      className="w-full h-full rounded-xl border-2 border-dashed border-[#E5E5E5] flex flex-col items-center justify-center hover:border-[#0A5EB0] hover:bg-blue-50 transition">
+                    /* Leerer Slot */
+                    <button
+                      onClick={() => openFileDialog(i)}
+                      className="w-full h-full rounded-xl border-2 border-dashed border-[#E5E5E5] flex flex-col items-center justify-center hover:border-[#0A5EB0] hover:bg-blue-50 transition"
+                    >
                       <Plus className="w-6 h-6 text-gray-300 mb-1"/>
-                      <span className="text-[10px] text-gray-400">{i === 0 ? 'Hauptbild' : `Bild ${i + 1}`}</span>
+                      <span className="text-[10px] text-gray-400">
+                        {i === 0 ? 'Hauptbild' : `Bild ${i + 1}`}
+                      </span>
                     </button>
                   )}
                 </div>
               ))}
             </div>
+
+            {/* 3 versteckte file inputs — einer pro Slot */}
             {fileInputRefs.map((ref, i) => (
-              <input key={i} ref={ref} type="file" accept="image/*" capture="environment"
-                onChange={(e) => handleImageSelect(e, i)} className="hidden"/>
+              <input
+                key={i}
+                ref={ref}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={(e) => handleImageSelect(e, i)}
+                className="hidden"
+              />
             ))}
+
             <p className="text-xs text-gray-400 mt-1.5">
               💡 Das erste Bild wird als Hauptbild im Marketplace angezeigt.
             </p>
@@ -195,17 +255,23 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
           {/* Titel */}
           <div>
             <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('product_name')} *</label>
-            <input type="text" value={form.name}
+            <input
+              type="text"
+              value={form.name}
               onChange={e => setForm({...form, name: e.target.value})}
               className="w-full px-4 py-3 border border-[#E5E5E5] rounded-xl focus:ring-2 focus:ring-[#0A5EB0] outline-none"
-              placeholder="z.B. Bosch Waschmaschine 7kg"/>
+              placeholder="z.B. Bosch Waschmaschine 7kg"
+            />
           </div>
 
           {/* Kategorie */}
           <div>
             <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('categories')}</label>
-            <select value={form.category} onChange={e => setForm({...form, category: e.target.value})}
-              className="w-full px-4 py-3 border border-[#E5E5E5] rounded-xl focus:ring-2 focus:ring-[#0A5EB0] outline-none">
+            <select
+              value={form.category}
+              onChange={e => setForm({...form, category: e.target.value})}
+              className="w-full px-4 py-3 border border-[#E5E5E5] rounded-xl focus:ring-2 focus:ring-[#0A5EB0] outline-none"
+            >
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
@@ -214,15 +280,21 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('price')} (€) *</label>
-              <input type="number" min="0" step="0.01" value={form.sale_price}
+              <input
+                type="number" min="0" step="0.01"
+                value={form.sale_price}
                 onChange={e => setForm({...form, sale_price: e.target.value})}
                 className="w-full px-4 py-3 border border-[#E5E5E5] rounded-xl focus:ring-2 focus:ring-[#0A5EB0] outline-none"
-                placeholder="0.00"/>
+                placeholder="0.00"
+              />
             </div>
             <div>
               <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('condition')}</label>
-              <select value={form.condition} onChange={e => setForm({...form, condition: e.target.value})}
-                className="w-full px-4 py-3 border border-[#E5E5E5] rounded-xl focus:ring-2 focus:ring-[#0A5EB0] outline-none">
+              <select
+                value={form.condition}
+                onChange={e => setForm({...form, condition: e.target.value})}
+                className="w-full px-4 py-3 border border-[#E5E5E5] rounded-xl focus:ring-2 focus:ring-[#0A5EB0] outline-none"
+              >
                 <option value="new">{t('new')}</option>
                 <option value="very_good">{t('very_good')}</option>
                 <option value="good">{t('good')}</option>
@@ -234,11 +306,13 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
           {/* Beschreibung */}
           <div>
             <label className="block text-sm font-bold text-[#1C1C1C] mb-1">{t('description')}</label>
-            <textarea value={form.description}
+            <textarea
+              value={form.description}
               onChange={e => setForm({...form, description: e.target.value})}
               rows={4} maxLength={4000}
               className="w-full px-4 py-3 border border-[#E5E5E5] rounded-xl focus:ring-2 focus:ring-[#0A5EB0] outline-none resize-none"
-              placeholder="Beschreibe das Produkt..."/>
+              placeholder="Beschreibe das Produkt..."
+            />
             <p className="text-xs text-gray-400 text-right mt-1">{form.description.length}/4000</p>
           </div>
 
@@ -248,9 +322,9 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
           </div>
         </div>
 
-        {/* ── Footer buttons (fixed, never scrolls, always visible) ── */}
-        <div className="flex-shrink-0 flex gap-3 px-4 py-3 sm:p-6 border-t border-gray-100"
-          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}>
+        {/* Footer — fixiert, scrollt nicht, immer sichtbar */}
+        <div className="flex-shrink-0 flex gap-3 p-4 sm:p-6 border-t border-gray-100"
+          style={{paddingBottom:'max(1rem, env(safe-area-inset-bottom, 1rem))'}}>
           <button onClick={onClose}
             className="flex-1 py-3 border border-[#E5E5E5] rounded-xl font-bold text-gray-600 hover:bg-gray-50">
             {t('cancel')}
