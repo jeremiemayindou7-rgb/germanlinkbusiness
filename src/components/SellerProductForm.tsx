@@ -241,7 +241,6 @@ export const SellerProductForm: React.FC<Props> = ({ onClose, onSuccess }) => {
                 ref={ref}
                 type="file"
                 accept="image/*"
-                capture="environment"
                 onChange={(e) => handleImageSelect(e, i)}
                 className="hidden"
               />
