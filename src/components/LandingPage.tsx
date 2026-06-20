@@ -8,34 +8,22 @@ interface LandingPageProps {
 
 type Language = 'de' | 'fr' | 'ln';
 
-// ─── Color palette ────────────────────────────────────────────────────────────
-// German flag:  #000000 · #DD0000 · #FFCE00
-// RDC flag:    #007FFF (bleu) · #CE1021 (rouge) · #F7D618 (jaune)
-// Congo-B flag: #009A00 (vert)  · #FBDE2A (jaune) · #CE1021 (rouge)
-
-// Each category gets a color pair [bg, text] drawn from the two flags
 const CAT_COLORS = [
-  { bg: '#FFCE00', text: '#0a1628', abbr: 'SOL' }, // Solaire
-  { bg: '#009A00', text: '#fff',    abbr: 'AGR' }, // Agriculture
-  { bg: '#DD0000', text: '#fff',    abbr: 'GEN' }, // Générateurs
-  { bg: '#000000', text: '#FFCE00', abbr: 'ÉLM' }, // Électroménager
-  { bg: '#007FFF', text: '#fff',    abbr: 'VÉH' }, // Véhicules
-  { bg: '#CE1021', text: '#fff',    abbr: 'IND' }, // Individuelle
+  { bg: '#FFCE00', text: '#0a1628', abbr: 'SOL' },
+  { bg: '#009A00', text: '#fff',    abbr: 'AGR' },
+  { bg: '#DD0000', text: '#fff',    abbr: 'GEN' },
+  { bg: '#000000', text: '#FFCE00', abbr: 'ÉLM' },
+  { bg: '#007FFF', text: '#fff',    abbr: 'VÉH' },
+  { bg: '#CE1021', text: '#fff',    abbr: 'IND' },
 ];
 
-// Why-cards color accents
-// Card 1: Deutsche Qualitätskontrolle → DE flag,        initials "DQ"
-// Card 2: Conteneur groupé sécurisé   → Congo-BZV flag,  initials "CS"
-// Card 3: Paiement sécurisé           → DE flag,          initials "PS"
-// Card 4: Réseau local en Afrique     → RDC flag,         initials "RL"
 const WHY_COLORS = [
-  { colors: ['#000000','#DD0000','#FFCE00'], label: 'DQ' }, // DE flag
-  { colors: ['#009A00','#FBDE2A','#CE1021'], label: 'CS' }, // Congo-Brazzaville flag
-  { colors: ['#000000','#DD0000','#FFCE00'], label: 'PS' }, // DE flag
-  { colors: ['#007FFF','#F7D618','#CE1021'], label: 'RL' }, // RDC flag
+  { colors: ['#000000','#DD0000','#FFCE00'], label: 'DQ' },
+  { colors: ['#009A00','#FBDE2A','#CE1021'], label: 'CS' },
+  { colors: ['#000000','#DD0000','#FFCE00'], label: 'PS' },
+  { colors: ['#007FFF','#F7D618','#CE1021'], label: 'RL' },
 ];
 
-// How-steps circle colors
 const STEP_COLORS = ['#FFCE00', '#009A00', '#DD0000', '#007FFF'];
 
 const translations = {
@@ -147,7 +135,7 @@ const translations = {
       subtitle: "La plateforme commerciale et logistique entre l'Allemagne et l'Afrique centrale. Achetez, vendez et expédiez des produits allemands de qualité via GLB.",
       btn1: 'Acheter des produits',
       btn2: 'Vendre des produits',
-      btn3: 'Expédier un conteneur',
+      btn3: 'Expédier un colis',
       stat1num: '200+', stat1label: 'Marchands dans le réseau',
       stat2num: '12×',  stat2label: 'Conteneurs par an',
       stat3num: '4',    stat3label: 'Villes au Congo',
@@ -245,7 +233,7 @@ const translations = {
       subtitle: 'Plateforme ya commerce mpe logistique entre Allemagne mpe Afrique centrale. Somba, teka mpe tinda biloko ya qualité ya Allemagne na GLB.',
       btn1: 'Somba biloko',
       btn2: 'Teka biloko',
-      btn3: 'Tinda container',
+      btn3: 'Tinda colis',
       stat1num: '200+', stat1label: 'Ba marchands na réseau',
       stat2num: '12×',  stat2label: 'Ba containers par an',
       stat3num: '4',    stat3label: 'Bingumba na Congo',
@@ -335,7 +323,6 @@ const translations = {
   },
 };
 
-// ─── Reusable flag-color bar — accepts explicit color array ──────────────────
 const FlagBar: React.FC<{ colors: string[]; size?: number }> = ({ colors, size = 5 }) => (
   <div style={{ display: 'flex', gap: 2, marginBottom: 12 }}>
     {colors.map((c, i) => (
@@ -344,7 +331,6 @@ const FlagBar: React.FC<{ colors: string[]; size?: number }> = ({ colors, size =
   </div>
 );
 
-// ─── Color badge replacing the old emoji icon ─────────────────────────────────
 const ColorBadge: React.FC<{ bg: string; text: string; label: string; size?: number }> = ({ bg, text, label, size = 48 }) => (
   <div style={{
     width: size, height: size, borderRadius: 4,
@@ -415,13 +401,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <section style={{ minHeight: 'clamp(600px,100vh,100vh)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 4vw clamp(3rem,8vh,8vh)', position: 'relative', overflow: 'hidden', paddingTop: 80 }}>
         <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: 'linear-gradient(to top, rgba(7,16,32,0.98) 0%, rgba(7,16,32,0.65) 45%, rgba(7,16,32,0.25) 100%), url("https://images.unsplash.com/photo-1553413077-190dd305871c?w=1600&q=80") center/cover no-repeat' }} />
-        {/* Flag stripe — DE on top, CG colors woven in */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 5, zIndex: 2, display: 'flex' }}>
           {['#000000','#DD0000','#FFCE00','#009A00','#FBDE2A','#007FFF'].map((c,i) => <div key={i} style={{ flex: 1, background: c }} />)}
         </div>
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 900 }}>
-          {/* Route tag — text only, no emoji */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#00e676', marginBottom: '1.8rem', padding: '0.35rem 0.85rem', border: '1px solid rgba(0,230,118,0.5)', borderRadius: 2, background: 'rgba(0,230,118,0.08)' }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00e676', display: 'inline-block', boxShadow: '0 0 6px #00e676' }} />
             {t.hero.tag}
@@ -437,17 +421,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: 'clamp(1.5rem,3vw,3.5rem)' }}>
+            {/* Btn 1: Produkte kaufen */}
             <button onClick={() => go('dashboard')} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>
               {t.hero.btn1}
             </button>
+            {/* Btn 2: Produkte verkaufen */}
             <button onClick={() => go('seller')} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
               {t.hero.btn2}
             </button>
-            <button onClick={() => go('how-it-works')} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
+            {/* Btn 3: Container versenden → ParcelPage */}
+            <button onClick={() => go('parcel')} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
               {t.hero.btn3}
             </button>
           </div>
-
         </div>
       </section>
 
@@ -457,7 +443,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3vw,2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.how.title}</h2>
         <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>{t.how.subtitle}</p>
 
-        {/* Route bar — text badges with flag colors */}
         <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 4, padding: '1rem 1.5rem', marginBottom: 'clamp(1.5rem,4vw,3rem)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', fontSize: '0.83rem' }}>
           {t.how.route.map((stop, i) => {
             const stopColors = ['#000000','#DD0000','#009A00','#007FFF','#FBDE2A'];
@@ -473,11 +458,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           })}
         </div>
 
-        {/* Steps — numbered circles in flag colors, no emoji */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1px', background: 'rgba(255,255,255,0.06)' }}>
           {t.how.steps.map((step, i) => (
             <div key={i} style={{ background: '#071020', padding: 'clamp(1rem,3vw,2rem) 1.5rem', textAlign: 'center' }}>
-              {/* Big numbered circle in flag color */}
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: STEP_COLORS[i], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', fontSize: '1.3rem', fontWeight: 900, color: i === 0 ? '#0a1628' : '#fff', margin: '0 auto 1.2rem', boxShadow: `0 0 0 4px rgba(${STEP_COLORS[i] === '#FFCE00' ? '255,206,0' : STEP_COLORS[i] === '#009A00' ? '0,154,0' : STEP_COLORS[i] === '#DD0000' ? '221,0,0' : '247,59,0'},0.2)` }}>
                 {step.num}
               </div>
@@ -497,7 +480,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5px', background: 'rgba(255,255,255,0.06)' }}>
           {t.why.cards.map((card, i) => (
             <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '2.2rem 1.8rem' }}>
-              {/* Flag bar: correct national colors per card + initials of card title */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1rem' }}>
                 <FlagBar colors={WHY_COLORS[i].colors} size={5} />
                 <span style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: WHY_COLORS[i].colors[0] === '#007FFF' ? '#007FFF' : WHY_COLORS[i].colors[0] === '#009A00' ? '#009A00' : WHY_COLORS[i].colors[1], textTransform: 'uppercase' }}>
@@ -527,7 +509,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
                 onClick={onGetStarted}
                 style={{ border: `1px solid ${isLast ? 'rgba(244,180,0,0.35)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 4, padding: '2rem 1.5rem', background: isLast ? 'rgba(244,180,0,0.05)' : 'rgba(255,255,255,0.02)', cursor: 'pointer', transition: 'all 0.2s' }}
               >
-                {/* Color badge replaces emoji */}
                 <div style={{ marginBottom: '0.9rem' }}>
                   <ColorBadge bg={c.bg} text={c.text} label={c.abbr} size={48} />
                 </div>
@@ -549,7 +530,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem', marginBottom: '2rem' }}>
             {t.seller.benefits.map((b, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem' }}>
-                {/* Checkmark replaced by a colored square */}
                 <span style={{ width: 22, height: 22, borderRadius: 4, background: i % 2 === 0 ? 'rgba(0,154,0,0.25)' : 'rgba(0,127,255,0.15)', border: `1px solid ${i % 2 === 0 ? '#009A00' : '#007FFF'}`, color: i % 2 === 0 ? '#5dcaa5' : '#007FFF', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900, flexShrink: 0 }}>✓</span>
                 {b}
               </div>
@@ -568,7 +548,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3vw,2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.proof.title}</h2>
         <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>{t.proof.subtitle}</p>
 
-        {/* Stats — colored accent bar above each number */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1.5px', background: 'rgba(255,255,255,0.06)', marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>
           {t.proof.stats.map((s, i) => {
             const barColors = ['#DD0000','#009A00','#FFCE00','#007FFF'];
@@ -581,7 +560,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           })}
         </div>
 
-        {/* Testimonials */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: '1rem' }}>
           {t.proof.testimonials.map((tm, i) => (
             <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, padding: '2rem', position: 'relative' }}>
@@ -596,7 +574,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
 
       {/* ── FINAL CTA ────────────────────────────────────────────────────────── */}
       <section style={{ background: '#F4B400', textAlign: 'center', padding: 'clamp(2.5rem,6vw,6rem) 4vw' }}>
-        {/* Mini flag stripe on top of CTA */}
         <div style={{ display: 'flex', height: 4, marginBottom: '2rem', borderRadius: 2, overflow: 'hidden', maxWidth: 300, margin: '0 auto 2rem' }}>
           {['#000000','#DD0000','#FFCE00','#009A00','#FBDE2A','#007FFF'].map((c,i) => <div key={i} style={{ flex: 1, background: c }} />)}
         </div>
@@ -635,7 +612,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
             <button onClick={() => window.location.href = '/agb'} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
               {t.footer.agb}
             </button>
-          
             <button onClick={() => go('how-it-works')} style={{ background: 'none', border: 'none', color: '#8fa3b8', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
               {t.footer.how}
             </button>

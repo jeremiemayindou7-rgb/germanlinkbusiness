@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, CreditCard, AlertCircle, CheckCircle, Phone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, CreditCard, AlertCircle, CheckCircle, Phone, Package, Info } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,9 +15,50 @@ interface SingleProduct {
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // ── NEU: direkter Kauf aus ProductDetail ──
   singleProduct?: SingleProduct;
 }
+
+// ── Versandkosten-Logik ───────────────────────────────────────────────────────
+const CBM_RATE = 250; // € pro m³ Seefrachtcontainer
+const MIN_SHIPPING = 15; // Mindestversand
+
+interface ShippingInfo {
+  mode: 'fixed' | 'cbm' | 'quote';
+  estimated: number;
+  isEstimate: boolean;
+  label: string;
+  hint: string;
+}
+
+const calcShipping = (totalCbm: number, hasNoMeasurements: boolean): ShippingInfo => {
+  if (hasNoMeasurements) {
+    return {
+      mode: 'quote',
+      estimated: 50,
+      isEstimate: true,
+      label: 'Wird nach Volumen berechnet',
+      hint: 'Die endgültigen Versandkosten werden nach Volumen, Gewicht und Zielort berechnet. Sie erhalten vor der Zahlung ein individuelles Angebot.',
+    };
+  }
+  if (totalCbm < 0.05) {
+    // Klein (< 0,05 m³ — z.B. Handy, Laptop)
+    return {
+      mode: 'fixed',
+      estimated: Math.max(MIN_SHIPPING, Math.round(totalCbm * CBM_RATE)),
+      isEstimate: false,
+      label: '',
+      hint: 'Kleines Paket — Pauschalversand.',
+    };
+  }
+  const calculated = Math.round(totalCbm * CBM_RATE);
+  return {
+    mode: 'cbm',
+    estimated: Math.max(MIN_SHIPPING, calculated),
+    isEstimate: true,
+    label: `ca. ${Math.max(MIN_SHIPPING, calculated)} €`,
+    hint: `Berechnet nach Volumen (${totalCbm.toFixed(3)} m³ × ${CBM_RATE} €/m³). Die genauen Kosten werden nach Auftragseingang bestätigt.`,
+  };
+};
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, singleProduct }) => {
   const { t } = useLanguage();
@@ -31,14 +72,71 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
   const [loading, setLoading] = useState(false);
   const [agbAccepted, setAgbAccepted] = useState(false);
   const [agbError, setAgbError] = useState(false);
+  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
+    mode: 'quote', estimated: 50, isEstimate: true,
+    label: 'Wird berechnet',
+    hint: 'Die Versandkosten werden nach Volumen berechnet.',
+  });
+  const [showShippingInfo, setShowShippingInfo] = useState(false);
 
-  const shippingCost = 50;
+  const subtotal = singleProduct ? singleProduct.sale_price : cartTotal;
 
-  // Einzel-Produkt oder Warenkorb
-  const subtotal = singleProduct
-    ? singleProduct.sale_price
-    : cartTotal;
+  // Versandkosten berechnen sobald Modal öffnet
+  useEffect(() => {
+    if (!isOpen) return;
+    calcShippingForCart();
+  }, [isOpen, cartItems, singleProduct]);
 
+  const calcShippingForCart = async () => {
+    try {
+      let totalCbm = 0;
+      let hasNoMeasurements = false;
+
+      if (singleProduct) {
+        const { data } = await supabase
+          .from('products')
+          .select('volume_cbm, length_cm, width_cm, height_cm')
+          .eq('id', singleProduct.id)
+          .single();
+
+        if (!data?.volume_cbm && (!data?.length_cm || !data?.width_cm || !data?.height_cm)) {
+          hasNoMeasurements = true;
+        } else {
+          totalCbm = data.volume_cbm || 0;
+        }
+      } else {
+        // Warenkorb: alle Produkt-IDs holen
+        const productIds = cartItems.map(i => i.product_id);
+        if (productIds.length === 0) { hasNoMeasurements = true; }
+        else {
+          const { data: products } = await supabase
+            .from('products')
+            .select('id, volume_cbm, length_cm, width_cm, height_cm')
+            .in('id', productIds);
+
+          for (const cartItem of cartItems) {
+            const prod = products?.find(p => p.id === cartItem.product_id);
+            if (!prod?.volume_cbm && (!prod?.length_cm || !prod?.width_cm || !prod?.height_cm)) {
+              hasNoMeasurements = true;
+              break;
+            }
+            totalCbm += (prod?.volume_cbm || 0) * cartItem.quantity;
+          }
+        }
+      }
+
+      setShippingInfo(calcShipping(totalCbm, hasNoMeasurements));
+    } catch (e) {
+      console.error('Shipping calc error:', e);
+      setShippingInfo({
+        mode: 'quote', estimated: 50, isEstimate: true,
+        label: 'Wird berechnet',
+        hint: 'Die Versandkosten werden nach Volumen berechnet.',
+      });
+    }
+  };
+
+  const shippingCost = shippingInfo.estimated;
   const total = subtotal + shippingCost;
   const amountToPay = paymentOption === 'deposit' ? total * 0.5 : total;
 
@@ -64,26 +162,27 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
           }));
 
       const { data: newOrder, error } = await supabase.from('orders').insert({
-        order_number:     orderNum,
-        user_id:          user.id,
-        items:            orderItems,
+        order_number:       orderNum,
+        user_id:            user.id,
+        items:              orderItems,
         subtotal,
-        shipping_cost:    shippingCost,
-        total_amount:     total,
-        payment_option:   paymentOption,
-        payment_method:   paymentMethod,
-        customer_phone:   customerPhone,
-        payment_status:   'pending',
-        order_status:     'awaiting_payment',
-        source_type:      'own',
+        shipping_cost:      shippingCost,
+        shipping_mode:      shippingInfo.mode,
+        shipping_estimated: shippingInfo.isEstimate,
+        total_amount:       total,
+        payment_option:     paymentOption,
+        payment_method:     paymentMethod,
+        customer_phone:     customerPhone,
+        payment_status:     'pending',
+        order_status:       'awaiting_payment',
+        source_type:        'own',
         next_shipment_date: '2026-02-15',
-        agb_accepted:     true,
-        agb_accepted_at:  new Date().toISOString(),
+        agb_accepted:       true,
+        agb_accepted_at:    new Date().toISOString(),
       }).select().single();
 
       if (error) throw error;
 
-      // Email-Bestätigung
       try {
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -111,6 +210,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
     setOrderNumber('');
     setAgbAccepted(false);
     setAgbError(false);
+    setShowShippingInfo(false);
     onClose();
   };
 
@@ -125,7 +225,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
         className="bg-white w-full sm:max-w-2xl rounded-t-2xl sm:rounded-lg flex flex-col"
         style={{ maxHeight: 'min(92dvh, calc(100dvh - 64px))', WebkitOverflowScrolling: 'touch' }}
       >
-
         {/* Header */}
         <div className="bg-white border-b p-4 flex items-center justify-between rounded-t-lg flex-shrink-0">
           <h2 className="text-xl font-bold text-gray-900">
@@ -136,7 +235,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1" style={{paddingBottom:'80px', WebkitOverflowScrolling:'touch' as any}}>
+        <div className="p-6 overflow-y-auto flex-1" style={{ paddingBottom: '80px', WebkitOverflowScrolling: 'touch' as any }}>
           {orderCompleted ? (
             <div className="space-y-6">
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
@@ -148,6 +247,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                   <p className="text-2xl font-bold text-gray-900">{orderNumber}</p>
                 </div>
               </div>
+
+              {/* Versandhinweis bei Schätzung */}
+              {shippingInfo.isEstimate && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-2">
+                    <Package className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-blue-900 text-sm">Versandkosten werden bestätigt</p>
+                      <p className="text-blue-700 text-xs mt-1">{shippingInfo.hint}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {paymentMethod === 'lemfi' && (
                 <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
@@ -188,7 +300,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
               )}
 
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-yellow-800 text-sm"><strong>{t('next_shipment')}:</strong> 15/02/2026</p>
+                <p className="text-yellow-800 text-sm"><strong>{t('next_shipment')}:</strong> 15. des Monats</p>
               </div>
 
               <button onClick={handleClose} className="w-full py-3 bg-[#009543] text-white rounded-lg font-medium">
@@ -198,7 +310,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
           ) : (
             <div className="space-y-6">
 
-              {/* Produkt-Info wenn Direktkauf */}
+              {/* Produkt-Info */}
               {singleProduct && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
                   <div>
@@ -274,20 +386,83 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 )}
               </div>
 
-              {/* Preisübersicht */}
+              {/* ── Preisübersicht mit dynamischen Versandkosten ── */}
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                 <div className="flex justify-between text-gray-600">
-                  <span>{t('subtotal')}</span><span>{subtotal.toFixed(2)} €</span>
+                  <span>{t('subtotal')}</span>
+                  <span>{subtotal.toFixed(2)} €</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>{t('shipping')}</span><span>{shippingCost.toFixed(2)} €</span>
+
+                {/* Versandkosten — dynamisch */}
+                <div className="flex justify-between text-gray-600 items-start">
+                  <div className="flex items-center gap-1">
+                    <span>{t('shipping')}</span>
+                    <button
+                      onClick={() => setShowShippingInfo(!showShippingInfo)}
+                      className="text-blue-500 hover:text-blue-700"
+                      title="Versandinfo">
+                      <Info className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="text-right">
+                    {shippingInfo.isEstimate ? (
+                      <div>
+                        <span className="text-orange-600 font-medium">
+                          ca. {shippingCost.toFixed(2)} €
+                        </span>
+                        <span className="text-xs text-orange-500 block">Schätzwert</span>
+                      </div>
+                    ) : (
+                      <span>{shippingCost.toFixed(2)} €</span>
+                    )}
+                  </div>
                 </div>
+
+                {/* Info-Box Versand */}
+                {showShippingInfo && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800 space-y-1">
+                    <p className="font-bold flex items-center gap-1">
+                      <Package className="w-3.5 h-3.5" /> Versand nach Kongo
+                    </p>
+                    <p>{shippingInfo.hint}</p>
+                    {shippingInfo.mode === 'cbm' && (
+                      <p className="text-blue-600 font-medium">
+                        Sammelcontainer · {CBM_RATE} €/m³ · Lieferzeit 8–12 Wochen
+                      </p>
+                    )}
+                    {shippingInfo.mode === 'quote' && (
+                      <p className="text-orange-600 font-medium">
+                        Nach Auftragseingang erhalten Sie ein individuelles Angebot.
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t">
-                  <span>{t('total')}</span><span className="text-[#009543]">{total.toFixed(2)} €</span>
+                  <span>{t('total')}</span>
+                  <div className="text-right">
+                    <span className="text-[#009543]">{total.toFixed(2)} €</span>
+                    {shippingInfo.isEstimate && (
+                      <span className="text-xs text-orange-500 block font-normal">inkl. Versandschätzung</span>
+                    )}
+                  </div>
                 </div>
+
                 <div className="flex justify-between text-xl font-bold text-[#DC241F] pt-2 border-t-2 border-[#DC241F]">
-                  <span>{t('to_pay_now')}</span><span>{amountToPay.toFixed(2)} €</span>
+                  <span>{t('to_pay_now')}</span>
+                  <span>{amountToPay.toFixed(2)} €</span>
                 </div>
+
+                {/* Wichtiger Hinweis bei Schätzung */}
+                {shippingInfo.isEstimate && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
+                    <p className="text-xs text-orange-800">
+                      <strong>⚠️ Hinweis:</strong> Die angezeigten Versandkosten sind Schätzwerte.
+                      Die endgültigen Transportkosten werden nach Prüfung Ihrer Bestellung bestätigt.
+                      Bei Abweichung kontaktieren wir Sie vor der Zahlung.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* AGB */}
@@ -338,7 +513,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
               </div>
 
               <div className="bg-[#FBDE4A] bg-opacity-20 p-4 rounded-lg text-center">
-                <p className="text-sm"><span className="font-bold">{t('next_shipment')}:</span> 15/02/2026</p>
+                <p className="text-sm"><span className="font-bold">{t('next_shipment')}:</span> 15. des Monats</p>
               </div>
             </div>
           )}

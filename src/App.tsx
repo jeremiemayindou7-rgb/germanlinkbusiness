@@ -22,6 +22,8 @@ import { EbayImportPage } from './components/EbayImportPage';
 import { HowItWorksPage } from './components/HowItWorksPage';
 import { AboutPage } from './components/AboutPage';
 import { CookieConsent } from './components/CookieConsent';
+import { ParcelPage } from './components/ParcelPage';
+import { AdemaxImportPage } from './components/ademax-import/AdemaxImportPage';
 
 function AppContent() {
   const { user } = useAuth();
@@ -30,7 +32,7 @@ function AppContent() {
   // ── Hash-basiertes Routing ─────────────────────────────────────────────────
   const getInitialView = () => {
     const hash = window.location.hash.replace('#', '');
-    const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import', 'about'];
+    const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import', 'about', 'parcel', 'ademax-import'];
     return validViews.includes(hash) ? hash : 'dashboard';
   };
 
@@ -54,7 +56,6 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
   const [activeView, setActiveView] = useState(getInitialView);
   const [showSellerApply, setShowSellerApply] = useState(false);
-  // sidebarOpen is only used for desktop (lg+) hamburger — mobile has no sidebar
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigateTo = (view: string) => {
@@ -131,6 +132,8 @@ function AppContent() {
   };
 
   const renderMain = () => {
+    if (activeView === 'parcel') return <ParcelPage />;
+
     if (activeView === 'how-it-works') {
       if (!user) {
         setAuthModalOpen(true);
@@ -143,6 +146,12 @@ function AppContent() {
     if (activeView === 'about') return <AboutPage onNavigate={navigateTo} />;
     if (activeView === 'ebay-import') return (
       <EbayImportPage
+        onBack={() => navigateTo('dashboard')}
+        onSaved={() => navigateTo('dashboard')}
+      />
+    );
+    if (activeView === 'ademax-import') return (      // ← NEU
+      <AdemaxImportPage
         onBack={() => navigateTo('dashboard')}
         onSaved={() => navigateTo('dashboard')}
       />
@@ -195,19 +204,12 @@ function AppContent() {
         onAuthClick={() => setAuthModalOpen(true)}
         onCartClick={() => setCartOpen(true)}
         onAdminClick={() => setAdminDashboardOpen(true)}
-        // Desktop hamburger only — mobile has no sidebar
         onMenuClick={() => setSidebarOpen(true)}
         onHelpClick={() => navigateTo('how-it-works')}
-        // ← NEW: Package icon opens "Mes commandes"
         onOrdersClick={() => setOrdersOpen(true)}
       />
 
       <div className="flex">
-        {/*
-         * Sidebar is desktop-only (hidden on mobile via CSS inside Sidebar.tsx).
-         * mobileOpen / onMobileClose props are still passed for API compatibility
-         * but the mobile drawer JSX has been removed from Sidebar.tsx.
-         */}
         <Sidebar
           activeView={activeView}
           onViewChange={navigateTo}
@@ -233,6 +235,7 @@ function AppContent() {
           setAdminDashboardOpen(false);
           navigateTo('ebay-import');
         }}
+        onAdemaxImport={() => { setAdminDashboardOpen(false); navigateTo('ademax-import'); }} 
       />
       <OrderTracking isOpen={ordersOpen} onClose={() => setOrdersOpen(false)} />
       <Notifications isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
