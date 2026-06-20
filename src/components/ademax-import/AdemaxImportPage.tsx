@@ -4,14 +4,12 @@
 import { useState } from "react";
 import { useAdemaxImport } from "./useAdemaxImport";
 import { AdemaxUrlInput } from "./AdemaxUrlInput";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "../../lib/supabase";
 
 interface Props {
   onBack: () => void;
   onSaved: () => void;
 }
-
-
 
 export function AdemaxImportPage({ onBack, onSaved }: Props) {
   const { state, importProduct, reset } = useAdemaxImport();
@@ -20,28 +18,27 @@ export function AdemaxImportPage({ onBack, onSaved }: Props) {
 
   const p = state.product;
 
-  // ── Produkt in Supabase speichern ─────────────────────────────────────────
   async function handleSave() {
     if (!p) return;
     setSaving(true);
     try {
       const { error } = await supabase.from("products").insert({
-        name:         p.translations.de.title || p.translations.fr.title,
-        name_de:      p.translations.de.title,
-        name_fr:      p.translations.fr.title,
-        name_ln:      p.translations.ln.title,
-        description:  p.translations.de.description,
+        name:           p.translations.de.title || p.translations.fr.title,
+        name_de:        p.translations.de.title,
+        name_fr:        p.translations.fr.title,
+        name_ln:        p.translations.ln.title,
+        description:    p.translations.de.description,
         description_fr: p.translations.fr.description,
         description_ln: p.translations.ln.description,
-        category:     p.category,
+        category:       p.category,
         purchase_price: p.base_price,
-        sale_price:   p.glb_price,
-        image_url:    p.images[0] ?? null,
-        images:       p.images.length > 0 ? p.images : null,
-        source_type:  "vendor",      // ADEMAX = Händler/Vendor
-        stock_status: "available",
-        condition:    "new",
-        location:     "Deutschland",
+        sale_price:     p.glb_price,
+        image_url:      p.images[0] ?? null,
+        images:         p.images.length > 0 ? p.images : null,
+        source_type:    "vendor",
+        stock_status:   "available",
+        condition:      "new",
+        location:       "Deutschland",
       });
       if (error) throw error;
       setSavedOk(true);
@@ -58,8 +55,7 @@ export function AdemaxImportPage({ onBack, onSaved }: Props) {
 
       {/* ── Header ── */}
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={onBack}
-          className="p-2 hover:bg-gray-100 rounded-lg transition">
+        <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg transition">
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
           </svg>
@@ -68,7 +64,6 @@ export function AdemaxImportPage({ onBack, onSaved }: Props) {
           <h1 className="text-xl font-bold text-[#1C1C1C]">ADEMAX Import</h1>
           <p className="text-sm text-gray-500">Produkt-Link von www.ademax.de einfügen</p>
         </div>
-        {/* ADEMAX Badge */}
         <div className="ml-auto flex items-center gap-2 bg-[#0A5EB0] text-white text-xs font-bold px-3 py-1.5 rounded-full">
           <span>ADEMAX</span>
           <span className="opacity-60">Partner</span>
@@ -147,7 +142,7 @@ export function AdemaxImportPage({ onBack, onSaved }: Props) {
 
             {/* Beschreibung */}
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Beschreibung</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Beschreibung (DE)</p>
               <p className="text-sm text-gray-600 line-clamp-3">{p.translations.de.description}</p>
             </div>
 
@@ -169,7 +164,7 @@ export function AdemaxImportPage({ onBack, onSaved }: Props) {
               </div>
             </div>
 
-            {/* Quelle */}
+            {/* Quelle — nutzt source_url aus dem state, nicht aus product */}
             <div className="text-xs text-gray-400 flex items-center gap-2">
               <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
