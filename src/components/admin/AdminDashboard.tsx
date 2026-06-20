@@ -19,12 +19,15 @@ interface AdminDashboardProps {
   isOpen: boolean;
   onClose: () => void;
   onEbayImport?: () => void;
+  onAdemaxImport?: () => void; // ← NEU
 }
 
 type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics' | 'customers' | 'sellers' | 'quotes';
 type UserRole = 'admin' | 'staff' | null;
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose, onEbayImport }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({
+  isOpen, onClose, onEbayImport, onAdemaxImport,
+}) => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('products');
@@ -105,24 +108,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
     );
   }
 
-  // ── Menü je nach Rolle ────────────────────────────────────────────────────
   const allMenuItems = [
-    { id: 'dashboard'  as TabType, icon: LayoutDashboard, label: 'Dashboard',           roles: ['admin'] },
-    { id: 'products'   as TabType, icon: Package,         label: t('products'),          roles: ['admin', 'staff'] },
-    { id: 'orders'     as TabType, icon: ShoppingBag,     label: t('order_management'),  roles: ['admin', 'staff'] },
-    { id: 'quotes'     as TabType, icon: FileText,        label: 'eBay Anfragen',        roles: ['admin'], badge: pendingQuotes },
-    { id: 'containers' as TabType, icon: Ship,            label: 'Containers',           roles: ['admin'] },
-    { id: 'statistics' as TabType, icon: BarChart3,       label: 'Statistiques',         roles: ['admin'] },
-    { id: 'customers'  as TabType, icon: Users,           label: 'Clients',              roles: ['admin', 'staff'] },
-    { id: 'sellers'    as TabType, icon: Store,           label: 'Seller-Bewerbungen',   roles: ['admin'], badge: pendingCount },
+    { id: 'dashboard'  as TabType, icon: LayoutDashboard, label: 'Dashboard',          roles: ['admin'] },
+    { id: 'products'   as TabType, icon: Package,         label: t('products'),         roles: ['admin', 'staff'] },
+    { id: 'orders'     as TabType, icon: ShoppingBag,     label: t('order_management'), roles: ['admin', 'staff'] },
+    { id: 'quotes'     as TabType, icon: FileText,        label: 'eBay Anfragen',       roles: ['admin'], badge: pendingQuotes },
+    { id: 'containers' as TabType, icon: Ship,            label: 'Containers',          roles: ['admin'] },
+    { id: 'statistics' as TabType, icon: BarChart3,       label: 'Statistiques',        roles: ['admin'] },
+    { id: 'customers'  as TabType, icon: Users,           label: 'Clients',             roles: ['admin', 'staff'] },
+    { id: 'sellers'    as TabType, icon: Store,           label: 'Seller-Bewerbungen',  roles: ['admin'], badge: pendingCount },
   ];
 
-  // Nur Menüpunkte anzeigen die der User sehen darf
   const menuItems = allMenuItems.filter(item =>
     item.roles.includes(userRole as string)
   );
 
-  // Sicherstellen dass activeTab erlaubt ist
   const allowedTabs = menuItems.map(m => m.id);
   const currentTab = allowedTabs.includes(activeTab) ? activeTab : allowedTabs[0];
 
@@ -131,10 +131,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
     onEbayImport?.();
   };
 
+  const handleAdemaxImport = () => {
+    onClose();
+    onAdemaxImport?.();
+  };
+
   return (
     <div className="fixed inset-0 bg-gray-900 z-50 flex flex-col md:flex-row">
 
-      {/* ── MOBILE: Top Bar mit Tabs ── */}
+      {/* ── MOBILE: Top Bar ── */}
       <div className={`md:hidden flex items-center justify-between px-3 py-2 text-white flex-shrink-0 ${isStaff ? 'bg-[#0A5EB0]' : 'bg-[#009543]'}`}>
         <div>
           <p className="text-sm font-bold">{isStaff ? 'Mitarbeiter' : 'Admin'}</p>
@@ -167,6 +172,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
             </button>
           );
         })}
+
+        {/* eBay Import — Mobile */}
         {isAdmin && onEbayImport && (
           <button
             onClick={handleEbayImport}
@@ -174,6 +181,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
           >
             <Download className="w-5 h-5" />
             <span className="text-[9px] font-medium leading-none">eBay</span>
+          </button>
+        )}
+
+        {/* ADEMAX Import — Mobile ← NEU */}
+        {isAdmin && onAdemaxImport && (
+          <button
+            onClick={handleAdemaxImport}
+            className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg hover:bg-white/10 transition"
+          >
+            <Download className="w-5 h-5" />
+            <span className="text-[9px] font-medium leading-none">ADEMAX</span>
           </button>
         )}
       </div>
@@ -229,22 +247,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
           })}
         </nav>
 
-        {/* eBay Import Button — nur für Admin */}
-        {isAdmin && onEbayImport && (
-          <div className="p-3 border-t border-white border-opacity-20">
-            <button
-              onClick={handleEbayImport}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 transition ${sidebarCollapsed ? 'justify-center' : ''}`}
-            >
-              <Download className="w-5 h-5 flex-shrink-0" />
-              {!sidebarCollapsed && <span className="text-sm font-semibold">eBay Import</span>}
-            </button>
+        {/* ── Import Buttons — Desktop Sidebar unten ── */}
+        {isAdmin && (onEbayImport || onAdemaxImport) && (
+          <div className="p-3 border-t border-white border-opacity-20 space-y-2">
+
+            {/* eBay Import */}
+            {onEbayImport && (
+              <button
+                onClick={handleEbayImport}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 transition ${sidebarCollapsed ? 'justify-center' : ''}`}
+              >
+                <Download className="w-5 h-5 flex-shrink-0" />
+                {!sidebarCollapsed && <span className="text-sm font-semibold">eBay Import</span>}
+              </button>
+            )}
+
+            {/* ADEMAX Import ← NEU */}
+            {onAdemaxImport && (
+              <button
+                onClick={handleAdemaxImport}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 transition ${sidebarCollapsed ? 'justify-center' : ''}`}
+              >
+                <Download className="w-5 h-5 flex-shrink-0" />
+                {!sidebarCollapsed && <span className="text-sm font-semibold">ADEMAX Import</span>}
+              </button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Main Content */}
+      {/* ── Main Content ── */}
       <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
+
         {/* Desktop Header */}
         <div className="hidden md:flex bg-white border-b p-4 items-center justify-between">
           <div>
@@ -254,12 +288,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
             {isStaff && <p className="text-xs text-gray-400 mt-0.5">Mitarbeiter-Zugriff</p>}
           </div>
           <div className="flex items-center gap-3">
+
+            {/* eBay Import Button — Desktop Header */}
             {isAdmin && onEbayImport && (
-              <button onClick={handleEbayImport} className="flex items-center gap-2 px-4 py-2 bg-[#0052cc] text-white rounded-lg hover:bg-[#0747a6] transition text-sm font-medium">
+              <button
+                onClick={handleEbayImport}
+                className="flex items-center gap-2 px-4 py-2 bg-[#0052cc] text-white rounded-lg hover:bg-[#0747a6] transition text-sm font-medium"
+              >
                 <Download className="w-4 h-4" />
                 eBay Import
               </button>
             )}
+
+            {/* ADEMAX Import Button — Desktop Header ← NEU */}
+            {isAdmin && onAdemaxImport && (
+              <button
+                onClick={handleAdemaxImport}
+                className="flex items-center gap-2 px-4 py-2 bg-[#0A5EB0] text-white rounded-lg hover:bg-[#094da0] transition text-sm font-medium"
+              >
+                <Download className="w-4 h-4" />
+                ADEMAX Import
+              </button>
+            )}
+
             <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition">
               <X className="w-6 h-6" />
             </button>
@@ -273,7 +324,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isOpen, onClose,
           </h1>
         </div>
 
-        {/* Content — pb-20 on mobile for bottom nav */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto p-3 md:p-6 pb-24 md:pb-6">
           {currentTab === 'dashboard'  && <DashboardOverview />}
           {currentTab === 'products'   && <ProductManagement onEbayImport={isAdmin ? handleEbayImport : undefined} />}
