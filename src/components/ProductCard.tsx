@@ -79,8 +79,6 @@ const QuoteFormModal: React.FC<QuoteFormProps> = ({ product, productName, onClos
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div style={{background:'white',width:'100%',maxWidth:'24rem',display:'flex',flexDirection:'column',borderRadius:'1rem',maxHeight:'calc(100dvh - 144px)',overflow:'hidden'}}>
-
-        {/* Header */}
         <div className="flex-shrink-0 bg-[#FF6F00] text-white px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MessageCircle className="w-4 h-4" />
@@ -90,8 +88,6 @@ const QuoteFormModal: React.FC<QuoteFormProps> = ({ product, productName, onClos
             <X className="w-4 h-4" />
           </button>
         </div>
-
-        {/* Scrollbarer Inhalt */}
         <div style={{overflowY:'auto',flex:1}}>
           {sent ? (
             <div className="p-6 text-center">
@@ -108,7 +104,6 @@ const QuoteFormModal: React.FC<QuoteFormProps> = ({ product, productName, onClos
             <div className="p-4 space-y-3">
               <p className="text-xs text-gray-500 font-medium truncate">📦 {productName}</p>
               <p className="text-xs font-bold text-gray-700">{t('quote_form_title')}</p>
-
               {[
                 { key: 'customer_name',     type: 'text',   ph: `${t('quote_name_placeholder')} *`  },
                 { key: 'customer_phone',    type: 'tel',    ph: `${t('quote_phone_placeholder')} *`  },
@@ -123,7 +118,6 @@ const QuoteFormModal: React.FC<QuoteFormProps> = ({ product, productName, onClos
               <textarea placeholder={t('quote_message_placeholder')} value={form.message}
                 onChange={e => setForm({ ...form, message: e.target.value })}
                 rows={2} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F00] resize-none" />
-
               <div className="flex gap-2 pt-1 pb-2">
                 <button onClick={handleSubmit} disabled={loading}
                   className="flex-1 py-2.5 bg-[#FF6F00] text-white rounded-xl font-bold text-sm disabled:opacity-50 flex items-center justify-center gap-1.5">
@@ -145,7 +139,8 @@ const QuoteFormModal: React.FC<QuoteFormProps> = ({ product, productName, onClos
 export const ProductCard: React.FC<ProductCardProps> = ({
   product, onViewDetails, onAuthRequired, onCartOpen,
 }) => {
-  const { t, language } = useLanguage();
+  // NEU: formatPrice aus Context holen
+  const { t, language, formatPrice } = useLanguage();
   const { user } = useAuth();
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
@@ -197,7 +192,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           <div className="flex items-center justify-between mb-3">
             <div className="text-2xl font-bold text-[#0A5EB0]">
-              {product.sale_price > 0 ? `${product.sale_price.toFixed(2)} €` : <span className="text-lg text-gray-400">–</span>}
+              {/* NEU: Preis in lokaler Währung anzeigen */}
+              {product.sale_price > 0
+                ? formatPrice(product.sale_price)
+                : <span className="text-lg text-gray-400">–</span>
+              }
             </div>
             {isEbay && <span className="text-xs text-orange-500 font-semibold bg-orange-50 px-2 py-0.5 rounded-full">GLB-Preis</span>}
           </div>
