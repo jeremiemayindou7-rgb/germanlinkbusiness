@@ -6,15 +6,14 @@ interface SidebarProps {
   activeView: string;
   onViewChange: (view: string) => void;
   onGoHome?: () => void;
-  // mobileOpen and onMobileClose are kept for API compatibility but unused — no mobile sidebar
   mobileOpen?: boolean;
   onMobileClose?: () => void;
 }
 
-const BROWSE_LABEL: Record<string, string> = {
-  de: 'Märkte durchsuchen',
-  fr: 'Parcourir les marchés',
-  ln: 'Talela bazando',
+const OCCASION_LABEL: Record<string, string> = {
+  de: "Occasion aus Europa",
+  fr: "Occasion d'Europe",
+  ln: "Occasion ya Europe",
 };
 
 const CATEGORIES_LABEL: Record<string, string> = {
@@ -31,7 +30,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleNavigate = (id: string) => onViewChange(id);
 
   return (
-    /* Desktop only — completely hidden on mobile */
     <aside className="hidden lg:flex flex-col w-56 bg-white border-r border-gray-100 min-h-[calc(100vh-64px)] sticky top-16 shadow-sm">
       <div className="flex flex-col h-full">
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -45,7 +43,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span className="font-medium text-sm">Home</span>
           </button>
 
-          {/* Kategorien */}
           {[
             {
               id: 'dashboard',
@@ -55,8 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {
               id: 'marketplace',
               icon: Search,
-              // ← Changed from "Produits" to "Parcourir les marchés"
-              label: BROWSE_LABEL[language] || BROWSE_LABEL.fr,
+              label: OCCASION_LABEL[language] || OCCASION_LABEL.fr,
             },
           ].map(item => {
             const Icon = item.icon;

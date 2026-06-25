@@ -9,7 +9,7 @@ interface BottomNavigationProps {
 
 const TABS = [
   { id: 'home',        icon: Home,        de: 'Home',         fr: 'Home',       ln: 'Home'     },
-  { id: 'marketplace', icon: Search,      de: 'Marktplatz',   fr: 'Marché',     ln: 'Suche'    },
+  { id: 'marketplace', icon: Search,      de: 'Occasion EU',  fr: 'Occasion',   ln: 'Occasion' },
   { id: 'seller',      icon: Store,       de: 'Verkaufen',    fr: 'Vendre',     ln: 'Teka'     },
   { id: 'orders',      icon: Package,     de: 'Bestellungen', fr: 'Commandes',  ln: 'Bileko'   },
   { id: 'help',        icon: HelpCircle,  de: 'Hilfe',        fr: 'Aide',       ln: 'Lisalisi' },

@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Search, ExternalLink, X, ChevronRight, CheckCircle,
   ShoppingBag, AlertCircle, Loader2, Link, ArrowRight,
+  Tag, Filter, ChevronDown,
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
@@ -20,6 +21,232 @@ interface ParsedProduct {
   url:         string;
   marketplace: string;
 }
+
+// ── Occasion Europe ───────────────────────────────────────────────────────────
+interface OccasionProduct {
+  id: string;
+  name: string;
+  name_de?: string;
+  name_fr?: string;
+  name_ln?: string;
+  sale_price: number;
+  image_url: string | null;
+  condition: string;
+  category_oe?: string;
+  product_segment: string;
+  source_url?: string;
+}
+
+const OE_CATEGORIES = [
+  { key: 'all',         fr: 'Toutes catégories',              de: 'Alle Kategorien',           ln: 'Mitindo nyonso' },
+  { key: 'agriculture', fr: 'Agriculture & Agrotechnique',    de: 'Landwirtschaft',            ln: 'Agriculture' },
+  { key: 'solar',       fr: 'Solaire & Énergie',              de: 'Solar & Energie',           ln: 'Solaire & Énergie' },
+  { key: 'electronics', fr: 'Électronique & IT',              de: 'Elektronik & IT',           ln: 'Électronique & IT' },
+  { key: 'auto',        fr: 'Auto & Moto',                    de: 'Auto & Motor',              ln: 'Mituka & Moto' },
+  { key: 'tools',       fr: 'Outils & Machines',              de: 'Werkzeuge & Maschinen',     ln: 'Bisaleli & Mashini' },
+  { key: 'cooling',     fr: 'Réfrigération & Équipement',     de: 'Kühlung & Ausrüstung',      ln: 'Kühlung & Équipement' },
+];
+
+const OE_CONDITIONS: Record<string, { fr: string; de: string; ln: string; color: string }> = {
+  new:       { fr: 'Neuf',           de: 'Neu',          ln: 'Ya sika',      color: 'bg-green-100 text-green-700' },
+  very_good: { fr: 'Très bon état',  de: 'Sehr gut',     ln: 'Malamu mpenza', color: 'bg-blue-100 text-blue-700' },
+  good:      { fr: 'Bon état',       de: 'Gut',          ln: 'Malamu',        color: 'bg-yellow-100 text-yellow-700' },
+  acceptable:{ fr: 'Reconditionné',  de: 'Generalüb.',   ln: 'Ebongwami',     color: 'bg-orange-100 text-orange-700' },
+};
+
+function OccasionEuropeSection({ formatPrice, language }: { formatPrice: (n: number) => string; language: string }) {
+  const [products, setProducts]       = useState<OccasionProduct[]>([]);
+  const [loading, setLoading]         = useState(true);
+  const [activeCategory, setCategory] = useState('all');
+  const [sort, setSort]               = useState<'newest' | 'asc' | 'desc'>('newest');
+  const [showSortMenu, setShowSort]   = useState(false);
+  const fallback = '/glblogo.png';
+
+  const lang = language as 'de' | 'fr' | 'ln';
+
+  useEffect(() => {
+    const fetchOE = async () => {
+      setLoading(true);
+      let q = supabase
+        .from('products')
+        .select('*')
+        .eq('product_segment', 'occasion_europe');
+
+      if (activeCategory !== 'all') q = q.eq('category_oe', activeCategory);
+      if (sort === 'asc')    q = q.order('sale_price', { ascending: true });
+      else if (sort === 'desc') q = q.order('sale_price', { ascending: false });
+      else q = q.order('created_at', { ascending: false });
+
+      const { data } = await q;
+      setProducts(data || []);
+      setLoading(false);
+    };
+    fetchOE();
+  }, [activeCategory, sort]);
+
+  const getName = (p: OccasionProduct) =>
+    (p[`name_${lang}` as keyof OccasionProduct] as string) || p.name || '';
+
+  const getCondition = (c: string) =>
+    OE_CONDITIONS[c] || { fr: c, de: c, ln: c, color: 'bg-gray-100 text-gray-600' };
+
+  const getCatLabel = (cat: (typeof OE_CATEGORIES)[0]) =>
+    cat[lang] || cat.fr;
+
+  const sortLabels = {
+    newest: { fr: 'Plus récent', de: 'Neueste', ln: 'Ya sika koleka' },
+    asc:    { fr: 'Prix croissant', de: 'Preis aufsteigend', ln: 'Ntalo ya moke liboso' },
+    desc:   { fr: 'Prix décroissant', de: 'Preis absteigend', ln: 'Ntalo ya mingi liboso' },
+  };
+
+  return (
+    <div className="mb-10">
+      {/* ── Bannière ── */}
+      <div className="rounded-2xl overflow-hidden mb-5"
+           style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #2d6a4f 100%)' }}>
+        <div className="px-5 py-6 flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-2xl">🔥</span>
+              <span className="text-white font-bold text-xl">
+                {lang === 'de' ? 'Occasion aus Europa' : lang === 'ln' ? 'Occasion ya Europe' : "Occasion d'Europe"}
+              </span>
+            </div>
+            <p className="text-green-200 text-xs max-w-xs">
+              {lang === 'de'
+                ? 'Gebrauchte & aufgearbeitete Produkte aus Deutschland & Europa — Lieferung nach Congo'
+                : lang === 'ln'
+                ? 'Biloko ya kala & ebongwami ya Allemagne & Europe — Kokabisa na Congo'
+                : "Produits d'occasion et reconditionnés d'Allemagne & d'Europe, disponibles pour livraison au Congo."}
+            </p>
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <span className="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full">
+              🇩🇪 {lang === 'de' ? 'Occasion Allemagne' : lang === 'ln' ? 'Occasion Allemagne' : 'Occasion Allemagne'}
+            </span>
+            <span className="bg-white/10 text-white text-xs px-3 py-1 rounded-full">
+              {lang === 'de' ? 'GLB-geprüft & versichert' : lang === 'ln' ? 'GLB esaleli & ebatelami' : 'Vérifié & assuré par GLB'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Filtres ── */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        {/* Catégories */}
+        <div className="flex gap-2 overflow-x-auto pb-1 flex-1" style={{ scrollbarWidth: 'none' }}>
+          {OE_CATEGORIES.map(cat => (
+            <button key={cat.key} onClick={() => setCategory(cat.key)}
+              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition flex-shrink-0 ${
+                activeCategory === cat.key
+                  ? 'bg-green-700 text-white'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-green-400'
+              }`}>
+              {getCatLabel(cat)}
+            </button>
+          ))}
+        </div>
+
+        {/* Sort dropdown */}
+        <div className="relative flex-shrink-0">
+          <button onClick={() => setShowSort(v => !v)}
+            className="flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-600 hover:border-green-400 transition">
+            <Filter size={12} />
+            {sortLabels[sort][lang]}
+            <ChevronDown size={12} />
+          </button>
+          {showSortMenu && (
+            <div className="absolute right-0 top-9 bg-white border border-gray-100 rounded-xl shadow-lg z-10 min-w-[160px] overflow-hidden">
+              {(Object.keys(sortLabels) as (keyof typeof sortLabels)[]).map(k => (
+                <button key={k} onClick={() => { setSort(k); setShowSort(false); }}
+                  className={`w-full text-left px-4 py-2.5 text-xs hover:bg-gray-50 transition ${sort === k ? 'font-bold text-green-700' : 'text-gray-600'}`}>
+                  {sortLabels[k][lang]}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Produits ── */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 size={24} className="animate-spin text-green-600" />
+        </div>
+      ) : products.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-10 text-center">
+          <p className="text-3xl mb-2">📦</p>
+          <p className="text-sm font-semibold text-gray-500">
+            {lang === 'de' ? 'Keine Produkte gefunden' : lang === 'ln' ? 'Eloko moko te' : 'Aucun produit trouvé'}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            {lang === 'de' ? 'Bald verfügbar' : lang === 'ln' ? 'Ekoya noki' : 'Bientôt disponible'}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {products.map(p => {
+            const cond = getCondition(p.condition);
+            return (
+              <div key={p.id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden group">
+                {/* Image */}
+                <div className="relative h-44 bg-gray-50">
+                  <img
+                    src={p.image_url || fallback}
+                    alt={getName(p)}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={e => { (e.target as HTMLImageElement).src = fallback; }}
+                  />
+                  {/* Badge état */}
+                  <span className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${cond.color}`}>
+                    {cond[lang]}
+                  </span>
+                  {/* Badge Allemagne */}
+                  <span className="absolute top-3 right-3 bg-white/90 text-xs font-bold px-2 py-1 rounded-full text-gray-700 shadow-sm">
+                    🇩🇪
+                  </span>
+                </div>
+
+                {/* Infos */}
+                <div className="p-4">
+                  <p className="text-sm font-semibold text-gray-900 line-clamp-2 min-h-[2.5rem] mb-3">
+                    {getName(p)}
+                  </p>
+
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-xs text-gray-400 mb-0.5">
+                        {lang === 'de' ? 'Preis Deutschland' : lang === 'ln' ? 'Prix Allemagne' : 'Prix Allemagne'}
+                      </p>
+                      <p className="text-lg font-bold text-green-700">
+                        {p.sale_price > 0 ? formatPrice(p.sale_price) : '—'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                      <Tag size={11} />
+                      GLB
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => p.source_url && window.open(p.source_url, '_blank')}
+                    disabled={!p.source_url}
+                    className="w-full py-2.5 bg-green-700 hover:bg-green-800 disabled:opacity-40 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
+                    <ExternalLink size={14} />
+                    {lang === 'de' ? 'Produkt ansehen' : lang === 'ln' ? 'Tála eloko' : 'Voir le produit'}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Le reste du fichier est identique ───────────────────────────────────────
 
 const FEES = { pickup: 25, shipping: 45, service: 15 };
 const WHATSAPP_NUMBER = '4915xxxxxxxxx';
@@ -145,15 +372,11 @@ function OrderModal({ product, onClose }: OrderModalProps) {
   };
 
   return (
-    // ── OVERLAY: z-index 9999, dvh, safe-area ──────────────────────────────
     <div
       style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.65)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'0.75rem',paddingBottom:'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))'}}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div
-        style={{background:'white',width:'100%',maxWidth:'28rem',display:'flex',flexDirection:'column',borderRadius:'1rem',maxHeight:'calc(100dvh - 144px)',overflow:'hidden'}}
-      >
-        {/* Header — fixiert, scrollt nicht */}
+      <div style={{background:'white',width:'100%',maxWidth:'28rem',display:'flex',flexDirection:'column',borderRadius:'1rem',maxHeight:'calc(100dvh - 144px)',overflow:'hidden'}}>
         <div className="flex-shrink-0 flex items-start justify-between px-5 pt-5 pb-4 border-b border-gray-100">
           <div className="flex-1 pr-4">
             <p className="text-xs text-gray-400 mb-1">{product.marketplace}</p>
@@ -163,15 +386,8 @@ function OrderModal({ product, onClose }: OrderModalProps) {
             <X size={18} className="text-gray-500" />
           </button>
         </div>
-
-        {/* Scrollbarer Inhalt — pb-20 damit Buttons nie von BottomNav überdeckt */}
-        <div
-          className="px-5 pt-4 overflow-y-auto flex-1"
-          style={{paddingBottom:'80px', WebkitOverflowScrolling:'touch' as any}}
-        >
+        <div className="px-5 pt-4 overflow-y-auto flex-1" style={{paddingBottom:'80px', WebkitOverflowScrolling:'touch' as any}}>
           <StepIndicator current={step} t={t} />
-
-          {/* SCHRITT 1 */}
           {step === 1 && (
             <div className="space-y-4">
               <p className="text-sm font-semibold text-gray-700">{t('order_product_details')}</p>
@@ -224,8 +440,6 @@ function OrderModal({ product, onClose }: OrderModalProps) {
               </div>
             </div>
           )}
-
-          {/* SCHRITT 2 */}
           {step === 2 && (
             <div className="space-y-4">
               <p className="text-sm font-semibold text-gray-700">{t('order_total_offer')}</p>
@@ -264,8 +478,6 @@ function OrderModal({ product, onClose }: OrderModalProps) {
               </div>
             </div>
           )}
-
-          {/* SCHRITT 3 */}
           {step === 3 && (
             <div className="space-y-4">
               <p className="text-sm font-semibold text-gray-700">{t('order_payment_title')}</p>
@@ -302,8 +514,6 @@ function OrderModal({ product, onClose }: OrderModalProps) {
               </div>
             </div>
           )}
-
-          {/* SCHRITT 4 */}
           {step === 4 && (
             <div className="text-center space-y-4">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
@@ -353,7 +563,7 @@ function OrderModal({ product, onClose }: OrderModalProps) {
 
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 export default function MarketplaceSearch() {
-  const { t, language } = useLanguage();
+  const { t, language, formatPrice } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [productLink, setProductLink] = useState('');
   const [linkError, setLinkError] = useState('');
@@ -375,6 +585,7 @@ export default function MarketplaceSearch() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {/* ── Barre de recherche / tabs (identique) ── */}
       <div className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex gap-2 mb-4">
@@ -418,6 +629,7 @@ export default function MarketplaceSearch() {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {activeTab === 'search' && (
           <>
+            {/* ── Comment ça marche (identique) ── */}
             <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6">
               <p className="text-sm font-semibold text-blue-800 mb-3">🛒 {t('marketplace_how_it_works')}</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -429,6 +641,20 @@ export default function MarketplaceSearch() {
                 ))}
               </div>
             </div>
+
+            {/* ── 🔥 NOUVEAU : Occasion d'Europe ── */}
+            <OccasionEuropeSection formatPrice={formatPrice} language={language} />
+
+            {/* ── Séparateur ── */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                🌍 {language === 'de' ? 'Marktplätze durchsuchen' : language === 'ln' ? 'Luka na ba-marché' : 'Parcourir les marchés'}
+              </span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+
+            {/* ── Marchés existants (identiques) ── */}
             <p className="text-sm font-semibold text-gray-700 mb-3">{t('marketplace_choose')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {MARKETPLACES.map(mp => (
@@ -447,6 +673,7 @@ export default function MarketplaceSearch() {
                 </button>
               ))}
             </div>
+
             <div className="mt-6 bg-green-50 border border-green-100 rounded-2xl p-4 flex items-start gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
                 <Link size={16} className="text-green-600" />
@@ -459,6 +686,7 @@ export default function MarketplaceSearch() {
             </div>
           </>
         )}
+
         {activeTab === 'link' && (
           <div className="space-y-4">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">

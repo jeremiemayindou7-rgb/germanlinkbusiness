@@ -40,6 +40,10 @@ interface Product {
   height_cm?: number | null;
   weight_kg?: number | null;
   volume_cbm?: number | null;
+  // ── Occasion Europe ──
+  product_segment?: string;
+  category_oe?: string | null;
+  source_url?: string | null;
 }
 
 interface ProductManagementProps {
@@ -48,13 +52,21 @@ interface ProductManagementProps {
 
 const conditions = ['new', 'very_good', 'good', 'acceptable'];
 
-// CBM live berechnen
+// Occasion Europe Kategorien
+const OE_CATEGORIES = [
+  { key: 'agriculture', label: 'Agriculture & Agrotechnique' },
+  { key: 'solar',       label: 'Solaire & Énergie' },
+  { key: 'electronics', label: 'Électronique & IT' },
+  { key: 'auto',        label: 'Auto & Moto' },
+  { key: 'tools',       label: 'Outils & Machines' },
+  { key: 'cooling',     label: 'Réfrigération & Équipement' },
+];
+
 const calcCbm = (l?: number | null, w?: number | null, h?: number | null): number | null => {
   if (!l || !w || !h) return null;
   return Math.round((l * w * h) / 1_000_000 * 10000) / 10000;
 };
 
-// Versandkostenhinweis
 const shippingHint = (cbm: number | null): string => {
   if (!cbm) return '– Maße nicht eingetragen';
   if (cbm < 0.05) return `${cbm} m³ → Pauschalversand (klein)`;
@@ -78,12 +90,17 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
     condition: 'good', image_url: '',
     stock_status: 'available', stock_quantity: 1,
     length_cm: null, width_cm: null, height_cm: null, weight_kg: null,
+    // Occasion Europe — Standard
+    product_segment: 'standard',
+    category_oe: null,
+    source_url: null,
   };
 
   const [formData, setFormData] = useState<Product>(emptyForm);
   const [categories, setCategories] = useState<Category[]>([]);
 
   const liveCbm = calcCbm(formData.length_cm, formData.width_cm, formData.height_cm);
+  const isOccasion = formData.product_segment === 'occasion_europe';
 
   useEffect(() => { fetchProducts(); fetchCategories(); }, []);
 
@@ -133,8 +150,12 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const productData = { ...formData };
-    // volume_cbm wird von DB automatisch berechnet — nicht senden
     delete productData.volume_cbm;
+    // category_oe und source_url nur bei occasion_europe speichern
+    if (productData.product_segment !== 'occasion_europe') {
+      productData.category_oe = null;
+      productData.source_url = null;
+    }
     try {
       if (editingId) {
         await supabase.from('products').update(productData).eq('id', editingId);
@@ -162,6 +183,9 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
         category_de: data.category_de || '', category_fr: data.category_fr || '', category_ln: data.category_ln || '',
         length_cm: data.length_cm ?? null, width_cm: data.width_cm ?? null,
         height_cm: data.height_cm ?? null, weight_kg: data.weight_kg ?? null,
+        product_segment: data.product_segment || 'standard',
+        category_oe: data.category_oe || null,
+        source_url: data.source_url || null,
       });
       setEditingId(data.id || null);
       setShowForm(true);
@@ -220,6 +244,60 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
+            {/* ── SEGMENT : Standard ou Occasion Europe ── */}
+            <div className="rounded-xl border-2 border-dashed border-gray-200 p-4 bg-gray-50">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Type de produit</p>
+              <div className="flex gap-3">
+                <button type="button"
+                  onClick={() => setFormData({ ...formData, product_segment: 'standard', category_oe: null, source_url: null })}
+                  className={`flex-1 py-3 rounded-xl text-sm font-semibold border-2 transition ${
+                    !isOccasion
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+                  }`}>
+                  🛒 Produit Standard
+                </button>
+                <button type="button"
+                  onClick={() => setFormData({ ...formData, product_segment: 'occasion_europe' })}
+                  className={`flex-1 py-3 rounded-xl text-sm font-semibold border-2 transition ${
+                    isOccasion
+                      ? 'bg-green-700 text-white border-green-700'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-green-400'
+                  }`}>
+                  🔥 Occasion d'Europe
+                </button>
+              </div>
+
+              {/* Felder nur bei Occasion Europe */}
+              {isOccasion && (
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">Catégorie Occasion Europe *</label>
+                    <select
+                      value={formData.category_oe || ''}
+                      onChange={e => setFormData({ ...formData, category_oe: e.target.value })}
+                      required={isOccasion}
+                      className="w-full px-3 py-2 border-2 border-green-200 rounded-lg text-sm focus:border-green-500 focus:outline-none bg-white">
+                      <option value="">-- Catégorie OE --</option>
+                      {OE_CATEGORIES.map(c => (
+                        <option key={c.key} value={c.key}>{c.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">Lien produit original (URL)</label>
+                    <input
+                      type="url"
+                      placeholder="https://www.ebay.de/itm/..."
+                      value={formData.source_url || ''}
+                      onChange={e => setFormData({ ...formData, source_url: e.target.value })}
+                      className="w-full px-3 py-2 border-2 border-green-200 rounded-lg text-sm focus:border-green-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Basis */}
             <div className="grid grid-cols-2 gap-4">
               <input type="text" required placeholder="Nom du produit"
@@ -272,52 +350,33 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
               onChange={e => setFormData({ ...formData, description: e.target.value })}
               rows={3} className="w-full px-4 py-2 border rounded-lg" />
 
-            {/* ── Maße & Gewicht ─────────────────────────────────────────── */}
+            {/* ── Maße & Gewicht ── */}
             <div className="border-t pt-4">
               <div className="flex items-center gap-2 mb-3">
                 <Ruler className="w-4 h-4 text-[#0A5EB0]" />
                 <h4 className="font-semibold text-gray-700">Maße & Gewicht (für Versandkostenberechnung)</h4>
               </div>
-
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Länge (cm)</label>
-                  {numInput('length_cm', 'z.B. 80')}
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Breite (cm)</label>
-                  {numInput('width_cm', 'z.B. 60')}
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Höhe (cm)</label>
-                  {numInput('height_cm', 'z.B. 170')}
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Gewicht (kg)</label>
-                  {numInput('weight_kg', 'z.B. 65')}
-                </div>
+                <div><label className="text-xs text-gray-500 mb-1 block">Länge (cm)</label>{numInput('length_cm', 'z.B. 80')}</div>
+                <div><label className="text-xs text-gray-500 mb-1 block">Breite (cm)</label>{numInput('width_cm', 'z.B. 60')}</div>
+                <div><label className="text-xs text-gray-500 mb-1 block">Höhe (cm)</label>{numInput('height_cm', 'z.B. 170')}</div>
+                <div><label className="text-xs text-gray-500 mb-1 block">Gewicht (kg)</label>{numInput('weight_kg', 'z.B. 65')}</div>
               </div>
-
-              {/* Live CBM Vorschau */}
               <div className={`rounded-lg px-4 py-3 text-sm flex items-center gap-2 ${
                 liveCbm ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-gray-50 border border-gray-200 text-gray-500'
               }`}>
                 <Package className="w-4 h-4 flex-shrink-0" />
                 <div>
                   <span className="font-medium">Volumen: </span>
-                  {liveCbm ? (
-                    <>
-                      <span className="font-bold">{liveCbm} m³</span>
-                      <span className="ml-2 text-gray-600">→ {shippingHint(liveCbm)}</span>
-                    </>
-                  ) : (
-                    <span>Wird berechnet sobald Länge × Breite × Höhe eingetragen</span>
-                  )}
+                  {liveCbm
+                    ? <><span className="font-bold">{liveCbm} m³</span><span className="ml-2 text-gray-600">→ {shippingHint(liveCbm)}</span></>
+                    : <span>Wird berechnet sobald Länge × Breite × Höhe eingetragen</span>
+                  }
                 </div>
               </div>
             </div>
 
-            {/* Übersetzungen */}
+            {/* ── Übersetzungen ── */}
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-semibold text-gray-700">Traductions</h4>
@@ -327,12 +386,10 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
                   {translating ? <><span className="animate-spin">⏳</span><span>Übersetze...</span></> : <><span>🌐</span><span>Auto-traduire DE→FR + LN</span></>}
                 </button>
               </div>
-
               {translationError && (
                 <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">⚠️ {translationError}</div>
               )}
               <p className="text-xs text-gray-500 mb-3">💡 DE→FR: automatisch via MyMemory API. Lingala: bitte manuell prüfen.</p>
-
               <div className="grid grid-cols-3 gap-4">
                 {['de', 'fr', 'ln'].map(lang => (
                   <div key={lang}>
@@ -346,7 +403,6 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
                   </div>
                 ))}
               </div>
-
               <div className="grid grid-cols-3 gap-4 mt-3">
                 {['de', 'fr', 'ln'].map(lang => (
                   <div key={lang}>
@@ -380,6 +436,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produit</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Segment</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prix</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Maße / CBM</th>
@@ -405,6 +462,13 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
                     </div>
                   </div>
                 </td>
+                <td className="px-6 py-4">
+                  {product.product_segment === 'occasion_europe' ? (
+                    <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">🔥 OE</span>
+                  ) : (
+                    <span className="bg-blue-50 text-blue-600 text-xs font-medium px-2 py-1 rounded-full">Standard</span>
+                  )}
+                </td>
                 <td className="px-6 py-4 text-sm">{t(product.category)}</td>
                 <td className="px-6 py-4 text-sm font-medium text-[#009543]">{product.sale_price.toFixed(2)} €</td>
                 <td className="px-6 py-4 text-sm">
@@ -417,9 +481,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ onEbayImpo
                       </span>
                     </div>
                   ) : (
-                    <span className="text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
-                      Maße fehlen
-                    </span>
+                    <span className="text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">Maße fehlen</span>
                   )}
                 </td>
                 <td className="px-6 py-4 text-sm">{product.stock_quantity || 0}</td>
