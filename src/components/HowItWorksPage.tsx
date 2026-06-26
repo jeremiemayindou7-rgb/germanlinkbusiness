@@ -119,15 +119,45 @@ const impressum = {
   },
 };
 
-// ── Bilder in /public/media/ mit festen Dateinamen ────────────────────────
-// Einfach gleichen Dateinamen ersetzen → Browser lädt neu (cache: 'reload')
+// ── Thema: Solaranlage · Traktor · Industriebackofen · Agrarpumpe ──────────
+// Eigene Fotos: gleichen Dateinamen in /public/media/ ersetzen → auto-update
 const MEDIA_IMAGES = [
-  { src: '/media/delivery-1.jpg', fallback: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80' },
-  { src: '/media/delivery-2.jpg', fallback: 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=80' },
-  { src: '/media/delivery-3.jpg', fallback: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80' },
-  { src: '/media/delivery-4.jpg', fallback: 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=600&q=80' },
-  { src: '/media/delivery-5.jpg', fallback: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=600&q=80' },
-  { src: '/media/delivery-6.jpg', fallback: 'https://images.unsplash.com/photo-1571987502227-9231b837d92a?w=600&q=80' },
+  // Bild 1 — Solaranlage (große Karte links, spans 2 rows)
+  {
+    src: '/media/delivery-1.jpg',
+    fallback: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&q=80',
+    label: 'Solaranlage',
+  },
+  // Bild 2 — Traktor / Landwirtschaft (große Karte mitte, spans 2 rows)
+  {
+    src: '/media/delivery-2.jpg',
+    fallback: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=600&q=80',
+    label: 'Traktor',
+  },
+  // Bild 3 — Industriebackofen (klein rechts oben)
+  {
+    src: '/media/delivery-3.jpg',
+    fallback: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
+    label: 'Industriebackofen',
+  },
+  // Bild 4 — Agrarpumpe / Wasserpumpe für Bewässerung (klein rechts oben)
+  {
+    src: '/media/delivery-4.jpg',
+    fallback: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&q=80',
+    label: 'Agrarpumpe',
+  },
+  // Bild 5 — Landwirtschaft / Feldarbeit Afrika (klein rechts unten)
+  {
+    src: '/media/delivery-5.jpg',
+    fallback: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=80',
+    label: 'Feldarbeit',
+  },
+  // Bild 6 — Solar Installation / Energie Afrika (klein rechts unten)
+  {
+    src: '/media/delivery-6.jpg',
+    fallback: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=600&q=80',
+    label: 'Solar Afrika',
+  },
 ];
 
 interface HowItWorksPageProps {
@@ -285,64 +315,82 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
               {/* Grid — wie Screenshot: 1 hochkant links, 1 hochkant mitte, 2×2 rechts */}
               <div className="grid grid-cols-2 sm:grid-cols-4 grid-rows-2 gap-2 sm:gap-3" style={{ height: 320 }}>
 
-                {/* Bild 1 — spans col 1, rows 1+2 */}
-                <div className="row-span-2 rounded-2xl overflow-hidden bg-gray-100">
+                {/* Bild 1 — Solaranlage · spans col 1, rows 1+2 */}
+                <div className="row-span-2 rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[0].src}?v=${Date.now()}`}
-                    alt="Lieferung 1"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    alt={MEDIA_IMAGES[0].label}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[0].fallback; }}
                   />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-xs font-bold text-center">{MEDIA_IMAGES[0].label}</p>
+                  </div>
                 </div>
 
-                {/* Bild 2 — spans col 2, rows 1+2 */}
-                <div className="row-span-2 rounded-2xl overflow-hidden bg-gray-100">
+                {/* Bild 2 — Traktor · spans col 2, rows 1+2 */}
+                <div className="row-span-2 rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[1].src}?v=${Date.now()}`}
-                    alt="Lieferung 2"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    alt={MEDIA_IMAGES[1].label}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[1].fallback; }}
                   />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-xs font-bold text-center">{MEDIA_IMAGES[1].label}</p>
+                  </div>
                 </div>
 
-                {/* Bild 3 — col 3, row 1 */}
-                <div className="rounded-2xl overflow-hidden bg-gray-100">
+                {/* Bild 3 — Industriebackofen · col 3, row 1 */}
+                <div className="rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[2].src}?v=${Date.now()}`}
-                    alt="Lieferung 3"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    alt={MEDIA_IMAGES[2].label}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[2].fallback; }}
                   />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-xs font-bold text-center">{MEDIA_IMAGES[2].label}</p>
+                  </div>
                 </div>
 
-                {/* Bild 4 — col 4, row 1 */}
-                <div className="rounded-2xl overflow-hidden bg-gray-100">
+                {/* Bild 4 — Agrarpumpe · col 4, row 1 */}
+                <div className="rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[3].src}?v=${Date.now()}`}
-                    alt="Lieferung 4"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    alt={MEDIA_IMAGES[3].label}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[3].fallback; }}
                   />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-xs font-bold text-center">{MEDIA_IMAGES[3].label}</p>
+                  </div>
                 </div>
 
-                {/* Bild 5 — col 3, row 2 */}
-                <div className="rounded-2xl overflow-hidden bg-gray-100">
+                {/* Bild 5 — Feldarbeit · col 3, row 2 */}
+                <div className="rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[4].src}?v=${Date.now()}`}
-                    alt="Lieferung 5"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    alt={MEDIA_IMAGES[4].label}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[4].fallback; }}
                   />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-xs font-bold text-center">{MEDIA_IMAGES[4].label}</p>
+                  </div>
                 </div>
 
-                {/* Bild 6 — col 4, row 2 */}
-                <div className="rounded-2xl overflow-hidden bg-gray-100">
+                {/* Bild 6 — Solar Afrika · col 4, row 2 */}
+                <div className="rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[5].src}?v=${Date.now()}`}
-                    alt="Lieferung 6"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    alt={MEDIA_IMAGES[5].label}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { (e.target as HTMLImageElement).src = MEDIA_IMAGES[5].fallback; }}
                   />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-xs font-bold text-center">{MEDIA_IMAGES[5].label}</p>
+                  </div>
                 </div>
 
               </div>

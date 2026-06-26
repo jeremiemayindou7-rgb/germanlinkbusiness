@@ -2,9 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import {
   Search, ExternalLink, X, ChevronRight, CheckCircle,
   ShoppingBag, AlertCircle, Loader2, Link, ArrowRight,
-  Tag, Filter, ChevronDown,
+  Tag, Filter, ChevronDown, ShoppingCart,
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../hooks/useCart';
 import { supabase } from '../lib/supabase';
 
 type OrderStep = 1 | 2 | 3 | 4;
@@ -54,7 +56,17 @@ const OE_CONDITIONS: Record<string, { fr: string; de: string; ln: string; color:
   acceptable:{ fr: 'Reconditionné',  de: 'Generalüb.',   ln: 'Ebongwami',     color: 'bg-orange-100 text-orange-700' },
 };
 
-function OccasionEuropeSection({ formatPrice, language }: { formatPrice: (n: number) => string; language: string }) {
+function OccasionEuropeSection({
+  formatPrice, language, onAuthRequired,
+}: {
+  formatPrice: (n: number) => string;
+  language: string;
+  onAuthRequired: () => void;
+}) {
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const [addingId, setAddingId]       = useState<string | null>(null);
+  const [addedId, setAddedId]         = useState<string | null>(null);
   const [products, setProducts]       = useState<OccasionProduct[]>([]);
   const [loading, setLoading]         = useState(true);
   const [activeCategory, setCategory] = useState('all');
@@ -83,6 +95,20 @@ function OccasionEuropeSection({ formatPrice, language }: { formatPrice: (n: num
     };
     fetchOE();
   }, [activeCategory, sort]);
+
+  const handleAddToCart = async (productId: string) => {
+    if (!user) { onAuthRequired(); return; }
+    setAddingId(productId);
+    try {
+      await addToCart(productId);
+      setAddedId(productId);
+      setTimeout(() => setAddedId(null), 2000);
+    } catch (e: any) {
+      alert(e.message || 'Erreur');
+    } finally {
+      setAddingId(null);
+    }
+  };
 
   const getName = (p: OccasionProduct) =>
     (p[`name_${lang}` as keyof OccasionProduct] as string) || p.name || '';
@@ -229,12 +255,26 @@ function OccasionEuropeSection({ formatPrice, language }: { formatPrice: (n: num
                     </div>
                   </div>
 
+                  {/* Confirmation ajout */}
+                  {addedId === p.id && (
+                    <div className="mb-2 bg-green-50 text-green-700 text-xs font-semibold text-center py-1.5 rounded-lg">
+                      ✅ {lang === 'de' ? 'In den Warenkorb!' : lang === 'ln' ? 'Ebakisami na panier!' : 'Ajouté au panier!'}
+                    </div>
+                  )}
+
+                  {/* Bouton Ajouter au panier */}
                   <button
-                    onClick={() => p.source_url && window.open(p.source_url, '_blank')}
-                    disabled={!p.source_url}
-                    className="w-full py-2.5 bg-green-700 hover:bg-green-800 disabled:opacity-40 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
-                    <ExternalLink size={14} />
-                    {lang === 'de' ? 'Produkt ansehen' : lang === 'ln' ? 'Tála eloko' : 'Voir le produit'}
+                    onClick={() => handleAddToCart(p.id)}
+                    disabled={addingId === p.id}
+                    className="w-full py-2.5 bg-[#FF6F00] hover:bg-[#E66000] disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
+                    {addingId === p.id
+                      ? <Loader2 size={14} className="animate-spin" />
+                      : <ShoppingCart size={14} />
+                    }
+                    {addingId === p.id
+                      ? (lang === 'de' ? 'Wird hinzugefügt...' : '...')
+                      : lang === 'de' ? 'In den Warenkorb' : lang === 'ln' ? 'Tyá na panier' : 'Ajouter au panier'
+                    }
                   </button>
                 </div>
               </div>
@@ -569,6 +609,7 @@ export default function MarketplaceSearch() {
   const [linkError, setLinkError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<ParsedProduct | null>(null);
   const [activeTab, setActiveTab] = useState<'search' | 'link'>('search');
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const linkRef = useRef<HTMLInputElement>(null);
 
   const getMpDesc = (descKey: string) => MP_DESCS[descKey]?.[language as 'de' | 'fr' | 'ln'] ?? '';
@@ -643,7 +684,11 @@ export default function MarketplaceSearch() {
             </div>
 
             {/* ── 🔥 NOUVEAU : Occasion d'Europe ── */}
-            <OccasionEuropeSection formatPrice={formatPrice} language={language} />
+            <OccasionEuropeSection
+              formatPrice={formatPrice}
+              language={language}
+              onAuthRequired={() => setShowAuthModal(true)}
+            />
 
             {/* ── Séparateur ── */}
             <div className="flex items-center gap-3 mb-5">
@@ -714,6 +759,29 @@ export default function MarketplaceSearch() {
 
       {selectedProduct && (
         <OrderModal product={selectedProduct} onClose={() => { setSelectedProduct(null); setProductLink(''); }} />
+      )}
+
+      {/* Login-Modal wenn nicht eingeloggt */}
+      {showAuthModal && (
+        <div
+          style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'1rem'}}
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div style={{background:'white',borderRadius:'1rem',padding:'2rem',maxWidth:'20rem',width:'100%',textAlign:'center'}}
+               onClick={e => e.stopPropagation()}>
+            <p className="text-xl mb-2">🔐</p>
+            <p className="font-bold text-gray-900 mb-1">
+              {language === 'de' ? 'Anmeldung erforderlich' : language === 'ln' ? 'Kokota esengeli' : 'Connexion requise'}
+            </p>
+            <p className="text-sm text-gray-500 mb-4">
+              {language === 'de' ? 'Bitte melde dich an um Produkte in den Warenkorb zu legen.' : language === 'ln' ? 'Kota liboso ya kotya na panier.' : 'Connectez-vous pour ajouter des produits au panier.'}
+            </p>
+            <button onClick={() => setShowAuthModal(false)}
+              className="w-full py-2.5 bg-[#0A5EB0] text-white rounded-xl text-sm font-semibold">
+              {language === 'de' ? 'Schließen' : 'Fermer'}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
