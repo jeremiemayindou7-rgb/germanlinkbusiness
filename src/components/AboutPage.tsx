@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface AboutPageProps {
   onNavigate?: (view: string) => void;
@@ -7,7 +7,6 @@ interface AboutPageProps {
 
 type Language = 'de' | 'fr' | 'ln';
 
-// ─── Farben exakt wie im Preview ──────────────────────────────────────────────
 const SOL_COLORS = ['#009A00', '#009A00', '#DD0000', '#007FFF', '#FFCE00', '#CE1021'];
 const FW_COLORS  = ['#DD0000', '#009A00', '#007FFF', '#FFCE00'];
 const VAL_COLORS = ['#DD0000', '#009A00', '#007FFF', '#FFCE00'];
@@ -17,203 +16,97 @@ const MISS_FLAG_COLS = [
   ['#000000', '#DD0000', '#FFCE00'],
 ];
 
-// ─── Translations exakt wie im Preview ───────────────────────────────────────
+// ─── Projekte Kongo ───────────────────────────────────────────────────────────
+const PROJECTS = [
+  {
+    img: 'https://igcifqdovhpvwmwzpkkq.supabase.co/storage/v1/object/public/media/glbsolar.png',
+    de: { title: 'Solarenergie für Schulen',        desc: 'GLB liefert Solaranlagen für Schulen in Brazzaville – saubere Energie für die nächste Generation.' },
+    fr: { title: 'Énergie solaire pour les écoles', desc: 'GLB fournit des panneaux solaires aux écoles de Brazzaville – énergie propre pour la prochaine génération.' },
+    ln: { title: 'Énergie solaire pona ba école',   desc: 'GLB epesi ba panneaux solaires na ba école ya Brazzaville – énergie ya peto pona génération oyo elandi.' },
+  },
+  {
+    img: 'https://igcifqdovhpvwmwzpkkq.supabase.co/storage/v1/object/public/media/glbagropastoral.png',
+    de: { title: 'Landwirtschaft & Agrotechnik',    desc: 'Moderne Traktoren und Maschinen aus Deutschland stärken die Landwirtschaft im Kongo.' },
+    fr: { title: 'Agriculture & Agrotechnique',     desc: 'Des tracteurs et machines modernes en provenance d\'Allemagne renforcent l\'agriculture au Congo.' },
+    ln: { title: 'Agriculture & Agrotechnique',     desc: 'Ba tracteurs mpe ba machines ya sika euti Allemagne ekomisi agriculture ya makasi na Congo.' },
+  },
+  {
+    img: 'https://igcifqdovhpvwmwzpkkq.supabase.co/storage/v1/object/public/media/glb_prpject_suport-congo_tirescompany_fussball_.png', // ← Ersetze mit deiner Foto-URL (Google Drive / Supabase)
+    de: { title: 'Kinderfussball – Qualität aus Deutschland',   desc: 'GLB unterstützt einen Kindersportverein im Kongo mit hochwertigen Trikots, Fussballschuhen und UV-Schutzkappen aus Deutschland.' },
+    fr: { title: 'Football enfants – Qualité d\'Allemagne',     desc: 'GLB soutient un club de football pour enfants au Congo avec des maillots, chaussures de foot et casquettes anti-UV de qualité allemande.' },
+    ln: { title: 'Nzete ya ba mwana – Qualité ya Allemagne',    desc: 'GLB esungaka club ya football ya ba mwana na Congo na ba maillots, ba chaussures mpe ba casquettes anti-UV ya qualité ya Allemagne.' },
+  },
+  {
+    img: 'https://www.germanlinkbusiness.de/glblogo.png',
+    de: { title: 'Kühlkette & Lebensmittel',        desc: 'Professionelle Kühlgeräte sichern Lebensmittel und stärken lokale Märkte.' },
+    fr: { title: 'Chaîne du froid & alimentation', desc: 'Des équipements de réfrigération professionnels sécurisent les aliments et renforcent les marchés locaux.' },
+    ln: { title: 'Chaîne du froid & biloko ya kolya', desc: 'Ba équipements ya réfrigération ya professionnels ebatelaka biloko ya kolya mpe ekomisaka ba marché ya lokale makasi.' },
+  },
+  {
+    img: 'https://www.germanlinkbusiness.de/glblogo.png',
+    de: { title: 'Bildung & Ausbildung',            desc: 'Computer und IT-Ausrüstung für Schulen und Berufsausbildung im Kongo.' },
+    fr: { title: 'Éducation & Formation',           desc: 'Ordinateurs et équipements IT pour les écoles et la formation professionnelle au Congo.' },
+    ln: { title: 'Formation & Éducation',           desc: 'Ba ordinateurs mpe ba équipements IT pona ba école mpe formation na Congo.' },
+  },
+];
+
+const VIDEOS = [
+  {
+    id: 'RaT9hV41Ca0', // ← Ersetze mit deiner YouTube-Video-ID (z.B. "dQw4w9WgXcQ")
+    de: { title: 'GLB – Kindersportverein Kongo',              desc: 'Wie GLB Kindern im Kongo mit deutschen Trikots, Schuhen und UV-Kappen hilft.' },
+    fr: { title: 'GLB – Club de foot enfants Congo',           desc: 'Comment GLB aide les enfants au Congo avec des maillots, chaussures et casquettes allemands.' },
+    ln: { title: 'GLB – Club ya football ya ba mwana Congo',   desc: 'Ndenge GLB esungaka ba mwana na Congo na ba maillots, ba chaussures mpe ba casquettes ya Allemagne.' },
+  },
+  {
+    id: 'RaT9hV41Ca0', // ← Ersetze mit deiner YouTube-Video-ID
+    de: { title: 'Container-Lieferung: Deutschland → Kongo',   desc: 'Von der Bestellung bis zur Lieferung – transparent und sicher.' },
+    fr: { title: 'Livraison conteneur : Allemagne → Congo',    desc: 'De la commande à la livraison – transparent et sécurisé.' },
+    ln: { title: 'Livraison ya container: Allemagne → Congo',  desc: 'Banda commande tii livraison – transparent mpe sécurisé.' },
+  },
+];
+
+const PROJ_SECTION: Record<Language, { tag: string; title: string; sub: string; videoTitle: string }> = {
+  de: { tag: 'Projekte im Kongo', title: 'Was wir gemeinsam aufbauen', sub: 'GLB unterstützt konkrete Projekte in der Demokratischen Republik Kongo und der Republik Kongo – mit geprüfter deutscher Qualität.', videoTitle: 'GLB in Aktion' },
+  fr: { tag: 'Projets au Congo',  title: 'Ce que nous construisons ensemble', sub: "GLB soutient des projets concrets en RDC et en République du Congo – avec la qualité allemande vérifiée.", videoTitle: 'GLB en action' },
+  ln: { tag: 'Ba projets na Congo', title: 'Nini tozali kotonga na kosunga', sub: 'GLB esungaka ba projets concrets na RDC mpe na République du Congo – na qualité ya Allemagne oyo batalami.', videoTitle: 'GLB na action' },
+};
+
 const T: Record<Language, any> = {
   de: {
     tag: 'Über GLB',
-    hero: {
-      title: 'GermanLink Business',
-      accent: 'Deutsche Qualität. Echtes Vertrauen. Starkes Business.',
-      sub: 'Kaufe Originalprodukte Made in Germany – direkt aus Deutschland, sicher geliefert in den Kongo. Für dein Business. Für deine Zukunft. Für die Entwicklung deines Landes.',
-      b1: 'Made in Germany', b2: 'Sichere Lieferung', b3: 'Geprüfte Qualität',
-    },
-    problem: {
-      tag: 'Das Problem', title: 'Was bremst euer Business?',
-      sub: 'Zu viele Unternehmer und Händler verlieren Geld durch:',
-      cards: [
-        { t: 'Billige Produkte ohne Qualität',       d: 'Minderwertige Waren, die schnell kaputt gehen und dein Business schädigen' },
-        { t: 'Gefährliche oder gefälschte Waren',    d: 'Unsichere Produkte ohne Zertifikate, die deine Kunden gefährden' },
-        { t: 'Fehlende Garantie und kein Vertrauen', d: 'Keine Sicherheit, kein Support, keine langfristige Perspektive' },
-      ],
-      conclusion: 'Das bremst Business, Wachstum und die Entwicklung des Landes.',
-    },
-    solution: {
-      tag: 'Die Lösung', title: 'GermanLink Business verbindet dich direkt mit Deutschland.',
-      sub: 'Alles, was du für ein starkes Business brauchst:',
-      features: [
-        { t: 'Geprüfte deutsche Produkte',        d: 'Jedes Produkt wird kontrolliert und stammt direkt aus Deutschland' },
-        { t: 'Echte Qualität – keine Fälschungen', d: 'Originalware mit Garantie und Zertifikaten' },
-        { t: 'Sichere Bezahlung',                  d: 'Geschützte Zahlungsmethoden für deine Sicherheit' },
-        { t: 'Lieferung direkt in den Kongo',      d: 'Container-Versand direkt zu dir – transparent und nachverfolgbar' },
-        { t: 'Ideal für Händler & Unternehmer',    d: 'Großmengen, Geschäftskunden-Support und faire Preise' },
-        { t: 'Entwicklungsprojekte unterstützen',  d: 'Qualität für nachhaltige Entwicklung und Infrastruktur' },
-      ],
-    },
-    mission: {
-      tag: 'Unsere Mission', title: 'Afrikanische Businesses stärken – mit deutscher Qualität.', sub: '',
-      when: 'Wenn du besser einkaufst:',
-      cards: [
-        { t: 'Wächst dein Unternehmen',          d: 'Mit besserer Qualität gewinnst du mehr Kunden und steigerst deinen Umsatz' },
-        { t: 'Entstehen Arbeitsplätze',           d: 'Starke Unternehmen schaffen sichere Jobs und fördern die lokale Wirtschaft' },
-        { t: 'Entwickelst du dein Land nachhaltig', d: 'Qualität baut Vertrauen und langfristige Perspektiven für die Zukunft' },
-      ],
-      conclusion: 'Wenn du besser einkaufst, baust du eine bessere Zukunft.',
-    },
-    whyGermany: {
-      tag: 'Warum Deutschland?', title: 'Deutschland steht weltweit für Qualität.',
-      sub: 'Deutschland steht weltweit für:',
-      vals: ['Qualität', 'Zuverlässigkeit', 'Technik', 'Sicherheit'],
-      conclusion: 'Mit GermanLink Business kommt dieses Vertrauen direkt zu dir – ohne Umwege.',
-    },
-    forWhom: {
-      tag: 'Für wen?', title: 'Für wen ist GermanLink Business?',
-      targets: [
-        { t: 'Unternehmer & Händler',              d: 'Erweitere dein Sortiment mit hochwertigen deutschen Produkten und gewinne das Vertrauen deiner Kunden' },
-        { t: 'Start-ups im Kongo',                 d: 'Starte dein Business mit der besten Grundlage – deutsche Qualität für nachhaltigen Erfolg' },
-        { t: 'Bau-, Technik- & Handelsprojekte',   d: 'Zuverlässige Materialien und Werkzeuge für professionelle Projekte' },
-        { t: 'Unternehmen mit Fokus auf Qualität', d: 'Für alle, die nachhaltig wachsen und echten Mehrwert schaffen wollen' },
-      ],
-    },
-    cta: {
-      title: 'Starte dein Business mit echter Qualität',
-      sub: 'Bestelle direkt aus Deutschland',
-      tag: 'Baue Vertrauen. Baue Zukunft.',
-      btn: 'Jetzt starten mit GermanLink Business',
-      quote: 'GermanLink Business ezali lien direct entre Allemagne na Congo. Qualité ya solo. Confiance. Développement ya business mpe mboka.',
-    },
+    hero: { title: 'GermanLink Business', accent: 'Deutsche Qualität. Echtes Vertrauen. Starkes Business.', sub: 'Kaufe Originalprodukte Made in Germany – direkt aus Deutschland, sicher geliefert in den Kongo. Für dein Business. Für deine Zukunft. Für die Entwicklung deines Landes.', b1: 'Made in Germany', b2: 'Sichere Lieferung', b3: 'Geprüfte Qualität' },
+    problem: { tag: 'Das Problem', title: 'Was bremst euer Business?', sub: 'Zu viele Unternehmer und Händler verlieren Geld durch:', cards: [{ t: 'Billige Produkte ohne Qualität', d: 'Minderwertige Waren, die schnell kaputt gehen und dein Business schädigen' }, { t: 'Gefährliche oder gefälschte Waren', d: 'Unsichere Produkte ohne Zertifikate, die deine Kunden gefährden' }, { t: 'Fehlende Garantie und kein Vertrauen', d: 'Keine Sicherheit, kein Support, keine langfristige Perspektive' }], conclusion: 'Das bremst Business, Wachstum und die Entwicklung des Landes.' },
+    solution: { tag: 'Die Lösung', title: 'GermanLink Business verbindet dich direkt mit Deutschland.', sub: 'Alles, was du für ein starkes Business brauchst:', features: [{ t: 'Geprüfte deutsche Produkte', d: 'Jedes Produkt wird kontrolliert und stammt direkt aus Deutschland' }, { t: 'Echte Qualität – keine Fälschungen', d: 'Originalware mit Garantie und Zertifikaten' }, { t: 'Sichere Bezahlung', d: 'Geschützte Zahlungsmethoden für deine Sicherheit' }, { t: 'Lieferung direkt in den Kongo', d: 'Container-Versand direkt zu dir – transparent und nachverfolgbar' }, { t: 'Ideal für Händler & Unternehmer', d: 'Großmengen, Geschäftskunden-Support und faire Preise' }, { t: 'Entwicklungsprojekte unterstützen', d: 'Qualität für nachhaltige Entwicklung und Infrastruktur' }] },
+    mission: { tag: 'Unsere Mission', title: 'Afrikanische Businesses stärken – mit deutscher Qualität.', sub: '', when: 'Wenn du besser einkaufst:', cards: [{ t: 'Wächst dein Unternehmen', d: 'Mit besserer Qualität gewinnst du mehr Kunden und steigerst deinen Umsatz' }, { t: 'Entstehen Arbeitsplätze', d: 'Starke Unternehmen schaffen sichere Jobs und fördern die lokale Wirtschaft' }, { t: 'Entwickelst du dein Land nachhaltig', d: 'Qualität baut Vertrauen und langfristige Perspektiven für die Zukunft' }], conclusion: 'Wenn du besser einkaufst, baust du eine bessere Zukunft.' },
+    whyGermany: { tag: 'Warum Deutschland?', title: 'Deutschland steht weltweit für Qualität.', sub: 'Deutschland steht weltweit für:', vals: ['Qualität', 'Zuverlässigkeit', 'Technik', 'Sicherheit'], conclusion: 'Mit GermanLink Business kommt dieses Vertrauen direkt zu dir – ohne Umwege.' },
+    forWhom: { tag: 'Für wen?', title: 'Für wen ist GermanLink Business?', targets: [{ t: 'Unternehmer & Händler', d: 'Erweitere dein Sortiment mit hochwertigen deutschen Produkten und gewinne das Vertrauen deiner Kunden' }, { t: 'Start-ups im Kongo', d: 'Starte dein Business mit der besten Grundlage – deutsche Qualität für nachhaltigen Erfolg' }, { t: 'Bau-, Technik- & Handelsprojekte', d: 'Zuverlässige Materialien und Werkzeuge für professionelle Projekte' }, { t: 'Unternehmen mit Fokus auf Qualität', d: 'Für alle, die nachhaltig wachsen und echten Mehrwert schaffen wollen' }] },
+    cta: { title: 'Starte dein Business mit echter Qualität', sub: 'Bestelle direkt aus Deutschland', tag: 'Baue Vertrauen. Baue Zukunft.', btn: 'Jetzt starten mit GermanLink Business', quote: 'GermanLink Business ezali lien direct entre Allemagne na Congo. Qualité ya solo. Confiance. Développement ya business mpe mboka.' },
     footer: { tag: 'Deutsche Qualität für afrikanisches Business', copy: '2026 GermanLink Business. Deutsche Qualität für den Kongo.' },
   },
   fr: {
     tag: 'À propos de GLB',
-    hero: {
-      title: 'GermanLink Business',
-      accent: 'Qualité allemande. Vraie confiance. Business fort.',
-      sub: "Achetez des produits originaux Made in Germany – directement d'Allemagne, livrés en toute sécurité au Congo. Pour votre business. Pour votre avenir. Pour le développement de votre pays.",
-      b1: 'Made in Germany', b2: 'Livraison sécurisée', b3: 'Qualité vérifiée',
-    },
-    problem: {
-      tag: 'Le Problème', title: 'Ce qui freine votre business',
-      sub: "Trop d'entrepreneurs et de commerçants perdent de l'argent à cause de:",
-      cards: [
-        { t: 'Produits bon marché sans qualité',      d: 'Marchandises de qualité inférieure qui se cassent rapidement et nuisent à votre business' },
-        { t: 'Marchandises dangereuses ou contrefaites', d: 'Produits non sécurisés sans certificats qui mettent vos clients en danger' },
-        { t: 'Absence de garantie et de confiance',   d: 'Pas de sécurité, pas de support, pas de perspective à long terme' },
-      ],
-      conclusion: 'Cela freine le business, la croissance et le développement du pays.',
-    },
-    solution: {
-      tag: 'La Solution', title: "GermanLink Business vous connecte directement avec l'Allemagne.",
-      sub: 'Tout ce dont vous avez besoin pour un business solide :',
-      features: [
-        { t: 'Produits allemands vérifiés',          d: "Chaque produit est contrôlé et provient directement d'Allemagne" },
-        { t: 'Vraie qualité – pas de contrefaçons',  d: 'Marchandises originales avec garantie et certificats' },
-        { t: 'Paiement sécurisé',                    d: 'Méthodes de paiement protégées pour votre sécurité' },
-        { t: 'Livraison directe au Congo',            d: 'Expédition par conteneur directement chez vous – transparente et traçable' },
-        { t: 'Idéal pour commerçants & entrepreneurs', d: 'Grandes quantités, support clients professionnels et prix équitables' },
-        { t: 'Soutien aux projets de développement', d: "Qualité pour le développement durable et l'infrastructure" },
-      ],
-    },
-    mission: {
-      tag: 'Notre Mission', title: 'Renforcer les businesses africains – avec la qualité allemande.', sub: '',
-      when: 'Quand vous achetez mieux :',
-      cards: [
-        { t: 'Votre entreprise grandit',              d: "Avec une meilleure qualité, vous gagnez plus de clients et augmentez votre chiffre d'affaires" },
-        { t: 'Des emplois se créent',                 d: "Les entreprises fortes créent des emplois sûrs et stimulent l'économie locale" },
-        { t: 'Vous développez durablement votre pays', d: "La qualité construit la confiance et des perspectives à long terme pour l'avenir" },
-      ],
-      conclusion: 'Quand vous achetez mieux, vous construisez un meilleur avenir.',
-    },
-    whyGermany: {
-      tag: "Pourquoi l'Allemagne ?", title: "L'Allemagne reconnue mondialement.",
-      sub: "L'Allemagne est reconnue mondialement pour :",
-      vals: ['Qualité', 'Fiabilité', 'Technologie', 'Sécurité'],
-      conclusion: 'Avec GermanLink Business, cette confiance arrive directement chez vous – sans détour.',
-    },
-    forWhom: {
-      tag: 'Pour qui ?', title: 'Pour qui est GermanLink Business ?',
-      targets: [
-        { t: 'Entrepreneurs & commerçants',             d: 'Élargissez votre gamme avec des produits allemands de haute qualité et gagnez la confiance de vos clients' },
-        { t: 'Start-ups au Congo',                      d: 'Démarrez votre business avec la meilleure base – qualité allemande pour un succès durable' },
-        { t: 'Projets de construction, technique & commerce', d: 'Matériaux et outils fiables pour des projets professionnels' },
-        { t: 'Entreprises axées sur la qualité',        d: 'Pour tous ceux qui veulent croître durablement et créer une vraie valeur ajoutée' },
-      ],
-    },
-    cta: {
-      title: 'Démarrez votre business avec une vraie qualité',
-      sub: "Commandez directement depuis l'Allemagne",
-      tag: "Construisez la confiance. Construisez l'avenir.",
-      btn: 'Commencer avec GermanLink Business',
-      quote: 'GermanLink Business ezali lien direct entre Allemagne na Congo. Qualité ya solo. Confiance. Développement ya business mpe mboka.',
-    },
+    hero: { title: 'GermanLink Business', accent: 'Qualité allemande. Vraie confiance. Business fort.', sub: "Achetez des produits originaux Made in Germany – directement d'Allemagne, livrés en toute sécurité au Congo. Pour votre business. Pour votre avenir. Pour le développement de votre pays.", b1: 'Made in Germany', b2: 'Livraison sécurisée', b3: 'Qualité vérifiée' },
+    problem: { tag: 'Le Problème', title: 'Ce qui freine votre business', sub: "Trop d'entrepreneurs et de commerçants perdent de l'argent à cause de:", cards: [{ t: 'Produits bon marché sans qualité', d: 'Marchandises de qualité inférieure qui se cassent rapidement et nuisent à votre business' }, { t: 'Marchandises dangereuses ou contrefaites', d: 'Produits non sécurisés sans certificats qui mettent vos clients en danger' }, { t: 'Absence de garantie et de confiance', d: 'Pas de sécurité, pas de support, pas de perspective à long terme' }], conclusion: 'Cela freine le business, la croissance et le développement du pays.' },
+    solution: { tag: 'La Solution', title: "GermanLink Business vous connecte directement avec l'Allemagne.", sub: 'Tout ce dont vous avez besoin pour un business solide :', features: [{ t: 'Produits allemands vérifiés', d: "Chaque produit est contrôlé et provient directement d'Allemagne" }, { t: 'Vraie qualité – pas de contrefaçons', d: 'Marchandises originales avec garantie et certificats' }, { t: 'Paiement sécurisé', d: 'Méthodes de paiement protégées pour votre sécurité' }, { t: 'Livraison directe au Congo', d: 'Expédition par conteneur directement chez vous – transparente et traçable' }, { t: 'Idéal pour commerçants & entrepreneurs', d: 'Grandes quantités, support clients professionnels et prix équitables' }, { t: 'Soutien aux projets de développement', d: "Qualité pour le développement durable et l'infrastructure" }] },
+    mission: { tag: 'Notre Mission', title: 'Renforcer les businesses africains – avec la qualité allemande.', sub: '', when: 'Quand vous achetez mieux :', cards: [{ t: 'Votre entreprise grandit', d: "Avec une meilleure qualité, vous gagnez plus de clients et augmentez votre chiffre d'affaires" }, { t: 'Des emplois se créent', d: "Les entreprises fortes créent des emplois sûrs et stimulent l'économie locale" }, { t: 'Vous développez durablement votre pays', d: "La qualité construit la confiance et des perspectives à long terme pour l'avenir" }], conclusion: 'Quand vous achetez mieux, vous construisez un meilleur avenir.' },
+    whyGermany: { tag: "Pourquoi l'Allemagne ?", title: "L'Allemagne reconnue mondialement.", sub: "L'Allemagne est reconnue mondialement pour :", vals: ['Qualité', 'Fiabilité', 'Technologie', 'Sécurité'], conclusion: 'Avec GermanLink Business, cette confiance arrive directement chez vous – sans détour.' },
+    forWhom: { tag: 'Pour qui ?', title: 'Pour qui est GermanLink Business ?', targets: [{ t: 'Entrepreneurs & commerçants', d: 'Élargissez votre gamme avec des produits allemands de haute qualité et gagnez la confiance de vos clients' }, { t: 'Start-ups au Congo', d: 'Démarrez votre business avec la meilleure base – qualité allemande pour un succès durable' }, { t: 'Projets de construction, technique & commerce', d: 'Matériaux et outils fiables pour des projets professionnels' }, { t: 'Entreprises axées sur la qualité', d: 'Pour tous ceux qui veulent croître durablement et créer une vraie valeur ajoutée' }] },
+    cta: { title: 'Démarrez votre business avec une vraie qualité', sub: "Commandez directement depuis l'Allemagne", tag: "Construisez la confiance. Construisez l'avenir.", btn: 'Commencer avec GermanLink Business', quote: 'GermanLink Business ezali lien direct entre Allemagne na Congo. Qualité ya solo. Confiance. Développement ya business mpe mboka.' },
     footer: { tag: 'Qualité allemande pour le business africain', copy: '2026 GermanLink Business. Qualité allemande pour le Congo.' },
   },
   ln: {
     tag: 'Biso GLB',
-    hero: {
-      title: 'GermanLink Business',
-      accent: 'Qualité ya Allemagne. Confiance ya solo. Business makasi.',
-      sub: 'Somba biloko ya solo Made in Germany – banda Allemagne, ekokoma na sécurité na Congo. Pona business na yo. Pona avenir na yo. Pona développement ya mboka na yo.',
-      b1: 'Made in Germany', b2: 'Livraison na sécurité', b3: 'Qualité oyo batalami',
-    },
-    problem: {
-      tag: 'Problème', title: 'Nini ekozipa business na yo?',
-      sub: 'Ba entrepreneurs mpe ba commerçants mingi bazali kobungisa mbongo mpo na:',
-      cards: [
-        { t: 'Biloko ya ntalo te ezanga qualité',  d: 'Biloko ya pamba oyo ekobukana nokinoki mpe ekobebisa business na yo' },
-        { t: 'Biloko ya danger to biloko ya lokuta', d: 'Biloko ya danger ezanga ba certificats oyo ekotya ba clients na yo na danger' },
-        { t: 'Garantie ezali te mpe confiance ezali te', d: 'Sécurité ezali te, support ezali te, perspective ya mokolo molayi ezali te' },
-      ],
-      conclusion: 'Yango ezali kokanga business, croissance mpe développement ya mboka.',
-    },
-    solution: {
-      tag: 'Solution', title: 'GLB ezali kokangisa yo directement na Allemagne.',
-      sub: 'Nyonso oyo ozali na yango pona business ya makasi:',
-      features: [
-        { t: 'Biloko ya Allemagne oyo batalami malamu', d: 'Biloko nyonso batalami mpe euti directement na Allemagne' },
-        { t: 'Qualité ya solo – lokuta te',            d: 'Biloko ya original na garantie mpe ba certificats' },
-        { t: 'Kofuta na sécurité',                     d: 'Ba méthodes ya kofuta oyo ebatelami pona sécurité na yo' },
-        { t: 'Livraison directe na Congo',             d: 'Expédition ya container directement epai na yo – transparent mpe okoki kolanda' },
-        { t: 'Malamu pona ba commerçants & ba entrepreneurs', d: 'Ba quantités minene, support ya ba clients professionnels mpe ba prix ya justice' },
-        { t: 'Kosunga ba projets ya développement',    d: 'Qualité pona développement durable mpe infrastructure' },
-      ],
-    },
-    mission: {
-      tag: 'Mission na biso', title: 'Kolendisa ba business ya Afrique – na qualité ya Allemagne.', sub: '',
-      when: 'Ntango ozali kosomba malamu:',
-      cards: [
-        { t: 'Entreprise na yo ekokóla',              d: "Na qualité ya malamu, okozwa ba clients ebele mpe okomatisa chiffre d'affaires na yo" },
-        { t: 'Misala ekobima',                        d: 'Ba entreprises ya makasi ekosala ba emplois ya sûr mpe ekotombola économie locale' },
-        { t: 'Okotongisa mboka na yo na ndenge ya durée', d: 'Qualité etongaka confiance mpe ba perspectives ya mokolo molayi pona avenir' },
-      ],
-      conclusion: 'Ntango ozali kosomba malamu, ozali kotonga avenir ya malamu.',
-    },
-    whyGermany: {
-      tag: 'Mpo na nini Allemagne?', title: 'Allemagne eyebani na mokili mobimba.',
-      sub: 'Allemagne eyebani na mokili mobimba pona:',
-      vals: ['Qualité', 'Fiabilité', 'Technologie', 'Sécurité'],
-      conclusion: 'Na GermanLink Business, confiance oyo ekokoma directement epai na yo – na nzela moko.',
-    },
-    forWhom: {
-      tag: 'Pona nani?', title: 'GLB ezali pona nani?',
-      targets: [
-        { t: 'Ba entrepreneurs & ba commerçants',     d: 'Kolongola gamme na yo na biloko ya Allemagne ya qualité ya likolo mpe zwa confiance ya ba clients na yo' },
-        { t: 'Ba start-ups na Congo',                 d: 'Bandá business na yo na base ya malamu – qualité ya Allemagne pona succès ya durée' },
-        { t: 'Ba projets ya botongami, technique & commerce', d: 'Ba matériaux mpe ba outils ya confiance pona ba projets professionnels' },
-        { t: 'Ba entreprises oyo balingi qualité',    d: 'Pona bato nyonso oyo balingi kokóla na ndenge ya durée mpe kosala valeur ya solo' },
-      ],
-    },
-    cta: {
-      title: 'Bandá business na yo na qualité ya solo',
-      sub: 'Tomba directement banda Allemagne',
-      tag: 'Tonga confiance. Tonga avenir.',
-      btn: 'Bandá na GermanLink Business',
-      quote: 'GermanLink Business ezali lien direct entre Allemagne na Congo. Qualité ya solo. Confiance. Développement ya business mpe mboka.',
-    },
+    hero: { title: 'GermanLink Business', accent: 'Qualité ya Allemagne. Confiance ya solo. Business makasi.', sub: 'Somba biloko ya solo Made in Germany – banda Allemagne, ekokoma na sécurité na Congo. Pona business na yo. Pona avenir na yo. Pona développement ya mboka na yo.', b1: 'Made in Germany', b2: 'Livraison na sécurité', b3: 'Qualité oyo batalami' },
+    problem: { tag: 'Problème', title: 'Nini ekozipa business na yo?', sub: 'Ba entrepreneurs mpe ba commerçants mingi bazali kobungisa mbongo mpo na:', cards: [{ t: 'Biloko ya ntalo te ezanga qualité', d: 'Biloko ya pamba oyo ekobukana nokinoki mpe ekobebisa business na yo' }, { t: 'Biloko ya danger to biloko ya lokuta', d: 'Biloko ya danger ezanga ba certificats oyo ekotya ba clients na yo na danger' }, { t: 'Garantie ezali te mpe confiance ezali te', d: 'Sécurité ezali te, support ezali te, perspective ya mokolo molayi ezali te' }], conclusion: 'Yango ezali kokanga business, croissance mpe développement ya mboka.' },
+    solution: { tag: 'Solution', title: 'GLB ezali kokangisa yo directement na Allemagne.', sub: 'Nyonso oyo ozali na yango pona business ya makasi:', features: [{ t: 'Biloko ya Allemagne oyo batalami malamu', d: 'Biloko nyonso batalami mpe euti directement na Allemagne' }, { t: 'Qualité ya solo – lokuta te', d: 'Biloko ya original na garantie mpe ba certificats' }, { t: 'Kofuta na sécurité', d: 'Ba méthodes ya kofuta oyo ebatelami pona sécurité na yo' }, { t: 'Livraison directe na Congo', d: 'Expédition ya container directement epai na yo – transparent mpe okoki kolanda' }, { t: 'Malamu pona ba commerçants & ba entrepreneurs', d: 'Ba quantités minene, support ya ba clients professionnels mpe ba prix ya justice' }, { t: 'Kosunga ba projets ya développement', d: 'Qualité pona développement durable mpe infrastructure' }] },
+    mission: { tag: 'Mission na biso', title: 'Kolendisa ba business ya Afrique – na qualité ya Allemagne.', sub: '', when: 'Ntango ozali kosomba malamu:', cards: [{ t: 'Entreprise na yo ekokóla', d: "Na qualité ya malamu, okozwa ba clients ebele mpe okomatisa chiffre d'affaires na yo" }, { t: 'Misala ekobima', d: 'Ba entreprises ya makasi ekosala ba emplois ya sûr mpe ekotombola économie locale' }, { t: 'Okotongisa mboka na yo na ndenge ya durée', d: 'Qualité etongaka confiance mpe ba perspectives ya mokolo molayi pona avenir' }], conclusion: 'Ntango ozali kosomba malamu, ozali kotonga avenir ya malamu.' },
+    whyGermany: { tag: 'Mpo na nini Allemagne?', title: 'Allemagne eyebani na mokili mobimba.', sub: 'Allemagne eyebani na mokili mobimba pona:', vals: ['Qualité', 'Fiabilité', 'Technologie', 'Sécurité'], conclusion: 'Na GermanLink Business, confiance oyo ekokoma directement epai na yo – na nzela moko.' },
+    forWhom: { tag: 'Pona nani?', title: 'GLB ezali pona nani?', targets: [{ t: 'Ba entrepreneurs & ba commerçants', d: 'Kolongola gamme na yo na biloko ya Allemagne ya qualité ya likolo mpe zwa confiance ya ba clients na yo' }, { t: 'Ba start-ups na Congo', d: 'Bandá business na yo na base ya malamu – qualité ya Allemagne pona succès ya durée' }, { t: 'Ba projets ya botongami, technique & commerce', d: 'Ba matériaux mpe ba outils ya confiance pona ba projets professionnels' }, { t: 'Ba entreprises oyo balingi qualité', d: 'Pona bato nyonso oyo balingi kokóla na ndenge ya durée mpe kosala valeur ya solo' }] },
+    cta: { title: 'Bandá business na yo na qualité ya solo', sub: 'Tomba directement banda Allemagne', tag: 'Tonga confiance. Tonga avenir.', btn: 'Bandá na GermanLink Business', quote: 'GermanLink Business ezali lien direct entre Allemagne na Congo. Qualité ya solo. Confiance. Développement ya business mpe mboka.' },
     footer: { tag: 'Qualité ya Allemagne pona business ya Afrique', copy: '2026 GermanLink Business. Qualité ya Allemagne pona Congo.' },
   },
 };
 
-// ─── Helper: flag strip (3 couleurs) ─────────────────────────────────────────
 const FlagStrip: React.FC<{ colors: string[]; w?: number; h?: number }> = ({ colors, w = 5, h = 20 }) => (
   <div style={{ display: 'flex', gap: 2, marginBottom: 12 }}>
     {colors.map((c, i) => (
@@ -221,6 +114,127 @@ const FlagStrip: React.FC<{ colors: string[]; w?: number; h?: number }> = ({ col
     ))}
   </div>
 );
+
+// ─── Carrousel de photos ──────────────────────────────────────────────────────
+const ProjectCarousel: React.FC<{ lang: Language }> = ({ lang }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const scroll = (dir: 'left' | 'right') => {
+    const next = dir === 'right'
+      ? Math.min(active + 1, PROJECTS.length - 1)
+      : Math.max(active - 1, 0);
+    setActive(next);
+    scrollRef.current?.children[next]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  };
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {/* Scroll container */}
+      <div
+        ref={scrollRef}
+        style={{ display: 'flex', gap: 16, overflowX: 'auto', scrollSnapType: 'x mandatory', paddingBottom: 8, scrollbarWidth: 'none' }}
+      >
+        {PROJECTS.map((p, i) => (
+          <div key={i} onClick={() => setActive(i)}
+            style={{ flex: '0 0 280px', scrollSnapAlign: 'start', borderRadius: 12, overflow: 'hidden', border: `2px solid ${active === i ? '#F4B400' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', transition: 'border-color 0.2s', background: '#0a1628' }}>
+            <div style={{ height: 180, overflow: 'hidden', background: '#0a1628', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {p.img.startsWith('http') ? (
+                <img src={p.img} alt={p[lang].title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s' }}
+                  onMouseOver={e => (e.currentTarget.style.transform = 'scale(1.05)')}
+                  onMouseOut={e => (e.currentTarget.style.transform = 'scale(1)')} />
+              ) : (
+                <div style={{ textAlign: 'center', padding: '1rem' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>📸</div>
+                  <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', margin: 0 }}>Foto kommt bald</p>
+                </div>
+              )}
+            </div>
+            <div style={{ padding: '1rem' }}>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#F4B400', margin: '0 0 0.3rem' }}>{p[lang].title}</h4>
+              <p style={{ fontSize: '0.75rem', color: '#8fa3b8', lineHeight: 1.55, margin: 0 }}>{p[lang].desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Arrows */}
+      <button onClick={() => scroll('left')} disabled={active === 0}
+        style={{ position: 'absolute', left: -16, top: '40%', transform: 'translateY(-50%)', width: 36, height: 36, borderRadius: '50%', background: active === 0 ? 'rgba(255,255,255,0.05)' : '#F4B400', border: 'none', cursor: active === 0 ? 'default' : 'pointer', color: active === 0 ? '#444' : '#0a1628', fontWeight: 900, fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+        ‹
+      </button>
+      <button onClick={() => scroll('right')} disabled={active === PROJECTS.length - 1}
+        style={{ position: 'absolute', right: -16, top: '40%', transform: 'translateY(-50%)', width: 36, height: 36, borderRadius: '50%', background: active === PROJECTS.length - 1 ? 'rgba(255,255,255,0.05)' : '#F4B400', border: 'none', cursor: active === PROJECTS.length - 1 ? 'default' : 'pointer', color: active === PROJECTS.length - 1 ? '#444' : '#0a1628', fontWeight: 900, fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+        ›
+      </button>
+
+      {/* Dots */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 12 }}>
+        {PROJECTS.map((_, i) => (
+          <button key={i} onClick={() => { setActive(i); scrollRef.current?.children[i]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }}
+            style={{ width: active === i ? 20 : 8, height: 8, borderRadius: 4, background: active === i ? '#F4B400' : 'rgba(255,255,255,0.2)', border: 'none', cursor: 'pointer', transition: 'all 0.2s', padding: 0 }} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─── YouTube embed ─────────────────────────────────────────────────────────────
+const YouTubeEmbed: React.FC<{ videoId: string; title: string; desc: string }> = ({ videoId, title, desc }) => {
+  const [playing, setPlaying] = useState(false);
+  const thumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  const isPlaceholder = videoId.startsWith('DEIN_');
+
+  return (
+    <div style={{ background: '#071020', borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+      {/* Player */}
+      <div style={{ position: 'relative', paddingTop: '56.25%', background: '#000', cursor: isPlaceholder ? 'default' : 'pointer' }}
+           onClick={() => !isPlaceholder && setPlaying(true)}>
+        {isPlaceholder ? (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a1628', gap: 8 }}>
+            <div style={{ fontSize: '2.5rem' }}>🎬</div>
+            <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', margin: 0, textAlign: 'center', padding: '0 1rem' }}>
+              YouTube-Video kommt bald<br/>
+              <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.65rem' }}>ID in VIDEOS[] ersetzen</span>
+            </p>
+          </div>
+        ) : playing ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+            title={title}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+          />
+        ) : (
+          <>
+            <img src={thumb} alt={title}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} />
+            {/* Play button */}
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#DD0000', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 24px rgba(221,0,0,0.5)', transition: 'transform 0.2s' }}
+                onMouseOver={e => (e.currentTarget.style.transform = 'scale(1.1)')}
+                onMouseOut={e => (e.currentTarget.style.transform = 'scale(1)')}>
+                <span style={{ fontSize: '1.4rem', color: '#fff', marginLeft: 4 }}>▶</span>
+              </div>
+            </div>
+            {/* YouTube badge */}
+            <div style={{ position: 'absolute', bottom: 8, right: 8, background: '#DD0000', borderRadius: 4, padding: '2px 8px', fontSize: '0.65rem', fontWeight: 700, color: '#fff', letterSpacing: '0.05em' }}>
+              YouTube
+            </div>
+          </>
+        )}
+      </div>
+      {/* Info */}
+      <div style={{ padding: '0.9rem 1rem' }}>
+        <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f5f2eb', margin: '0 0 0.3rem' }}>{title}</h4>
+        <p style={{ fontSize: '0.75rem', color: '#8fa3b8', margin: 0, lineHeight: 1.5 }}>{desc}</p>
+      </div>
+    </div>
+  );
+};
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }) => {
@@ -242,12 +256,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
   };
 
   const t = T[language];
+  const ps = PROJ_SECTION[language];
   const s = { fontFamily: "'Segoe UI', sans-serif", background: '#0a1628', color: '#f5f2eb', overflowX: 'hidden' as const };
 
   return (
     <div style={s}>
 
-      {/* ── HEADER ─────────────────────────────────────────────────────────── */}
+      {/* ── HEADER ── */}
       <div style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(7,16,32,0.97)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ height: 4, display: 'flex' }}>
           {['#000000','#DD0000','#FFCE00','#009A00','#FBDE2A','#007FFF'].map((c, i) => (
@@ -268,12 +283,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
           </div>
           <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.07)', borderRadius: 8, padding: 4 }}>
             {(['de','fr','ln'] as Language[]).map(l => (
-              <button key={l} onClick={() => setLang(l)} style={{
-                padding: '4px 10px', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600,
-                border: 'none', cursor: 'pointer',
-                background: language === l ? '#DD0000' : 'transparent',
-                color: language === l ? '#fff' : '#8fa3b8',
-              }}>
+              <button key={l} onClick={() => setLang(l)} style={{ padding: '4px 10px', borderRadius: 6, fontSize: '0.75rem', fontWeight: 600, border: 'none', cursor: 'pointer', background: language === l ? '#DD0000' : 'transparent', color: language === l ? '#fff' : '#8fa3b8' }}>
                 {l.toUpperCase()}
               </button>
             ))}
@@ -281,40 +291,29 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
         </div>
       </div>
 
-      {/* ── HERO ───────────────────────────────────────────────────────────── */}
+      {/* ── HERO ── */}
       <section style={{ padding: '4rem 4vw 3rem', background: '#071020', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -80, right: -60, width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle,rgba(221,0,0,0.08) 0%,transparent 70%)' }} />
         <div style={{ position: 'absolute', bottom: -40, left: -40, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,127,255,0.07) 0%,transparent 70%)' }} />
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 760 }}>
           <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.6rem' }}>{t.tag}</div>
-          <h1 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(2rem,5vw,3.8rem)', fontWeight: 900, lineHeight: 1.08, margin: '0 0 0.3rem' }}>
-            {t.hero.title}
-          </h1>
+          <h1 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(2rem,5vw,3.8rem)', fontWeight: 900, lineHeight: 1.08, margin: '0 0 0.3rem' }}>{t.hero.title}</h1>
           <h1 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(2rem,5vw,3.8rem)', fontWeight: 900, lineHeight: 1.08, margin: '0 0 1.2rem' }}>
             <span style={{ color: '#F4B400', fontStyle: 'italic' }}>{t.hero.accent}</span>
           </h1>
           <p style={{ fontSize: 'clamp(0.9rem,1.3vw,1.05rem)', color: '#8fa3b8', lineHeight: 1.75, maxWidth: 600, margin: '0 0 2rem' }}>{t.hero.sub}</p>
           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.6rem' }}>
-            {/* Badge 1 — DE flag dots */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '0.4rem 0.9rem', borderRadius: 20, fontSize: '0.78rem' }}>
-              {['#000000','#DD0000','#FFCE00'].map((c,i) => <span key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: c, display: 'inline-block' }} />)}
-              <span style={{ marginLeft: 4 }}>{t.hero.b1}</span>
-            </div>
-            {/* Badge 2 — CG green dot */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '0.4rem 0.9rem', borderRadius: 20, fontSize: '0.78rem' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#009A00', display: 'inline-block' }} />
-              {t.hero.b2}
-            </div>
-            {/* Badge 3 — RDC blue dot */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '0.4rem 0.9rem', borderRadius: 20, fontSize: '0.78rem' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#007FFF', display: 'inline-block' }} />
-              {t.hero.b3}
-            </div>
+            {[{ label: t.hero.b1, dot: '#000000' }, { label: t.hero.b2, dot: '#009A00' }, { label: t.hero.b3, dot: '#007FFF' }].map((b, i) => (
+              <div key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '0.4rem 0.9rem', borderRadius: 20, fontSize: '0.78rem' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: b.dot, display: 'inline-block' }} />
+                {b.label}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── PROBLÈME ───────────────────────────────────────────────────────── */}
+      {/* ── PROBLÈME ── */}
       <section style={{ padding: '3rem 4vw', background: '#0a1628' }}>
         <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#DD0000', fontWeight: 600, marginBottom: '0.6rem' }}>{t.problem.tag}</div>
         <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(1.5rem,2.5vw,2.3rem)', fontWeight: 900, margin: '0 0 0.6rem', color: '#f5f2eb' }}>{t.problem.title}</h2>
@@ -330,12 +329,10 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
             </div>
           ))}
         </div>
-        <div style={{ background: '#DD0000', padding: '1.2rem 1.8rem', borderRadius: 4, fontWeight: 700, fontSize: '0.95rem', textAlign: 'center' as const }}>
-          {t.problem.conclusion}
-        </div>
+        <div style={{ background: '#DD0000', padding: '1.2rem 1.8rem', borderRadius: 4, fontWeight: 700, fontSize: '0.95rem', textAlign: 'center' as const }}>{t.problem.conclusion}</div>
       </section>
 
-      {/* ── SOLUTION ───────────────────────────────────────────────────────── */}
+      {/* ── SOLUTION ── */}
       <section style={{ padding: '3rem 4vw', background: '#071020' }}>
         <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.6rem' }}>{t.solution.tag}</div>
         <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(1.5rem,2.5vw,2.3rem)', fontWeight: 900, margin: '0 0 0.6rem', color: '#f5f2eb' }}>{t.solution.title}</h2>
@@ -353,13 +350,12 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
         </div>
       </section>
 
-      {/* ── MISSION ────────────────────────────────────────────────────────── */}
+      {/* ── MISSION ── */}
       <section style={{ padding: '3rem 4vw', background: 'linear-gradient(135deg,#071a10 0%,#0a1628 50%,#071020 100%)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -60, right: -60, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,149,67,0.12) 0%,transparent 70%)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#5dcaa5', fontWeight: 600, marginBottom: '0.6rem' }}>{t.mission.tag}</div>
           <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(1.5rem,2.5vw,2.3rem)', fontWeight: 900, margin: '0 0 0.3rem', color: '#f5f2eb' }}>{t.mission.title}</h2>
-          {t.mission.sub && <p style={{ color: '#8fa3b8', lineHeight: 1.7, marginBottom: '1.5rem', fontSize: '0.88rem' }}>{t.mission.sub}</p>}
           <p style={{ fontWeight: 700, color: '#FFCE00', fontSize: '0.9rem', marginBottom: '1rem', marginTop: '1rem' }}>{t.mission.when}</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1px', background: 'rgba(255,255,255,0.06)', marginBottom: '1.5rem' }}>
             {t.mission.cards.map((c: any, i: number) => (
@@ -370,13 +366,11 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
               </div>
             ))}
           </div>
-          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#f5f2eb', textAlign: 'center' as const, padding: '1rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, background: 'rgba(255,255,255,0.04)' }}>
-            {t.mission.conclusion}
-          </div>
+          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#f5f2eb', textAlign: 'center' as const, padding: '1rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, background: 'rgba(255,255,255,0.04)' }}>{t.mission.conclusion}</div>
         </div>
       </section>
 
-      {/* ── POURQUOI ALLEMAGNE ─────────────────────────────────────────────── */}
+      {/* ── POURQUOI ALLEMAGNE ── */}
       <section style={{ padding: '3rem 4vw', background: '#071020' }}>
         <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#F4B400', fontWeight: 600, marginBottom: '0.6rem' }}>{t.whyGermany.tag}</div>
         <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(1.5rem,2.5vw,2.3rem)', fontWeight: 900, margin: '0 0 0.6rem', color: '#f5f2eb' }}>{t.whyGermany.title}</h2>
@@ -395,7 +389,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
         <p style={{ color: '#8fa3b8', fontSize: '0.88rem', lineHeight: 1.7, margin: 0 }}>{t.whyGermany.conclusion}</p>
       </section>
 
-      {/* ── POUR QUI ───────────────────────────────────────────────────────── */}
+      {/* ── POUR QUI ── */}
       <section style={{ padding: '3rem 4vw', background: '#0a1628' }}>
         <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#007FFF', fontWeight: 600, marginBottom: '0.6rem' }}>{t.forWhom.tag}</div>
         <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(1.5rem,2.5vw,2.3rem)', fontWeight: 900, margin: '0 0 1.5rem', color: '#f5f2eb' }}>{t.forWhom.title}</h2>
@@ -409,7 +403,46 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
         </div>
       </section>
 
-      {/* ── CTA ────────────────────────────────────────────────────────────── */}
+      {/* ══════════════════════════════════════════════════════════════════════
+          🆕 PROJEKTE IM KONGO — Fotos-Karussell + 2 YouTube-Videos
+      ══════════════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: '3rem 4vw', background: '#071020' }}>
+        {/* Header */}
+        <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#009A00', fontWeight: 600, marginBottom: '0.6rem' }}>{ps.tag}</div>
+        <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(1.5rem,2.5vw,2.3rem)', fontWeight: 900, margin: '0 0 0.6rem', color: '#f5f2eb' }}>{ps.title}</h2>
+        <p style={{ color: '#8fa3b8', lineHeight: 1.7, marginBottom: '2rem', fontSize: '0.88rem', maxWidth: 620 }}>{ps.sub}</p>
+
+        {/* ── Carrousel photos ── */}
+        <div style={{ marginBottom: '2.5rem', position: 'relative', padding: '0 20px' }}>
+          <ProjectCarousel lang={language} />
+        </div>
+
+        {/* Séparateur */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '2rem 0' }}>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+          <span style={{ fontSize: '0.72rem', color: '#F4B400', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' as const }}>▶ {ps.videoTitle}</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+        </div>
+
+        {/* ── 2 vidéos YouTube ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20 }}>
+          {VIDEOS.map((v, i) => (
+            <YouTubeEmbed
+              key={i}
+              videoId={v.id}
+              title={v[language].title}
+              desc={v[language].desc}
+            />
+          ))}
+        </div>
+
+        {/* Note IDs YouTube */}
+        <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.2)', textAlign: 'center' as const, marginTop: '1.5rem', fontStyle: 'italic' }}>
+          → Remplacer les IDs YouTube dans VIDEOS[] par vos vrais IDs de vidéos
+        </p>
+      </section>
+
+      {/* ── CTA ── */}
       <section style={{ background: '#F4B400', textAlign: 'center' as const, padding: '3rem 4vw' }}>
         <div style={{ display: 'flex', height: 4, borderRadius: 2, overflow: 'hidden', maxWidth: 260, margin: '0 auto 1.5rem' }}>
           {['#000000','#DD0000','#FFCE00','#009A00','#FBDE2A','#007FFF'].map((c, i) => (
@@ -419,10 +452,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
         <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(1.6rem,3vw,2.4rem)', fontWeight: 900, color: '#0a1628', margin: '0 0 0.5rem' }}>{t.cta.title}</h2>
         <p style={{ color: 'rgba(10,22,40,0.7)', fontSize: '0.95rem', margin: '0 auto 0.5rem', maxWidth: 460 }}>{t.cta.sub}</p>
         <p style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0a1628', margin: '0 auto 1.5rem' }}>{t.cta.tag}</p>
-        <button
-          onClick={() => go('dashboard')}
-          style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '0.9rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer', marginBottom: '1.5rem' }}
-        >
+        <button onClick={() => go('dashboard')}
+          style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase' as const, padding: '0.9rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer', marginBottom: '1.5rem' }}>
           {t.cta.btn}
         </button>
         <div style={{ borderTop: '1px solid rgba(10,22,40,0.15)', paddingTop: '1rem', marginTop: '0.5rem' }}>
@@ -430,7 +461,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
         </div>
       </section>
 
-      {/* ── FOOTER ─────────────────────────────────────────────────────────── */}
+      {/* ── FOOTER ── */}
       <footer style={{ background: '#050e1a', padding: '2rem 4vw', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <div style={{ display: 'flex', gap: 2 }}>
@@ -441,9 +472,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
           <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#f5f2eb' }}>GermanLink Business</span>
         </div>
         <p style={{ fontSize: '0.78rem', color: '#8fa3b8', margin: '0 0 1rem' }}>{t.footer.tag}</p>
-        <p style={{ fontSize: '0.75rem', color: '#8fa3b8', margin: 0, textAlign: 'center' as const }}>
-          info@germanlinkbusiness.de &nbsp;|&nbsp; Made in Germany
-        </p>
+        <p style={{ fontSize: '0.75rem', color: '#8fa3b8', margin: 0, textAlign: 'center' as const }}>info@germanlinkbusiness.de &nbsp;|&nbsp; Made in Germany</p>
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: '1rem', paddingTop: '0.75rem', textAlign: 'center' as const }}>
           <p style={{ fontSize: '0.72rem', color: '#8fa3b8', margin: 0 }}>© {t.footer.copy}</p>
         </div>
@@ -452,3 +481,4 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
     </div>
   );
 };
+
