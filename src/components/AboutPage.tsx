@@ -32,9 +32,9 @@ const PROJECTS = [
   },
   {
     img: 'https://igcifqdovhpvwmwzpkkq.supabase.co/storage/v1/object/public/media/glb_prpject_suport-congo_tirescompany_fussball_.png', // ← Ersetze mit deiner Foto-URL (Google Drive / Supabase)
-    de: { title: 'Kinderfussball – Qualität aus Deutschland',   desc: 'GLB unterstützt einen Kindersportverein im Kongo mit hochwertigen Trikots, Fussballschuhen und UV-Schutzkappen aus Deutschland.' },
-    fr: { title: 'Football enfants – Qualité d\'Allemagne',     desc: 'GLB soutient un club de football pour enfants au Congo avec des maillots, chaussures de foot et casquettes anti-UV de qualité allemande.' },
-    ln: { title: 'Nzete ya ba mwana – Qualité ya Allemagne',    desc: 'GLB esungaka club ya football ya ba mwana na Congo na ba maillots, ba chaussures mpe ba casquettes anti-UV ya qualité ya Allemagne.' },
+    de: { title: 'Jugendfussball – Qualität aus Deutschland',     desc: 'GLB unterstützt einen Jugendsportverein im Kongo mit hochwertigen Trikots, Fussballschuhen und Kappen aus Deutschland.' },
+    fr: { title: 'Football jeunes – Qualité d\'Allemagne',        desc: 'GLB soutient un club de football de jeunes au Congo avec des maillots , chaussures de foot et casquettes de qualité allemande.' },
+    ln: { title: 'Football ya bilenge – Qualité ya Allemagne',    desc: 'GLB esungaka club ya football ya bilenge na Congo na ba maillots , ba chaussures mpe ba casquettes ya qualité ya Allemagne.' },
   },
   {
     img: 'https://www.germanlinkbusiness.de/glblogo.png',
@@ -53,9 +53,9 @@ const PROJECTS = [
 const VIDEOS = [
   {
     id: 'RaT9hV41Ca0', // ← Ersetze mit deiner YouTube-Video-ID (z.B. "dQw4w9WgXcQ")
-    de: { title: 'GLB – Kindersportverein Kongo',              desc: 'Wie GLB Kindern im Kongo mit deutschen Trikots, Schuhen und UV-Kappen hilft.' },
-    fr: { title: 'GLB – Club de foot enfants Congo',           desc: 'Comment GLB aide les enfants au Congo avec des maillots, chaussures et casquettes allemands.' },
-    ln: { title: 'GLB – Club ya football ya ba mwana Congo',   desc: 'Ndenge GLB esungaka ba mwana na Congo na ba maillots, ba chaussures mpe ba casquettes ya Allemagne.' },
+    de: { title: 'GLB – Jugendfussballsportverein Kongo',              desc: 'Wie GLB Jugendlich im Kongo mit deutschen Trikots, Schuhen und UV-Kappen hilft.' },
+    fr: { title: 'GLB – Club de foot jeunes Congo',           desc: 'Comment GLB aide les jeunes au Congo avec des maillots, chaussures et casquettes allemands.' },
+    ln: { title: 'GLB – Club ya football ya bilenge ya Congo',   desc: 'Ndenge GLB esungaka ba bilengena Congo na ba maillots, ba chaussures mpe ba casquettes ya Allemagne.' },
   },
   {
     id: 'RaT9hV41Ca0', // ← Ersetze mit deiner YouTube-Video-ID
