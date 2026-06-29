@@ -43,7 +43,7 @@ const PROJECTS = [
     ln: { title: 'Chaîne du froid & biloko ya kolya', desc: 'Ba équipements ya réfrigération ya professionnels ebatelaka biloko ya kolya mpe ekomisaka ba marché ya lokale makasi.' },
   },
   {
-    img: 'https://www.germanlinkbusiness.de/glblogo.png',
+    img: 'https://igcifqdovhpvwmwzpkkq.supabase.co/storage/v1/object/public/media/glb_schule_IT.png',
     de: { title: 'Bildung & Ausbildung',            desc: 'Computer und IT-Ausrüstung für Schulen und Berufsausbildung im Kongo.' },
     fr: { title: 'Éducation & Formation',           desc: 'Ordinateurs et équipements IT pour les écoles et la formation professionnelle au Congo.' },
     ln: { title: 'Formation & Éducation',           desc: 'Ba ordinateurs mpe ba équipements IT pona ba école mpe formation na Congo.' },
@@ -133,11 +133,11 @@ const ProjectCarousel: React.FC<{ lang: Language }> = ({ lang }) => {
       {/* Scroll container */}
       <div
         ref={scrollRef}
-        style={{ display: 'flex', gap: 16, overflowX: 'auto', scrollSnapType: 'x mandatory', paddingBottom: 8, scrollbarWidth: 'none' }}
+        style={{ display: 'flex', gap: 16, overflowX: 'auto', scrollSnapType: 'x mandatory', paddingBottom: 8, scrollbarWidth: 'none' as const }}
       >
         {PROJECTS.map((p, i) => (
           <div key={i} onClick={() => setActive(i)}
-            style={{ flex: '0 0 280px', scrollSnapAlign: 'start', borderRadius: 12, overflow: 'hidden', border: `2px solid ${active === i ? '#F4B400' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', transition: 'border-color 0.2s', background: '#0a1628' }}>
+            style={{ flex: '0 0 clamp(260px,80vw,300px)', scrollSnapAlign: 'start', borderRadius: 12, overflow: 'hidden', border: `2px solid ${active === i ? '#F4B400' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', transition: 'border-color 0.2s', background: '#0a1628' }}>
             <div style={{ height: 180, overflow: 'hidden', background: '#0a1628', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {p.img.startsWith('http') ? (
                 <img src={p.img} alt={p[lang].title}
@@ -313,6 +313,41 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
         </div>
       </section>
 
+      {/* ══════════════════════════════════════════════════════════════════════
+          🔥 PROJEKTE IM KONGO — direkt nach Hero (PR-Block)
+          Responsive: Mobile = 1 Karte sichtbar, Desktop = 3 nebeneinander
+      ══════════════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: 'clamp(2rem,5vw,3rem) clamp(1rem,4vw,4vw)', background: '#071020' }}>
+        {/* Header */}
+        <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#009A00', fontWeight: 600, marginBottom: '0.5rem' }}>{ps.tag}</div>
+        <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(1.4rem,3vw,2.3rem)', fontWeight: 900, margin: '0 0 0.5rem', color: '#f5f2eb' }}>{ps.title}</h2>
+        <p style={{ color: '#8fa3b8', lineHeight: 1.7, marginBottom: '1.5rem', fontSize: 'clamp(0.8rem,1.2vw,0.88rem)', maxWidth: 620 }}>{ps.sub}</p>
+
+        {/* ── Carrousel photos — mobile-first ── */}
+        <div style={{ marginBottom: '2rem', position: 'relative', padding: '0 clamp(16px,3vw,24px)' }}>
+          <ProjectCarousel lang={language} />
+        </div>
+
+        {/* Séparateur */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '1.5rem 0' }}>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+          <span style={{ fontSize: '0.72rem', color: '#F4B400', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' as const, whiteSpace: 'nowrap' as const }}>▶ {ps.videoTitle}</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+        </div>
+
+        {/* ── 2 vidéos YouTube — stack sur mobile, côte à côte desktop ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,280px),1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+          {VIDEOS.map((v, i) => (
+            <YouTubeEmbed
+              key={i}
+              videoId={v.id}
+              title={v[language].title}
+              desc={v[language].desc}
+            />
+          ))}
+        </div>
+      </section>
+
       {/* ── PROBLÈME ── */}
       <section style={{ padding: '3rem 4vw', background: '#0a1628' }}>
         <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#DD0000', fontWeight: 600, marginBottom: '0.6rem' }}>{t.problem.tag}</div>
@@ -401,45 +436,6 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate, onGetStarted }
             </div>
           ))}
         </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          🆕 PROJEKTE IM KONGO — Fotos-Karussell + 2 YouTube-Videos
-      ══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: '3rem 4vw', background: '#071020' }}>
-        {/* Header */}
-        <div style={{ fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: '#009A00', fontWeight: 600, marginBottom: '0.6rem' }}>{ps.tag}</div>
-        <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 'clamp(1.5rem,2.5vw,2.3rem)', fontWeight: 900, margin: '0 0 0.6rem', color: '#f5f2eb' }}>{ps.title}</h2>
-        <p style={{ color: '#8fa3b8', lineHeight: 1.7, marginBottom: '2rem', fontSize: '0.88rem', maxWidth: 620 }}>{ps.sub}</p>
-
-        {/* ── Carrousel photos ── */}
-        <div style={{ marginBottom: '2.5rem', position: 'relative', padding: '0 20px' }}>
-          <ProjectCarousel lang={language} />
-        </div>
-
-        {/* Séparateur */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '2rem 0' }}>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-          <span style={{ fontSize: '0.72rem', color: '#F4B400', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' as const }}>▶ {ps.videoTitle}</span>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-        </div>
-
-        {/* ── 2 vidéos YouTube ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20 }}>
-          {VIDEOS.map((v, i) => (
-            <YouTubeEmbed
-              key={i}
-              videoId={v.id}
-              title={v[language].title}
-              desc={v[language].desc}
-            />
-          ))}
-        </div>
-
-        {/* Note IDs YouTube */}
-        <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.2)', textAlign: 'center' as const, marginTop: '1.5rem', fontStyle: 'italic' }}>
-          → Remplacer les IDs YouTube dans VIDEOS[] par vos vrais IDs de vidéos
-        </p>
       </section>
 
       {/* ── CTA ── */}
