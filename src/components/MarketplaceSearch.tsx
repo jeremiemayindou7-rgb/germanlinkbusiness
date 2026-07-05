@@ -8,6 +8,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../hooks/useCart';
 import { supabase } from '../lib/supabase';
+import { sendOrderConfirmation } from '../lib/email';
 
 type OrderStep = 1 | 2 | 3 | 4;
 
@@ -397,6 +398,26 @@ function OrderModal({ product, onClose }: OrderModalProps) {
         total_amount: grandTotal, status: 'paid',
       });
       if (error) throw new Error(error.message);
+
+      // E-Mail Bestätigung senden
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        await sendOrderConfirmation({
+          customerEmail:  user?.email ?? 'info@germanlinkbusiness.de',
+          customerName:   user?.user_metadata?.full_name ?? 'Kunde',
+          trackingNumber: tracking,
+          products: [{
+            name:  `${product.marketplace} – Produkt`,
+            qty:   details.qty,
+            price: estimatedPrice,
+          }],
+          total: grandTotal,
+          city:  details.city,
+        });
+      } catch (emailError) {
+        console.error('[Email] Fehler:', emailError);
+      }
+
       setTrackingNo(tracking);
       setStep(4);
     } catch (err: any) {
