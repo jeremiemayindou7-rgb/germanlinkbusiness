@@ -374,12 +374,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       {/* ── NAV ──────────────────────────────────────────────────────────────── */}
       <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 4vw', background: 'rgba(7,16,32,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <div style={{ display: 'flex', gap: 2 }}>
-            {['#000000','#DD0000','#FFCE00'].map((c,i) => <div key={i} style={{ width: 10, height: 32, background: c, borderRadius: 2 }} />)}
-          </div>
+          <img src="/glb-icon-white.png" alt="GLB" style={{ width: 36, height: 36, flexShrink: 0 }} />
           <div>
             <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#f5f2eb', lineHeight: 1, letterSpacing: '-0.01em' }}>GLB</div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#00e676', lineHeight: 1, textShadow: '0 0 8px rgba(0,230,118,0.6)' }}>GermanLink Business</div>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#F4B400', lineHeight: 1 }}>GermanLink Business</div>
           </div>
         </div>
 
@@ -591,10 +589,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-              <div style={{ display: 'flex', gap: 2 }}>
-                {['#000000','#DD0000','#FFCE00'].map((c,i) => <div key={i} style={{ width: 8, height: 28, background: c }} />)}
-              </div>
-              <span style={{ fontSize: '1.05rem', fontWeight: 900, color: '#f5f2eb' }}>GermanLink Business</span>
+              <img src="/glb-icon-white.png" alt="GLB" style={{ width: 32, height: 32, flexShrink: 0 }} />
+              <span style={{ fontSize: '1.05rem', fontWeight: 900, color: '#F4B400' }}>GermanLink Business</span>
             </div>
             <p style={{ fontSize: '0.82rem', color: '#8fa3b8' }}>{t.footer.tagline}</p>
           </div>

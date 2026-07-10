@@ -72,20 +72,20 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <div className="flex items-center gap-2 flex-shrink-0">
-              {/* German flag bars */}
-              <div className="flex gap-0.5">
-                <div className="w-2.5 h-8 bg-[#000000] rounded-sm" />
-                <div className="w-2.5 h-8 bg-[#DD0000] rounded-sm" />
-                <div className="w-2.5 h-8 bg-[#FFCE00] rounded-sm" />
-              </div>
+              {/* GLB ring logo (Germany + Republic of Congo) */}
+              <img
+                src="/glb-icon.png"
+                alt="GLB - GermanLink Business"
+                className="w-9 h-9 flex-shrink-0"
+              />
 
-              {/* Desktop: bars + GLB + subtitle */}
+              {/* Desktop: icon + GLB + subtitle */}
               <div className="hidden lg:block">
                 <div className="text-base font-black text-[#1C1C1C] leading-none tracking-tight">GLB</div>
-                <div className="text-[10px] font-semibold text-[#0A5EB0] leading-none">GermanLink Business</div>
+                <div className="text-[10px] font-semibold text-[#F4B400] leading-none">GermanLink Business</div>
               </div>
 
-              {/* Mobile: bars + GLB only, no subtitle */}
+              {/* Mobile: icon + GLB only, no subtitle */}
               <div className="lg:hidden">
                 <div className="text-base font-black text-[#1C1C1C] leading-none tracking-tight">GLB</div>
               </div>
@@ -215,4 +215,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-
