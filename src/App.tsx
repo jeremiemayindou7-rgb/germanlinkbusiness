@@ -64,6 +64,12 @@ function AppContent() {
     window.location.hash = view;
   };
 
+  // Entfernt den Hash vollständig (statt nur den Wert dahinter zu leeren),
+  // damit die URL nicht mit einem stehenden "#" endet.
+  const clearHash = () => {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  };
+
   React.useEffect(() => {
     const path = window.location.pathname;
     setCurrentRoute(path);
@@ -118,7 +124,7 @@ function AppContent() {
     setActiveTab(tab);
     if (tab === 'home') {
       setShowLanding(true);
-      window.location.hash = '';
+      clearHash();
     } else if (tab === 'marketplace') {
       navigateTo('marketplace');
     } else if (tab === 'seller') {
@@ -213,7 +219,7 @@ function AppContent() {
         <Sidebar
           activeView={activeView}
           onViewChange={navigateTo}
-          onGoHome={() => { setShowLanding(true); window.location.hash = ''; }}
+          onGoHome={() => { setShowLanding(true); clearHash(); }}
           mobileOpen={sidebarOpen}
           onMobileClose={() => setSidebarOpen(false)}
         />
