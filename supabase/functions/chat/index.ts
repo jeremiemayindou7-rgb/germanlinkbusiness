@@ -1,4 +1,13 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
+
+// SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY sind in Supabase Edge Functions
+// automatisch als Umgebungsvariablen verfügbar – dafür muss nichts manuell
+// als Secret angelegt werden (nur OPENAI_API_KEY, wie bisher).
+const supabaseAdmin = createClient(
+  Deno.env.get("SUPABASE_URL") ?? "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -247,7 +256,61 @@ function searchKnowledge(query: string, language: 'DE' | 'FR' | 'LN'): Knowledge
   return bestMatch;
 }
 
-async function callOpenAI(userMessage: string, context: string | null, language: 'DE' | 'FR' | 'LN'): Promise<string> {
+// ── Live-Produktkatalog aus Supabase ──────────────────────────────────────────
+interface ProductRow {
+  name: string;
+  name_de?: string | null;
+  name_fr?: string | null;
+  description?: string | null;
+  description_de?: string | null;
+  description_fr?: string | null;
+  category?: string | null;
+  sale_price?: number | null;
+}
+
+async function fetchProductCatalog(): Promise<ProductRow[]> {
+  const { data, error } = await supabaseAdmin
+    .from("products")
+    .select("name, name_de, name_fr, description, description_de, description_fr, category, sale_price")
+    .eq("stock_status", "available")
+    .limit(200);
+
+  if (error) {
+    console.error("[chat] fetchProductCatalog error:", error);
+    return [];
+  }
+  return data ?? [];
+}
+
+function formatProductCatalog(products: ProductRow[], language: 'DE' | 'FR' | 'LN'): string {
+  if (products.length === 0) return "";
+
+  const byCategory: Record<string, ProductRow[]> = {};
+  for (const p of products) {
+    const cat = p.category || "Sonstige";
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(p);
+  }
+
+  const nameFor = (p: ProductRow) => (language === "DE" ? p.name_de : p.name_fr) || p.name;
+  const descFor = (p: ProductRow) => (language === "DE" ? p.description_de : p.description_fr) || p.description || "";
+
+  const lines = Object.entries(byCategory).map(([cat, items]) => {
+    const rows = items
+      .map(p => `  - ${nameFor(p)}: ${p.sale_price ?? "?"}€${descFor(p) ? " – " + descFor(p).slice(0, 100) : ""}`)
+      .join("\n");
+    return `### ${cat}\n${rows}`;
+  });
+
+  return lines.join("\n\n");
+}
+
+async function callOpenAI(
+  userMessage: string,
+  context: string | null,
+  language: 'DE' | 'FR' | 'LN',
+  productCatalog: string,
+): Promise<string> {
   const apiKey = Deno.env.get('OPENAI_API_KEY');
 
   if (!apiKey) {
@@ -270,8 +333,11 @@ CRITICAL RULES:
 5. ALWAYS respond in ${languageNames[language]}
 6. Do NOT invent prices, delivery times, addresses, or policies
 7. If the context doesn't contain the answer, admit it honestly
+8. If asked about specific products, prices, or availability, use ONLY the CURRENT PRODUCT CATALOG below – never invent products or prices that are not listed there
 
-${context ? `Use ONLY this verified information to answer:\n${context}` : 'No specific context provided. Be honest if you cannot answer with certainty.'}`;
+${context ? `Use ONLY this verified information to answer:\n${context}` : 'No specific FAQ context provided for this question.'}
+
+${productCatalog ? `## CURRENT PRODUCT CATALOG (live, ${language}):\n${productCatalog}` : '## CURRENT PRODUCT CATALOG: No products currently available.'}`;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -337,12 +403,15 @@ Deno.serve(async (req: Request) => {
 
     const knowledgeMatch = searchKnowledge(message, language);
 
+    const catalogProducts = await fetchProductCatalog();
+    const productCatalog = formatProductCatalog(catalogProducts, language);
+
     let response: string;
 
     if (knowledgeMatch && knowledgeMatch.confidence > 0.3) {
-      response = await callOpenAI(message, knowledgeMatch.content, language);
+      response = await callOpenAI(message, knowledgeMatch.content, language, productCatalog);
     } else {
-      response = await callOpenAI(message, null, language);
+      response = await callOpenAI(message, null, language, productCatalog);
     }
 
     if (questionCount >= 4) {
@@ -377,3 +446,4 @@ Deno.serve(async (req: Request) => {
     );
   }
 });
+

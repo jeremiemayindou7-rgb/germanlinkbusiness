@@ -3,7 +3,6 @@ import { X, Send, ThumbsUp, ThumbsDown, Minimize2, Package } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { SYSTEM_PROMPT, APP_CONTEXT } from '../lib/chatbot-system-prompt';
 import { detectLanguage, type SupportedLanguage } from '../lib/detectLanguage';
 import { responses } from '../lib/chatbot-responses';
 import { getProductField } from '../lib/translateProduct';
@@ -108,6 +107,8 @@ const STATUS_LABELS: Record<string, Record<string, string>> = {
   paid:       { de: 'Bezahlt',        fr: 'Payé',             ln: 'Efulamaki',   en: 'Paid' },
   unpaid:     { de: 'Nicht bezahlt',  fr: 'Non payé',         ln: 'Efulamaki te',en: 'Unpaid' },
   partial:    { de: 'Teilweise',      fr: 'Partiel',          ln: 'Ndambu',      en: 'Partial' },
+  // container status values
+  planning:   { de: 'In Planung',     fr: 'En planification', ln: 'Na planning', en: 'Planning' },
 };
 
 // ─────────────────────────────────────────────
@@ -295,14 +296,15 @@ async function fetchUserOrders(userId: string): Promise<Order[]> {
 
 /**
  * Fetch upcoming containers / shipment dates
+ * Reale Spalten (siehe Supabase Table Editor): id, name, shipping_date, max_capacity, status
  */
 async function fetchNextContainers(): Promise<any[]> {
   const today = new Date().toISOString().split('T')[0];
   const { data, error } = await supabase
     .from('containers')
-    .select('id, name, departure_date, arrival_date, status, description')
-    .gte('departure_date', today)
-    .order('departure_date', { ascending: true })
+    .select('id, name, shipping_date, max_capacity, status')
+    .gte('shipping_date', today)
+    .order('shipping_date', { ascending: true })
     .limit(3);
 
   if (error) {
@@ -328,21 +330,19 @@ function buildContainerResponse(containers: any[], lang: SupportedLanguage): str
   const locale = lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'fr-CD';
 
   const lines = containers.map((c: any) => {
-    const dep = c.departure_date
-      ? new Date(c.departure_date).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })
+    const dep = c.shipping_date
+      ? new Date(c.shipping_date).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })
       : '–';
-    const arr = c.arrival_date
-      ? new Date(c.arrival_date).toLocaleDateString(locale, { day: 'numeric', month: 'long' })
-      : null;
+    const statusLabel = STATUS_LABELS[c.status]?.[lang] ?? c.status ?? '';
 
-    const arrSuffix: Record<SupportedLanguage, string> = {
-      de: arr ? ` → Ankunft: ${arr}` : '',
-      fr: arr ? ` → Arrivée: ${arr}` : '',
-      ln: arr ? ` → Kokóma: ${arr}` : '',
-      en: arr ? ` → Arrival: ${arr}` : '',
+    const statusSuffix: Record<SupportedLanguage, string> = {
+      de: statusLabel ? ` — Status: ${statusLabel}` : '',
+      fr: statusLabel ? ` — Statut: ${statusLabel}` : '',
+      ln: statusLabel ? ` — Statut: ${statusLabel}` : '',
+      en: statusLabel ? ` — Status: ${statusLabel}` : '',
     };
 
-    return `• **${c.name ?? 'Container'}** — ${dep}${arrSuffix[lang] ?? ''}`;
+    return `• **${c.name ?? 'Container'}** — ${dep}${statusSuffix[lang] ?? ''}`;
   });
 
   const header: Record<SupportedLanguage, string> = {
@@ -456,41 +456,6 @@ function buildUserOrdersSummary(orders: Order[], lang: SupportedLanguage): strin
 }
 
 // ─────────────────────────────────────────────
-// CLAUDE API INTEGRATION (Anthropic)
-// ─────────────────────────────────────────────
-async function callClaudeAPI(
-  systemPrompt: string,
-  conversationHistory: { role: string; content: string }[],
-  userMessage: string
-): Promise<string> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 500,
-      system: systemPrompt,
-      messages: [
-        ...conversationHistory.map(m => ({ role: m.role, content: m.content })),
-        { role: 'user', content: userMessage },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(`Claude API ${response.status}: ${err?.error?.message ?? 'Unknown'}`);
-  }
-
-  const data = await response.json();
-  return data.content.map((b: any) => b.text || '').join('');
-}
-
-// ─────────────────────────────────────────────
 // COMPONENT
 // ─────────────────────────────────────────────
 export const ChatBot: React.FC = () => {
@@ -506,10 +471,19 @@ export const ChatBot: React.FC = () => {
   const [showProactive, setShowProactive] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [detectedLang, setDetectedLang] = useState<SupportedLanguage>('fr');
-  const [aiMode, setAiMode] = useState<'claude' | 'openai' | 'rule'>('rule');
+  const [aiMode, setAiMode] = useState<'openai' | 'rule'>('rule');
   const [unansweredCount, setUnansweredCount] = useState(0);
+  const [aiQuestionCount, setAiQuestionCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Deine deployte Edge Function erwartet Sprachcodes in Grossbuchstaben und
+  // kennt nur DE / FR / LN (kein 'en') – hier wird passend umgewandelt.
+  const toEdgeLanguage = (lang: SupportedLanguage): 'DE' | 'FR' | 'LN' => {
+    if (lang === 'de') return 'DE';
+    if (lang === 'ln') return 'LN';
+    return 'FR';
+  };
 
   // ── Init ──
   useEffect(() => {
@@ -534,15 +508,12 @@ export const ChatBot: React.FC = () => {
   useEffect(() => { scrollToBottom(); }, [messages]);
   useEffect(() => { saveChatHistory(); }, [messages]);
 
+  // Server-seitiger Proxy übernimmt den eigentlichen OpenAI-Call (Supabase Edge Function
+  // "chat"). Client-seitig wird nur geprüft, ob KI-Modus grundsätzlich aktiv sein soll.
   const detectAIMode = () => {
-    const claudeKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
     const openaiKey = import.meta.env.VITE_OPENAI_API_KEY;
-
-    if (claudeKey && claudeKey !== 'undefined' && claudeKey !== '') {
-      console.log('[ChatBot] ✅ Claude (Anthropic) API aktiv');
-      setAiMode('claude');
-    } else if (openaiKey && openaiKey !== 'undefined' && openaiKey !== '') {
-      console.log('[ChatBot] ✅ OpenAI API aktiv');
+    if (openaiKey && openaiKey !== 'undefined' && openaiKey !== '') {
+      console.log('[ChatBot] ✅ KI-Modus aktiv (OpenAI via Supabase Edge Function)');
       setAiMode('openai');
     } else {
       console.warn('[ChatBot] ⚠️ Kein API Key – Regelbasierter Modus');
@@ -702,7 +673,7 @@ export const ChatBot: React.FC = () => {
         return;
       }
 
-      // ── Step 2: Route to AI or rule-based ──
+      // ── Step 2: Route to AI (via Supabase Edge Function) or rule-based ──
       let botResponse = '';
 
       if (aiMode === 'rule') {
@@ -710,51 +681,23 @@ export const ChatBot: React.FC = () => {
         botResponse = getRuleBasedResponse(messageText, intent, lang);
 
       } else {
-        // Produkte gruppiert nach Kategorie
-        const categorized = products.reduce((acc: Record<string, any[]>, p) => {
-          const cat = p.category || 'Sonstige';
-          if (!acc[cat]) acc[cat] = [];
-          acc[cat].push(p);
-          return acc;
-        }, {});
-        const productContext = Object.entries(categorized).map(([cat, items]) =>
-          `### ${cat}\n` + (items as any[]).map(p =>
-            `  - ${p.name_de || p.name}: ${p.sale_price}€ | ${p.description_de || p.description || ''}`
-          ).join('\n')
-        ).join('\n\n');
+        // Serverseitiger Aufruf über deine bestehende Supabase Edge Function "chat".
+        // Sie hat ihre eigene Wissensdatenbank + Eskalationslogik, deshalb schicken
+        // wir nur message / sessionId / questionCount / language – kein eigener
+        // systemPrompt/history/Produktkatalog mehr, das würde ihr Format nicht treffen.
+        const { data, error } = await supabase.functions.invoke('chat', {
+          body: {
+            message: messageText,
+            sessionId,
+            questionCount: aiQuestionCount,
+            language: toEdgeLanguage(lang),
+          },
+        });
 
-        // Nächste Container für AI-Kontext laden
-        const containers = await fetchNextContainers();
-        const containerContext = containers.length > 0
-          ? '### NÄCHSTE CONTAINER-ABFAHRTEN:\n' + containers.map(c =>
-              `  - ${c.name ?? 'Container'}: Abfahrt ${c.departure_date ?? '?'}${c.arrival_date ? ` → Ankunft ${c.arrival_date}` : ''}`
-            ).join('\n')
-          : '### CONTAINER: Keine geplanten Abfahrten aktuell eingetragen.';
-
-        const fullSystem = `${SYSTEM_PROMPT}\n\n${APP_CONTEXT}\n\n## PRODUKTKATALOG (${products.length} Artikel):\n${productContext}\n\n${containerContext}\n\nWichtig: Beantworte ALLE Fragen zur App, zum Sortiment, zu Lieferzeiten und Containern auf Basis dieser Daten. Antworte in der Sprache des Users.`;
-        const history = messages.map(m => ({ role: m.role, content: m.content }));
-
-        if (aiMode === 'claude') {
-          botResponse = await callClaudeAPI(fullSystem, history, messageText);
-        } else {
-          // OpenAI fallback
-          const res = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-            },
-            body: JSON.stringify({
-              model: 'gpt-3.5-turbo',
-              messages: [{ role: 'system', content: fullSystem }, ...history, { role: 'user', content: messageText }],
-              temperature: 0.7,
-              max_tokens: 500,
-            }),
-          });
-          if (!res.ok) throw new Error(`OpenAI ${res.status}`);
-          const d = await res.json();
-          botResponse = d.choices[0].message.content;
-        }
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        botResponse = data?.response ?? '';
+        setAiQuestionCount(prev => prev + 1);
       }
 
       // Product card matching
