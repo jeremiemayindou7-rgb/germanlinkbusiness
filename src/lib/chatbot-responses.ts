@@ -22,10 +22,10 @@ export const responses = {
   } as ResponseMap<(name: string, price: string, desc: string) => string>,
 
   productNotFound: {
-    de: `Dieses Produkt ist nicht in unserem Katalog.\nUnser Team hilft gerne weiter:\n\n📧 info@germanlink.de\n📱 +49 176 22896160`,
-    fr: `Ce produit n'est pas dans notre catalogue.\nNotre équipe peut vous aider:\n\n📧 info@germanlink.de\n📱 +49 176 22896160`,
-    en: `This product is not in our catalog.\nOur team can help you:\n\n📧 info@germanlink.de\n📱 +49 176 22896160`,
-    ln: `Eloko oyo ezali te na liste na biso.\nBato na biso bakosalisa yo:\n\n📧 info@germanlink.de\n📱 +49 176 22896160`
+    de: `Dieses Produkt ist nicht in unserem Katalog.\nUnser Team hilft gerne weiter:\n\n📧 info@germanlink.de\n📱 +49 175 5169452`,
+    fr: `Ce produit n'est pas dans notre catalogue.\nNotre équipe peut vous aider:\n\n📧 info@germanlink.de\n📱 +49 175 5169452`,
+    en: `This product is not in our catalog.\nOur team can help you:\n\n📧 info@germanlink.de\n📱 +49 175 5169452`,
+    ln: `Eloko oyo ezali te na liste na biso.\nBato na biso bakosalisa yo:\n\n📧 info@germanlink.de\n📱 +49 175 5169452`
   } as ResponseMap,
 
   payment: {
@@ -43,10 +43,10 @@ export const responses = {
   } as ResponseMap,
 
   contact: {
-    de: `📞 Kundenservice:\n📧 info@germanlink.de\n📱 +49 176 22896160\n⏰ Mo–Fr, 9:00–18:00 Uhr`,
-    fr: `📞 Service client:\n📧 info@germanlink.de\n📱 +49 176 22896160\n⏰ Lun–Ven, 9h–18h`,
-    en: `📞 Customer service:\n📧 info@germanlink.de\n📱 +49 176 22896160\n⏰ Mon–Fri, 9AM–6PM`,
-    ln: `📞 Lisalisi ya bakliyango:\n📧 info@germanlink.de\n📱 +49 176 22896160\n⏰ Mokolo–Lomingo, 9h–18h`
+    de: `📞 Kundenservice:\n📧 info@germanlink.de\n📱 +49 175 5169452\n⏰ Mo–Fr, 9:00–18:00 Uhr`,
+    fr: `📞 Service client:\n📧 info@germanlink.de\n📱 +49 175 5169452\n⏰ Lun–Ven, 9h–18h`,
+    en: `📞 Customer service:\n📧 info@germanlink.de\n📱 +49 175 5169452\n⏰ Mon–Fri, 9AM–6PM`,
+    ln: `📞 Lisalisi ya bakliyango:\n📧 info@germanlink.de\n📱 +49 175 5169452\n⏰ Mokolo–Lomingo, 9h–18h`
   } as ResponseMap,
 
   outOfScope: {
@@ -57,9 +57,9 @@ export const responses = {
   } as ResponseMap,
 
   default: {
-    de: `Danke für Ihre Nachricht!\nFür Details kontaktieren Sie:\n📧 info@germanlink.de\n📱 +49 176 22896160`,
-    fr: `Merci pour votre message!\nPour plus de détails:\n📧 info@germanlink.de\n📱 +49 176 22896160`,
-    en: `Thanks for your message!\nFor more details:\n📧 info@germanlink.de\n📱 +49 176 22896160`,
-    ln: `Melesi na sango na yo!\nMpo na mingi:\n📧 info@germanlink.de\n📱 +49 176 22896160`
+    de: `Danke für Ihre Nachricht!\nFür Details kontaktieren Sie:\n📧 info@germanlink.de\n📱 +49 175 5169452`,
+    fr: `Merci pour votre message!\nPour plus de détails:\n📧 info@germanlink.de\n📱 +49 175 5169452`,
+    en: `Thanks for your message!\nFor more details:\n📧 info@germanlink.de\n📱 +49 175 5169452`,
+    ln: `Melesi na sango na yo!\nMpo na mingi:\n📧 info@germanlink.de\n📱 +49 175 5169452`
   } as ResponseMap
 };

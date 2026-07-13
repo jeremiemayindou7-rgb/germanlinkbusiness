@@ -315,7 +315,7 @@ async function fetchNextContainers(): Promise<any[]> {
 }
 
 function buildContainerResponse(containers: any[], lang: SupportedLanguage): string {
-  const contact = '\n\n📧 info@germanlink.de\n📱 +49 176 22896160';
+  const contact = '\n\n📧 info@germanlink.de\n📱 +49 175 5169452';
 
   if (containers.length === 0) {
     const noData: Record<SupportedLanguage, string> = {
@@ -411,10 +411,10 @@ function buildTrackingResponse(order: Order, lang: SupportedLanguage): { text: s
 
 function buildNotFoundResponse(number: string, lang: SupportedLanguage): string {
   const texts: Record<SupportedLanguage, string> = {
-    de: `❌ Ich konnte keine Bestellung oder Sendung mit der Nummer **${number}** finden.\n\nBitte prüfen Sie:\n• Ist die Nummer korrekt eingegeben?\n• Wurde die Bestellung unter einer anderen E-Mail aufgegeben?\n\nBei Fragen: 📧 info@germanlink.de | 📱 +49 176 22896160`,
-    fr: `❌ Je n'ai pas trouvé de commande avec le numéro **${number}**.\n\nVérifiez:\n• Le numéro est-il correct?\n• La commande a-t-elle été passée avec un autre email?\n\nContactez-nous: 📧 info@germanlink.de | 📱 +49 176 22896160`,
-    ln: `❌ Namonaki te commande na numéro **${number}**.\n\nSalela:\n• Numéro ezali malamu?\n• Commande esalémaki na email mosusu?\n\nBwela biso: 📧 info@germanlink.de | 📱 +49 176 22896160`,
-    en: `❌ No order found with number **${number}**.\n\nPlease check:\n• Is the number correct?\n• Was the order placed with a different email?\n\nContact us: 📧 info@germanlink.de | 📱 +49 176 22896160`,
+    de: `❌ Ich konnte keine Bestellung oder Sendung mit der Nummer **${number}** finden.\n\nBitte prüfen Sie:\n• Ist die Nummer korrekt eingegeben?\n• Wurde die Bestellung unter einer anderen E-Mail aufgegeben?\n\nBei Fragen: 📧 info@germanlink.de | 📱 +49 175 5169452`,
+    fr: `❌ Je n'ai pas trouvé de commande avec le numéro **${number}**.\n\nVérifiez:\n• Le numéro est-il correct?\n• La commande a-t-elle été passée avec un autre email?\n\nContactez-nous: 📧 info@germanlink.de | 📱 +49 175 5169452`,
+    ln: `❌ Namonaki te commande na numéro **${number}**.\n\nSalela:\n• Numéro ezali malamu?\n• Commande esalémaki na email mosusu?\n\nBwela biso: 📧 info@germanlink.de | 📱 +49 175 5169452`,
+    en: `❌ No order found with number **${number}**.\n\nPlease check:\n• Is the number correct?\n• Was the order placed with a different email?\n\nContact us: 📧 info@germanlink.de | 📱 +49 175 5169452`,
   };
   return texts[lang] ?? texts.fr;
 }
@@ -725,7 +725,7 @@ export const ChatBot: React.FC = () => {
           setMessages(prev => [...prev, {
             id: `contact_${Date.now()}`,
             role: 'assistant',
-            content: `Für persönliche Unterstützung:\n\n📧 info@germanlink.de\n📞 +49 176 22896160\n⏰ Mo–Fr 9–18 Uhr (MEZ)`,
+            content: `Für persönliche Unterstützung:\n\n📧 info@germanlink.de\n📞 +49 175 5169452\n⏰ Mo–Fr 9–18 Uhr (MEZ)`,
             timestamp: new Date(),
           }]);
           setUnansweredCount(0);
@@ -734,7 +734,7 @@ export const ChatBot: React.FC = () => {
 
     } catch (err: any) {
       console.error('[ChatBot] Error:', err);
-      let msg = 'Kurze Störung – bitte versuchen Sie es erneut oder kontaktieren Sie uns:\n\n📧 info@germanlink.de\n📱 +49 176 22896160';
+      let msg = 'Kurze Störung – bitte versuchen Sie es erneut oder kontaktieren Sie uns:\n\n📧 info@germanlink.de\n📱 +49 175 5169452';
       if (err?.message?.includes('401')) msg = 'Konfigurationsfehler. Unser Team wurde benachrichtigt.';
       else if (err?.message?.includes('429')) msg = 'Zu viele Anfragen. Bitte kurz warten.';
 

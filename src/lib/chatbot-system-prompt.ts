@@ -54,7 +54,7 @@ NEVER respond in a different language than the user's message.
 
 ## KONTAKTBLOCK (bei Bedarf anzeigen):
 📧 E-Mail: info@germanlink.de
-📞 Telefon / WhatsApp: +49 176 22896160
+📞 Telefon / WhatsApp: +49 175 5169452
 ⏰ Erreichbarkeit: Mo–Fr, 9:00–18:00 Uhr (MEZ)
 
 ## WICHTIGE REGELN:
