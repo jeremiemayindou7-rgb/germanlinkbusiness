@@ -815,14 +815,33 @@ export const ChatBot: React.FC = () => {
 
   // ── Chat window ──
   return (
-    <div
-      className={`fixed z-50 ${
-        isMobile ? 'inset-0 bg-white' :
-        isMinimized ? 'bottom-20 md:bottom-6 right-4 md:right-6 w-80' :
-        'bottom-20 md:bottom-6 right-4 md:right-6 w-96 h-[580px]'
-      } rounded-2xl shadow-2xl flex flex-col`}
-      style={{ maxHeight: isMobile ? '100vh' : '620px' }}
-    >
+    <>
+      {/* Immer erreichbarer Schliessen-Button (Sicherheitsnetz für Mobile):
+          Falls die Adressleiste des mobilen Browsers den Kopfbereich der
+          Chat-Box zeitweise überdeckt/verschiebt, bleibt dieser X-Button
+          trotzdem sichtbar und klickbar, unabhängig vom internen Layout. */}
+      {isMobile && (
+        <button
+          onClick={() => setIsOpen(false)}
+          aria-label="Chat schliessen"
+          className="fixed z-[60] right-3 bg-black/50 text-white rounded-full p-2.5 shadow-lg"
+          style={{ top: 'max(0.75rem, env(safe-area-inset-top))' }}
+        >
+          <X className="w-5 h-5" />
+        </button>
+      )}
+      <div
+        className={`fixed z-50 ${
+          isMobile ? 'inset-0 bg-white' :
+          isMinimized ? 'bottom-20 md:bottom-6 right-4 md:right-6 w-80' :
+          'bottom-20 md:bottom-6 right-4 md:right-6 w-96 h-[580px]'
+        } rounded-2xl shadow-2xl flex flex-col`}
+        style={
+          isMobile
+            ? { height: '100dvh', maxHeight: '100dvh', paddingTop: 'env(safe-area-inset-top)' }
+            : { maxHeight: '620px' }
+        }
+      >
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 flex items-center justify-between rounded-t-2xl flex-shrink-0">
         <div className="flex items-center gap-2">
@@ -1012,7 +1031,8 @@ export const ChatBot: React.FC = () => {
           </p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
