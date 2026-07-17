@@ -35,42 +35,42 @@ export default function AGBPage() {
   const content = {
     de: {
       title: 'ALLGEMEINE GESCHÄFTSBEDINGUNGEN',
-      company: 'GermanLink Business GmbH',
-      subtitle: 'Zahlungs- und Lieferbedingungen · Stand: April 2026',
+      company: 'GermanLink Business (GLB)',
+      subtitle: 'Zahlungs- und Lieferbedingungen · Stand: Juli 2026',
       infoBox: {
         title: 'Wichtige Informationen',
         scope: 'Deutschland und Demokratische Republik Kongo (DRK)',
-        payment: 'Banküberweisung via LemFi (IBAN) · Agent-Zahlung via UBA Bank (Kongo)',
+        payment: 'Banküberweisung via Finom · Agent-Zahlung via UBA Bank (Kongo)',
         delivery: '4–8 Wochen (internationaler Versand)',
-        parties: 'GermanLink Business GmbH (Anbieter) und Käufer (Kunde)'
+        parties: 'GermanLink Business (GLB) (Anbieter) und Käufer (Kunde)'
       },
-      footer: 'Stand: April 2026'
+      footer: 'Stand: Juli 2026'
     },
     fr: {
       title: 'CONDITIONS GÉNÉRALES DE VENTE (CGV)',
-      company: 'GermanLink Business GmbH',
-      subtitle: 'Conditions de paiement et de livraison · Version : Avril 2026',
+      company: 'GermanLink Business (GLB)',
+      subtitle: 'Conditions de paiement et de livraison · Version : Juillet 2026',
       infoBox: {
         title: 'Informations importantes',
         scope: 'Allemagne et République Démocratique du Congo (RDC)',
-        payment: 'Virement bancaire via LemFi (IBAN) · Paiement par agent via UBA Bank (Congo)',
+        payment: 'Virement bancaire via Finom · Paiement par agent via UBA Bank (Congo)',
         delivery: '4 à 8 semaines (livraison internationale)',
-        parties: 'GermanLink Business GmbH (Prestataire) et l\'Acheteur (Client)'
+        parties: 'GermanLink Business (GLB) (Prestataire) et l\'Acheteur (Client)'
       },
-      footer: 'Version : Avril 2026'
+      footer: 'Version : Juillet 2026'
     },
     ln: {
       title: 'MIBEKO YA BOZWI MPE KOTINDELA',
-      company: 'GermanLink Business GmbH',
-      subtitle: 'Mibeko ya kobiya mpé kotinda biloko · Tango: Avril 2026',
+      company: 'GermanLink Business (GLB)',
+      subtitle: 'Mibeko ya kobiya mpé kotinda biloko · Tango: Yuli 2026',
       infoBox: {
         title: 'Informations ya ntina',
         scope: 'Allemagne mpe Republique Democratique ya Congo (RDC)',
-        payment: 'Virement via LemFi (IBAN) · Kobiya na agent na Banque UBA (Congo)',
+        payment: 'Virement via Finom · Kobiya na agent na Banque UBA (Congo)',
         delivery: 'Mpoka 4 tii 8 (livraison internationale)',
-        parties: 'GermanLink Business GmbH (Mosalisi) mpe Mobii (Client)'
+        parties: 'GermanLink Business (GLB) (Mosalisi) mpe Mobii (Client)'
       },
-      footer: 'Tango: Avril 2026'
+      footer: 'Tango: Yuli 2026'
     }
   };
 
@@ -169,9 +169,14 @@ function GermanContent() {
             Kunden (nachfolgend "Käufer") abgeschlossen werden.
           </p>
           <p>
-            <strong>(2)</strong> Der Anbieter ist: GermanLink Business GmbH, eingetragen im
-            Handelsregister. Alle Anfragen richten Sie bitte über die in der App
-            angegebenen Kontaktdaten an uns.
+            <strong>(2)</strong> Der Anbieter ist: GermanLink Business (GLB) mit Sitz in
+            Brazzaville, Republik Kongo (Congo-Brazzaville), vertreten durch die
+            Inhaberin und den Inhaber Rebeca Bahoumina und Jérémie Mayindou
+            (Jérémie MC). Die Koordination sowie die Zahlungsabwicklung für den
+            deutschen Markt erfolgen über das in Deutschland geführte
+            Einzelunternehmen (Kleingewerbe, nicht im Handelsregister
+            eingetragen) „KizGP“, Inhaber: Jérémie Mayindou. Alle Anfragen
+            richten Sie bitte über die in der App angegebenen Kontaktdaten an uns.
           </p>
           <p>
             <strong>(3)</strong> Die AGB gelten in der zum Zeitpunkt der Bestellung gültigen
@@ -230,13 +235,13 @@ function GermanContent() {
           </ul>
         </div>
 
-        <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">3.2 Zahlungsmethode A – Banküberweisung via LemFi</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">3.2 Zahlungsmethode A – Banküberweisung via Finom</h3>
         <div className="space-y-3 text-gray-700">
           <p>
-            <strong>(1)</strong> Empfänger: GermanLink Business GmbH<br />
-            IBAN: DE89 3704 0044 0532 0130 00<br />
-            Zahlungsdienstleister: LemFi<br />
-            Verwendungszweck (OBLIGATORISCH): Ihre Bestellnummer
+            <strong>(1)</strong> Empfänger und vollständige Kontodaten (IBAN/BIC) werden dem
+            Käufer nach Bestellabschluss persönlich per E-Mail in der
+            Auftragsbestätigung mitgeteilt. Zahlungsdienstleister: Finom.
+            Verwendungszweck (OBLIGATORISCH): Ihre Bestellnummer.
           </p>
           <p>
             <strong>(2)</strong> Der korrekte Verwendungszweck (Bestellnummer) ist zwingend
@@ -274,7 +279,7 @@ function GermanContent() {
         <div className="space-y-3 text-gray-700">
           <p>
             <strong>(1)</strong> Der Betrag verbleibt bis zur erfolgten Lieferung beim
-            Zahlungsdienstleister (LemFi / UBA Bank).
+            Zahlungsdienstleister (Finom / UBA Bank).
           </p>
           <p>
             <strong>(2)</strong> Der Käufer hat keinen Anspruch auf Verzinsung des Betrags.
@@ -494,12 +499,18 @@ function FrenchContent() {
           <p>
             <strong>(1)</strong> Les présentes Conditions Générales de Vente (ci-après "CGV")
             s'appliquent à tous les contrats conclus via la plateforme numérique
-            de GermanLink Business GmbH (ci-après "Prestataire") entre le
+            de GermanLink Business (GLB) (ci-après "Prestataire") entre le
             Prestataire et le client (ci-après "Acheteur").
           </p>
           <p>
-            <strong>(2)</strong> Le Prestataire est : GermanLink Business GmbH, inscrite au
-            registre du commerce. Pour toute question, veuillez nous contacter
+            <strong>(2)</strong> Le Prestataire est : GermanLink Business (GLB), dont le
+            siège social se trouve à Brazzaville, République du Congo
+            (Congo-Brazzaville), représenté par les propriétaires Rebeca
+            Bahoumina et Jérémie Mayindou (Jérémie MC). La coordination ainsi
+            que le traitement des paiements pour le marché allemand sont
+            assurés par l'entreprise individuelle (micro-entreprise, non
+            inscrite au registre du commerce) « KizGP », dirigée en Allemagne
+            par Jérémie Mayindou. Pour toute question, veuillez nous contacter
             via les coordonnées indiquées dans l'application.
           </p>
           <p>
@@ -558,13 +569,13 @@ function FrenchContent() {
           </ul>
         </div>
 
-        <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">3.2 Mode de paiement A – Virement bancaire via LemFi</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">3.2 Mode de paiement A – Virement bancaire via Finom</h3>
         <div className="space-y-3 text-gray-700">
           <p>
-            <strong>(1)</strong> Bénéficiaire : GermanLink Business GmbH<br />
-            IBAN : DE89 3704 0044 0532 0130 00<br />
-            Prestataire de paiement : LemFi<br />
-            Référence (OBLIGATOIRE) : Votre numéro de commande
+            <strong>(1)</strong> Le bénéficiaire et les coordonnées bancaires complètes
+            (IBAN/BIC) sont communiqués personnellement à l'Acheteur par e-mail
+            dans la confirmation de commande. Prestataire de paiement : Finom.
+            Référence (OBLIGATOIRE) : Votre numéro de commande.
           </p>
           <p>
             <strong>(2)</strong> La référence (numéro de commande) est obligatoire.
@@ -601,7 +612,7 @@ function FrenchContent() {
         <div className="space-y-3 text-gray-700">
           <p>
             <strong>(1)</strong> Le montant versé reste chez le prestataire de paiement
-            (LemFi / UBA Bank) jusqu'à la livraison effectuée.
+            (Finom / UBA Bank) jusqu'à la livraison effectuée.
           </p>
           <p>
             <strong>(2)</strong> L'Acheteur n'a pas droit à des intérêts sur le montant versé.
@@ -821,13 +832,17 @@ function LingalaContent() {
         <div className="space-y-3 text-gray-700">
           <p>
             <strong>(1)</strong> Mibeko oyo (tokobenga "Mibeko") esalema mpo na makontara
-            nyonso oyo esalemaka na platforme ya GermanLink Business GmbH
+            nyonso oyo esalemaka na platforme ya GermanLink Business (GLB)
             (tokobenga "Mosalisi") na kati ya Mosalisi mpe client
             (tokobenga "Mobii").
           </p>
           <p>
-            <strong>(2)</strong> Mosalisi azali: GermanLink Business GmbH,
-            ezali na registre ya commerce. Tuna biso na adresse
+            <strong>(2)</strong> Mosalisi azali: GermanLink Business (GLB), siège na yango
+            ezali na Brazzaville, République du Congo. Ba propriétaires:
+            Rebeca Bahoumina na Jérémie Mayindou (Jérémie MC). Na Allemagne,
+            travail ya coordination na kobiya esalemaka na entreprise
+            individuelle « KizGP » (ezali te na registre ya commerce),
+            oyo Jérémie Mayindou azali kotambwisa. Tuna biso na adresse
             oyo ezali na application.
           </p>
           <p>
@@ -883,13 +898,13 @@ function LingalaContent() {
           </ul>
         </div>
 
-        <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">3.2 Ndenge A – Virement bancaire via LemFi</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">3.2 Ndenge A – Virement bancaire via Finom</h3>
         <div className="space-y-3 text-gray-700">
           <p>
-            <strong>(1)</strong> Kozwa mbongo: GermanLink Business GmbH<br />
-            IBAN: DE89 3704 0044 0532 0130 00<br />
-            Prestataire: LemFi<br />
-            Référence (YA MPENZA OBLIGATOIRE): Numéro ya commande na yo
+            <strong>(1)</strong> Nkombo ya kozwa mbongo na ba coordonnées bancaires ya
+            mpenza (IBAN/BIC) ekotindama na Mobii na email, na confirmation ya
+            commande. Prestataire: Finom. Référence (YA MPENZA OBLIGATOIRE):
+            Numéro ya commande na yo.
           </p>
           <p>
             <strong>(2)</strong> Référence ya commande ezali ya mpenza obligatoire.
@@ -924,7 +939,7 @@ function LingalaContent() {
         <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">3.4 Conservation ya mbongo</h3>
         <div className="space-y-3 text-gray-700">
           <p>
-            <strong>(1)</strong> Mbongo ezali na banque (LemFi / UBA) tii biloko
+            <strong>(1)</strong> Mbongo ezali na banque (Finom / UBA) tii biloko
             ekomi na Mobii.
           </p>
           <p>
