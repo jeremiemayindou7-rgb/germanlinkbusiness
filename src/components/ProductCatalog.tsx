@@ -26,6 +26,7 @@ interface Product {
   condition: string;
   image_url: string;
   stock_status: string;
+  product_segment?: string;
 }
 
 interface Category {
@@ -106,10 +107,17 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({ onCartOpen }) =>
 
   const fetchProducts = async () => {
     try {
+      // ── NUR "Produit Standard" laden ──────────────────────────────────────
+      // "Occasion d'Europe"-Produkte (product_segment = 'occasion_europe')
+      // werden hier bewusst ausgeschlossen, da sie exklusiv auf der
+      // "Occasion d'Europe"-Seite (MarketplaceSearch.tsx) angezeigt werden.
+      // Produkte ohne gesetztes product_segment (ältere/Legacy-Produkte,
+      // z.B. via eBay-Import) gelten als Standard und bleiben sichtbar.
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq('stock_status', 'available')
+        .or('product_segment.is.null,product_segment.neq.occasion_europe')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
