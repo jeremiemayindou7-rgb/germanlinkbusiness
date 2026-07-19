@@ -1,9 +1,11 @@
 // ─── GermanLink Business – Cookie Consent (DSGVO/GDPR) ──────────────────────
 // Zeigt beim ersten Besuch einen Cookie-Banner
 // Speichert Einwilligung in localStorage NUR nach Zustimmung
+// ── NEU: Microsoft Clarity wird nur bei Analytics-Einwilligung geladen ──────
 
 import React, { useState, useEffect } from 'react';
 import { X, Shield, ChevronDown } from 'lucide-react';
+import { loadClarity, revokeClarity } from '../lib/clarity';
 
 interface ConsentState {
   necessary: true;       // immer true, nicht änderbar
@@ -105,9 +107,16 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({
   const t = TEXTS[language] || TEXTS.fr;
 
   useEffect(() => {
+    const consent = getConsent();
+
+    // ── NEU: Wiederkehrender Besucher, der bereits Analytics zugestimmt hat ──
+    // → Clarity direkt beim Laden der Seite starten, Banner bleibt zu.
+    if (consent?.analytics) {
+      loadClarity();
+    }
+
     // Erst nach kurzer Verzögerung anzeigen (bessere UX)
     const timer = setTimeout(() => {
-      const consent = getConsent();
       if (!consent) setVisible(true);
     }, 800);
     return () => clearTimeout(timer);
@@ -127,6 +136,13 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({
     if (!state.functional) {
       localStorage.removeItem('chatbot_history');
       // Sprache darf bleiben (notwendig für UX)
+    }
+
+    // ── NEU: Microsoft Clarity je nach Analytics-Einwilligung starten/stoppen ──
+    if (state.analytics) {
+      loadClarity();
+    } else {
+      revokeClarity();
     }
 
     setVisible(false);

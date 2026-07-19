@@ -326,7 +326,7 @@ ${products.map(p =>
           const contactMessage: Message = {
             id: `contact_${Date.now()}`,
             role: 'assistant',
-            content: `Ich empfehle, direkt mit unserem Team zu sprechen:\n\n📧 E-Mail: info@germanlink.de\n📞 Telefon / WhatsApp: +49 176 22896160\n⏰ Mo–Fr, 9:00–18:00 Uhr (MEZ)`,
+            content: `Ich empfehle, direkt mit unserem Team zu sprechen:\n\n📧 E-Mail: info@germanlink.de\n📞 Telefon / WhatsApp: +49 175 5169452\n⏰ Mo–Fr, 9:00–18:00 Uhr (MEZ)`,
             timestamp: new Date(),
           };
           setMessages(prev => [...prev, contactMessage]);
@@ -355,7 +355,7 @@ ${products.map(p =>
       const errorMessage: Message = {
         id: `error_${Date.now()}`,
         role: 'assistant',
-        content: `${errorMsg}\n\n📧 info@germanlink.de\n📱 +49 176 22896160`,
+        content: `${errorMsg}\n\n📧 info@germanlink.de\n📱 +49 175 5169452`,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);

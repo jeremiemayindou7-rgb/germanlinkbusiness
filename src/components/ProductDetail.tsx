@@ -16,6 +16,7 @@ interface Product {
   sale_price: number;
   condition: string;
   image_url: string;
+  images?: string[]; // ── NEU: weitere importierte Bilder (eBay/ADEMAX), zusätzlich zu image_url
   stock_status: string;
   source_type: 'own' | 'ebay' | 'vendor';
   ebay_url?: string;
@@ -60,6 +61,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
   const [showMessageSent, setShowMessageSent] = useState(false);
   const [imageError, setImageError] = useState(false);
 
+  // ── NEU: Galerie-Status ──────────────────────────────────────────────────
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [thumbErrors, setThumbErrors] = useState<Set<number>>(new Set());
+
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [quoteSent, setQuoteSent] = useState(false);
   const [quoteLoading, setQuoteLoading] = useState(false);
@@ -81,6 +86,19 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
     reviewer_name: '',
   });
 
+  // ── NEU: Galerie-Bilder zusammenstellen ──────────────────────────────────
+  // Reihenfolge: image_url zuerst (Hauptbild), danach alle weiteren aus images[],
+  // Duplikate werden entfernt, leere/undefined Werte rausgefiltert.
+  const galleryImages: string[] = product
+    ? Array.from(
+        new Set(
+          [product.image_url, ...(product.images ?? [])].filter(
+            (url): url is string => !!url
+          )
+        )
+      )
+    : [];
+
   useEffect(() => {
     fetchProductDetails();
     fetchReviews();
@@ -89,6 +107,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
       loadOpenAIKey();
     }
   }, [productId, user]);
+
+  // Galerie zurücksetzen, wenn ein neues Produkt geladen wird
+  useEffect(() => {
+    setActiveImageIndex(0);
+    setThumbErrors(new Set());
+    setImageError(false);
+  }, [productId]);
 
   const fetchSimilarProducts = async (category: string) => {
     const { data } = await supabase
@@ -344,18 +369,43 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onClose
         <div className="p-3 sm:p-6">
           <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
 
-            {/* Bild */}
+            {/* Bild-Galerie */}
             <div>
               <div className="relative pb-[75%] sm:pb-[100%] bg-gray-200 rounded-lg overflow-hidden mb-3">
-                {product.image_url && !imageError ? (
-                  <img src={product.image_url} alt={product.name}
+                {galleryImages.length > 0 && !imageError ? (
+                  <img
+                    src={galleryImages[activeImageIndex] ?? galleryImages[0]}
+                    alt={product.name}
                     className="absolute inset-0 w-full h-full object-cover"
-                    onError={() => setImageError(true)} />
+                    onError={() => setImageError(true)}
+                  />
                 ) : (
                   <img src={fallbackImage} alt={product.name}
                     className="absolute inset-0 w-full h-full object-cover" />
                 )}
               </div>
+
+              {/* Miniaturansichten – nur anzeigen wenn mehr als 1 Bild */}
+              {galleryImages.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {galleryImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => { setActiveImageIndex(idx); setImageError(false); }}
+                      className={`relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition ${
+                        activeImageIndex === idx ? 'border-[#0A5EB0]' : 'border-transparent hover:border-gray-300'
+                      }`}
+                    >
+                      <img
+                        src={thumbErrors.has(idx) ? fallbackImage : img}
+                        alt={`${product.name} ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={() => setThumbErrors(prev => new Set(prev).add(idx))}
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Infos */}
