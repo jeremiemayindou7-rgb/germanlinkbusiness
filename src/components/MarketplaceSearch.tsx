@@ -38,6 +38,10 @@ interface OccasionProduct {
   category_oe?: string;
   product_segment: string;
   source_url?: string;
+  description?: string;
+  description_de?: string;
+  description_fr?: string;
+  description_ln?: string;
 }
 
 const OE_CATEGORIES = [
@@ -57,6 +61,139 @@ const OE_CONDITIONS: Record<string, { fr: string; de: string; ln: string; color:
   acceptable:{ fr: 'Reconditionné',  de: 'Generalüb.',   ln: 'Ebongwami',     color: 'bg-orange-100 text-orange-700' },
 };
 
+// ── NOUVEAU : Modal de détails produit "Occasion d'Europe" ────────────────────
+function OccasionProductModal({
+  product, lang, formatPrice, onClose, onAddToCart, addingId, addedId,
+}: {
+  product: OccasionProduct;
+  lang: 'de' | 'fr' | 'ln';
+  formatPrice: (n: number) => string;
+  onClose: () => void;
+  onAddToCart: (id: string) => void;
+  addingId: string | null;
+  addedId: string | null;
+}) {
+  const fallback = '/glblogo.png';
+  const cond = OE_CONDITIONS[product.condition] || {
+    fr: product.condition, de: product.condition, ln: product.condition,
+    color: 'bg-gray-100 text-gray-600',
+  };
+
+  const getName = (p: OccasionProduct) =>
+    (p[`name_${lang}` as keyof OccasionProduct] as string) || p.name || '';
+
+  const getDescription = (p: OccasionProduct) =>
+    (p[`description_${lang}` as keyof OccasionProduct] as string) || p.description || '';
+
+  const name = getName(product);
+  const description = getDescription(product);
+
+  const labels = {
+    de: { title: 'Produktdetails', priceLabel: 'Preis Deutschland', condition: 'Zustand', source: 'Original-Angebot ansehen', add: 'In den Warenkorb', adding: 'Wird hinzugefügt...', added: 'In den Warenkorb!', desc: 'Beschreibung', noDesc: 'Keine Beschreibung verfügbar.' },
+    fr: { title: 'Détails du produit', priceLabel: 'Prix Allemagne', condition: 'État', source: "Voir l'annonce d'origine", add: 'Ajouter au panier', adding: '...', added: 'Ajouté au panier!', desc: 'Description', noDesc: 'Aucune description disponible.' },
+    ln: { title: 'Ba détails ya eloko', priceLabel: 'Prix Allemagne', condition: 'Ezalela', source: "Talá annonce ya ebandeli", add: 'Tyá na panier', adding: '...', added: 'Ebakisami na panier!', desc: 'Description', noDesc: 'Description ezali te.' },
+  }[lang];
+
+  return (
+    <div
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.65)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem', paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{ background: 'white', width: '100%', maxWidth: '32rem', display: 'flex', flexDirection: 'column', borderRadius: '1rem', maxHeight: 'calc(100dvh - 96px)', overflow: 'hidden' }}>
+        {/* Header */}
+        <div className="flex-shrink-0 flex items-start justify-between px-5 pt-5 pb-3 border-b border-gray-100">
+          <p className="text-base font-bold text-gray-900">{labels.title}</p>
+          <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-xl transition">
+            <X size={18} className="text-gray-500" />
+          </button>
+        </div>
+
+        {/* Contenu scrollable */}
+        <div className="px-5 pt-4 overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: 'touch' as any }}>
+          {/* Image */}
+          <div className="relative w-full h-56 bg-gray-50 rounded-xl overflow-hidden mb-4">
+            <img
+              src={product.image_url || fallback}
+              alt={name}
+              className="w-full h-full object-cover"
+              onError={e => { (e.target as HTMLImageElement).src = fallback; }}
+            />
+            <span className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${cond.color}`}>
+              {cond[lang]}
+            </span>
+            <span className="absolute top-3 right-3 bg-white/90 text-xs font-bold px-2 py-1 rounded-full text-gray-700 shadow-sm">
+              🇩🇪
+            </span>
+          </div>
+
+          {/* Nom */}
+          <p className="text-base font-bold text-gray-900 mb-3">{name}</p>
+
+          {/* Prix + badge GLB */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-xs text-gray-400 mb-0.5">{labels.priceLabel}</p>
+              <p className="text-2xl font-bold text-green-700">
+                {product.sale_price > 0 ? formatPrice(product.sale_price) : '—'}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+              <Tag size={11} />
+              GLB
+            </div>
+          </div>
+
+          {/* État */}
+          <div className="flex justify-between px-3 py-2.5 bg-gray-50 rounded-xl mb-3">
+            <span className="text-sm text-gray-500">{labels.condition}</span>
+            <span className="text-sm font-semibold text-gray-800">{cond[lang]}</span>
+          </div>
+
+          {/* Description */}
+          <div className="mb-4">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">{labels.desc}</p>
+            <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+              {description || labels.noDesc}
+            </p>
+          </div>
+
+          {/* Lien vers l'annonce d'origine */}
+          {product.source_url && (
+            <a
+              href={product.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-blue-600 underline underline-offset-2 mb-4"
+            >
+              {labels.source} <ExternalLink size={12} />
+            </a>
+          )}
+        </div>
+
+        {/* Footer fixe avec bouton d'action */}
+        <div className="flex-shrink-0 px-5 pt-3 pb-5 border-t border-gray-100">
+          {addedId === product.id && (
+            <div className="mb-2 bg-green-50 text-green-700 text-xs font-semibold text-center py-1.5 rounded-lg">
+              ✅ {labels.added}
+            </div>
+          )}
+          <button
+            onClick={() => onAddToCart(product.id)}
+            disabled={addingId === product.id}
+            className="w-full py-2.5 bg-[#FF6F00] hover:bg-[#E66000] disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2"
+          >
+            {addingId === product.id
+              ? <Loader2 size={14} className="animate-spin" />
+              : <ShoppingCart size={14} />
+            }
+            {addingId === product.id ? labels.adding : labels.add}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function OccasionEuropeSection({
   formatPrice, language, onAuthRequired,
 }: {
@@ -73,6 +210,7 @@ function OccasionEuropeSection({
   const [activeCategory, setCategory] = useState('all');
   const [sort, setSort]               = useState<'newest' | 'asc' | 'desc'>('newest');
   const [showSortMenu, setShowSort]   = useState(false);
+  const [selectedOE, setSelectedOE]   = useState<OccasionProduct | null>(null); // NOUVEAU : produit sélectionné pour le modal détails
   const fallback = '/glblogo.png';
 
   const lang = language as 'de' | 'fr' | 'ln';
@@ -215,8 +353,14 @@ function OccasionEuropeSection({
           {products.map(p => {
             const cond = getCondition(p.condition);
             return (
-              <div key={p.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden group">
+              <div
+                key={p.id}
+                onClick={() => setSelectedOE(p)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => { if (e.key === 'Enter') setSelectedOE(p); }}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden group cursor-pointer"
+              >
                 {/* Image */}
                 <div className="relative h-44 bg-gray-50">
                   <img
@@ -265,7 +409,7 @@ function OccasionEuropeSection({
 
                   {/* Bouton Ajouter au panier */}
                   <button
-                    onClick={() => handleAddToCart(p.id)}
+                    onClick={(e) => { e.stopPropagation(); handleAddToCart(p.id); }}
                     disabled={addingId === p.id}
                     className="w-full py-2.5 bg-[#FF6F00] hover:bg-[#E66000] disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2">
                     {addingId === p.id
@@ -282,6 +426,19 @@ function OccasionEuropeSection({
             );
           })}
         </div>
+      )}
+
+      {/* ── NOUVEAU : Modal de détails produit ── */}
+      {selectedOE && (
+        <OccasionProductModal
+          product={selectedOE}
+          lang={lang}
+          formatPrice={formatPrice}
+          onClose={() => setSelectedOE(null)}
+          onAddToCart={handleAddToCart}
+          addingId={addingId}
+          addedId={addedId}
+        />
       )}
     </div>
   );
