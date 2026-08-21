@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Bot, User, AlertCircle, Phone, Mail } from 'lucide-react';
+import { X, Send, User, AlertCircle, Phone, Mail } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface Message {
@@ -160,9 +160,9 @@ export const SupportChat: React.FC = () => {
       setError('Sorry, I encountered an error. Please try again or contact support directly.');
 
       const errorMessages = {
-        de: 'Ich habe gerade Verbindungsprobleme. Bitte versuchen Sie es in einem Moment erneut oder kontaktieren Sie unser Support-Team direkt:\n📧 support@germanlink.business\n📱 WhatsApp: +49-XXX-XXXXXXX',
-        fr: 'J\'ai des difficultés à me connecter en ce moment. Veuillez réessayer dans un instant ou contacter notre équipe de support directement:\n📧 support@germanlink.business\n📱 WhatsApp: +49-XXX-XXXXXXX',
-        ln: 'Nazali na problème ya connexion sikoyo. Meka lisusu na mwa ntango to benga équipe na biso ya support directement:\n📧 support@germanlink.business\n📱 WhatsApp: +49-XXX-XXXXXXX'
+        de: 'Ich habe gerade Verbindungsprobleme. Bitte versuchen Sie es in einem Moment erneut oder kontaktieren Sie unser Support-Team direkt:\n📧 info@germanlink.business.de\n📱 WhatsApp: +49-157-35169452',
+        fr: 'J\'ai des difficultés à me connecter en ce moment. Veuillez réessayer dans un instant ou contacter notre équipe de support directement:\n📧 info@germanlink.business.de\n📱 WhatsApp: +49-157-35169452',
+        ln: 'Nazali na problème ya connexion sikoyo. Meka lisusu na mwa ntango to benga équipe na biso ya support directement:\n📧 info@germanlink.business.de\n📱 WhatsApp: +49-157-35169452'
       };
 
       const errorMessage: Message = {
@@ -266,14 +266,14 @@ export const SupportChat: React.FC = () => {
                 <p className="font-semibold mb-1">Need more help?</p>
                 <div className="flex flex-wrap gap-2">
                   <a
-                    href="mailto:support@germanlink.business"
+                    href="mailto:info@germanlink.business.de"
                     className="flex items-center space-x-1 bg-white px-2 py-1 rounded text-xs hover:bg-gray-100 transition"
                   >
                     <Mail className="w-3 h-3" />
                     <span>Email</span>
                   </a>
                   <a
-                    href="https://wa.me/49XXXXXXXXX"
+                    href="https://wa.me/4915735169452"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-1 bg-white px-2 py-1 rounded text-xs hover:bg-gray-100 transition"

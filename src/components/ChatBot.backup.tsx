@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, ThumbsUp, ThumbsDown, Minimize2 } from 'lucide-react';
+import { X, Send, ThumbsUp, ThumbsDown, Minimize2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import type { Language } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { SYSTEM_PROMPT, APP_CONTEXT } from '../lib/chatbot-system-prompt';
@@ -49,6 +50,12 @@ const WELCOME_MESSAGES = {
   fr: 'Bienvenue sur GermanLink Business! 👋\nJe vous aide avec les questions sur les produits, les commandes et les informations de livraison.\nComment puis-je vous aider aujourd\'hui?',
   ln: 'Boyei malamu na GermanLink Business! 👋\nNakoki kosalisa yo mpo na mituna ya biloko, ba commandes mpe makambo ya livraison.\nNakoki kosalisa yo ndenge nini lelo?',
 };
+
+// NOUVEAU : convertit une langue détectée (qui peut inclure 'en') vers une langue
+// supportée par l'application (Language = 'de' | 'fr' | 'ln').
+// Sert de pont entre detectLanguage() (SupportedLanguage) et getProductField() (Language).
+const toAppLanguage = (l: SupportedLanguage): Language =>
+  l === 'en' ? 'fr' : l;
 
 export const ChatBot: React.FC = () => {
   const { language } = useLanguage();
@@ -193,8 +200,8 @@ export const ChatBot: React.FC = () => {
     });
 
     if (foundProduct) {
-      const productName = getProductField(foundProduct, 'name', lang);
-      const productDesc = getProductField(foundProduct, 'description', lang);
+      const productName = getProductField(foundProduct, 'name', toAppLanguage(lang));
+      const productDesc = getProductField(foundProduct, 'description', toAppLanguage(lang));
 
       return responses.productFound[lang](
         productName,
@@ -646,3 +653,4 @@ ${products.map(p =>
     </div>
   );
 };
+
