@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield } from 'lucide-react';
+import { Shield, X, ChevronDown } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -32,9 +32,9 @@ const translations = {
     nav: { howItWorks: 'Wie es funktioniert', categories: 'Produkte', seller: 'Verkäufer', trust: 'Über uns' },
     hero: {
       tag: 'Hamburg → Congo & DR Kongo',
-      title: 'Deutsche Produkte',
-      titleAccent: 'sicher nach Congo & DR Kongo.',
-      subtitle: 'Die Handels- und Logistikplattform zwischen Deutschland und Zentralafrika. Kaufe, verkaufe und versende deutsche Qualitätsprodukte über GLB.',
+      title: 'Deutsche Qualität.',
+      titleAccent: 'Direkt nach Kongo.',
+      subtitle: 'Kaufen, verkaufen und versenden Sie geprüfte deutsche Produkte – schnell, sicher und ohne Umwege zwischen Deutschland und Zentralafrika.',
       btn1: 'Produkte kaufen',
       btn2: 'Produkte verkaufen',
       btn3: 'Container versenden',
@@ -42,6 +42,13 @@ const translations = {
       stat2num: '12×',  stat2label: 'Container pro Jahr',
       stat3num: '4',    stat3label: 'Städte in Congo',
       stat4num: '3',    stat4label: 'Sprachen Support',
+    },
+    energyDay: {
+      badge: 'Sonderevent',
+      title: 'GLB Energy Day',
+      subtitle: 'Erleben Sie live unser neues Solarsystem — jetzt Produktbroschüre ansehen',
+      cta: 'Broschüre ansehen',
+      close: 'Schließen',
     },
     how: {
       tag: 'Ablauf',
@@ -130,9 +137,9 @@ const translations = {
     nav: { howItWorks: 'Comment ça marche', categories: 'Produits', seller: 'Vendeurs', trust: 'À propos' },
     hero: {
       tag: 'Hambourg → Congo & RD Congo',
-      title: 'Produits allemands',
-      titleAccent: 'livrés en sécurité au Congo & RD Congo.',
-      subtitle: "La plateforme commerciale et logistique entre l'Allemagne et l'Afrique centrale. Achetez, vendez et expédiez des produits allemands de qualité via GLB.",
+      title: 'Qualité allemande.',
+      titleAccent: 'Directement au Congo.',
+      subtitle: "Achetez, vendez et expédiez des produits allemands certifiés — rapidement, en toute sécurité, sans détour entre l'Allemagne et l'Afrique centrale.",
       btn1: 'Acheter des produits',
       btn2: 'Vendre des produits',
       btn3: 'Expédier un colis',
@@ -140,6 +147,13 @@ const translations = {
       stat2num: '12×',  stat2label: 'Conteneurs par an',
       stat3num: '4',    stat3label: 'Villes au Congo',
       stat4num: '3',    stat4label: 'Langues de support',
+    },
+    energyDay: {
+      badge: 'Événement spécial',
+      title: 'GLB Energy Day',
+      subtitle: 'Découvrez en direct notre nouveau système solaire — voir la brochure produit',
+      cta: 'Voir la brochure',
+      close: 'Fermer',
     },
     how: {
       tag: 'Processus',
@@ -228,9 +242,9 @@ const translations = {
     nav: { howItWorks: 'Ndenge esalaka', categories: 'Biloko', seller: 'Ba vendeurs', trust: 'Biso' },
     hero: {
       tag: 'Hambourg → Congo & RD Congo',
-      title: 'Biloko ya Allemagne',
-      titleAccent: 'ekokoma na sécurité na Congo & RD Congo.',
-      subtitle: 'Plateforme ya commerce mpe logistique entre Allemagne mpe Afrique centrale. Somba, teka mpe tinda biloko ya qualité ya Allemagne na GLB.',
+      title: 'Qualité ya Allemagne.',
+      titleAccent: 'Directement na Congo.',
+      subtitle: 'Somba, teka mpe tinda biloko ya Allemagne oyo endimami — noki, na sécurité, kozanga détour entre Allemagne mpe Afrique centrale.',
       btn1: 'Somba biloko',
       btn2: 'Teka biloko',
       btn3: 'Tinda colis',
@@ -238,6 +252,13 @@ const translations = {
       stat2num: '12×',  stat2label: 'Ba containers par an',
       stat3num: '4',    stat3label: 'Bingumba na Congo',
       stat4num: '3',    stat4label: 'Minoko ya support',
+    },
+    energyDay: {
+      badge: 'Événement ya spéciale',
+      title: 'GLB Energy Day',
+      subtitle: 'Mona na vivo système solaire ya sika na biso — tala brochure ya produit',
+      cta: 'Tala brochure',
+      close: 'Kanga',
     },
     how: {
       tag: 'Processus',
@@ -355,6 +376,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
   };
 
   const [language, setLanguage] = useState<Language>('fr');
+  const [showBrochure, setShowBrochure] = useState(false);
+  const BROCHURE_PAGE_COUNT = 10;
 
   useEffect(() => {
     const saved = localStorage.getItem('germanlink_language') as Language;
@@ -432,8 +455,99 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
               {t.hero.btn3}
             </button>
           </div>
+
+          {/* ── ENERGY DAY BANNER ── */}
+          <button
+            onClick={() => setShowBrochure(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', maxWidth: 640,
+              textAlign: 'left', cursor: 'pointer',
+              background: 'linear-gradient(90deg, rgba(244,180,0,0.14) 0%, rgba(0,230,118,0.10) 100%)',
+              border: '1.5px solid rgba(244,180,0,0.45)', borderRadius: 6,
+              padding: '1rem 1.3rem',
+            }}
+          >
+            <span style={{
+              flexShrink: 0, width: 46, height: 46, borderRadius: '50%',
+              background: '#F4B400', color: '#0a1628',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: '1.3rem',
+            }}>☀</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#F4B400', marginBottom: 2 }}>
+                {t.energyDay.badge} · {t.energyDay.title}
+              </span>
+              <span style={{ display: 'block', fontSize: '0.85rem', color: '#e8edf2', lineHeight: 1.4 }}>
+                {t.energyDay.subtitle}
+              </span>
+            </span>
+            <span style={{
+              flexShrink: 0, fontSize: '0.78rem', fontWeight: 700, color: '#0a1628',
+              background: '#F4B400', padding: '0.55rem 1rem', borderRadius: 2,
+              textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap',
+            }}>
+              {t.energyDay.cta}
+            </span>
+          </button>
         </div>
       </section>
+
+      {/* ── ENERGY DAY / BROCHURE MODAL ─────────────────────────────────────── */}
+      {showBrochure && (
+        <div
+          onClick={() => setShowBrochure(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(5,10,20,0.88)',
+            display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+            padding: '2vh 1rem', overflowY: 'auto',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#0a1628', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 8, width: '100%', maxWidth: 760,
+              margin: '0 auto',
+            }}
+          >
+            <div style={{
+              position: 'sticky', top: 0, zIndex: 2,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '1rem 1.3rem', background: 'rgba(10,22,40,0.97)',
+              backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '8px 8px 0 0',
+            }}>
+              <span style={{ fontFamily: 'Georgia, serif', fontWeight: 900, color: '#F4B400', fontSize: '1.05rem' }}>
+                {t.energyDay.title}
+              </span>
+              <button
+                onClick={() => setShowBrochure(false)}
+                style={{ background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: 6, width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                aria-label={t.energyDay.close}
+              >
+                <X size={18} color="#f5f2eb" />
+              </button>
+            </div>
+
+            {/* Scrollbarer Broschüren-Inhalt */}
+            <div style={{ maxHeight: '82vh', overflowY: 'auto', padding: '0.75rem' }}>
+              {Array.from({ length: BROCHURE_PAGE_COUNT }, (_, i) => i + 1).map((pageNum) => (
+                <img
+                  key={pageNum}
+                  src={`/brochures/runhood-r5200/runhood-r5200-page-${pageNum}.png`}
+                  alt={`Runhood SOMMAR R5200 — Seite ${pageNum}`}
+                  style={{ width: '100%', display: 'block', marginBottom: '0.6rem', borderRadius: 4 }}
+                  loading="lazy"
+                />
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '0.5rem 0 0.25rem', color: '#8fa3b8' }}>
+                <ChevronDown size={16} style={{ opacity: 0.5 }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── HOW IT WORKS ─────────────────────────────────────────────────────── */}
       <section id="how" style={{ padding: 'clamp(2.5rem,6vw,6rem) 4vw', background: '#071020' }}>
