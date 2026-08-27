@@ -457,34 +457,89 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           </div>
 
           {/* ── ENERGY DAY BANNER ── */}
+          <style>{`
+            .energyday-banner {
+              display: flex;
+              align-items: center;
+              gap: 1rem;
+            }
+            .energyday-top-row {
+              display: flex;
+              align-items: center;
+              gap: 0.75rem;
+              width: 100%;
+            }
+            .energyday-icon {
+              flex-shrink: 0;
+              width: 46px;
+              height: 46px;
+              font-size: 1.3rem;
+            }
+            .energyday-text {
+              flex: 1;
+              min-width: 0;
+            }
+            .energyday-cta {
+              flex-shrink: 0;
+              white-space: nowrap;
+            }
+            @media (max-width: 640px) {
+              .energyday-banner {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+                padding: 0.9rem 1rem !important;
+              }
+              .energyday-icon {
+                width: 34px;
+                height: 34px;
+                font-size: 1rem;
+              }
+              .energyday-subtitle {
+                font-size: 0.82rem !important;
+              }
+              .energyday-cta {
+                width: 100%;
+                text-align: center;
+                white-space: normal;
+              }
+            }
+          `}</style>
           <button
             onClick={() => setShowBrochure(true)}
+            className="energyday-banner"
             style={{
-              display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', maxWidth: 640,
+              width: '100%', maxWidth: 640,
               textAlign: 'left', cursor: 'pointer',
               background: 'linear-gradient(90deg, rgba(244,180,0,0.14) 0%, rgba(0,230,118,0.10) 100%)',
               border: '1.5px solid rgba(244,180,0,0.45)', borderRadius: 6,
               padding: '1rem 1.3rem',
             }}
           >
-            <span style={{
-              flexShrink: 0, width: 46, height: 46, borderRadius: '50%',
-              background: '#F4B400', color: '#0a1628',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: '1.3rem',
-            }}>☀</span>
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#F4B400', marginBottom: 2 }}>
-                {t.energyDay.badge} · {t.energyDay.title}
-              </span>
-              <span style={{ display: 'block', fontSize: '0.85rem', color: '#e8edf2', lineHeight: 1.4 }}>
-                {t.energyDay.subtitle}
+            <span className="energyday-top-row">
+              <span className="energyday-icon" style={{
+                borderRadius: '50%',
+                background: '#F4B400', color: '#0a1628',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'Georgia, serif', fontWeight: 900,
+              }}>☀</span>
+              <span className="energyday-text">
+                <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#F4B400', marginBottom: 2 }}>
+                  {t.energyDay.badge}
+                </span>
+                <span style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, color: '#f5f2eb', lineHeight: 1.3 }}>
+                  {t.energyDay.title}
+                </span>
               </span>
             </span>
-            <span style={{
-              flexShrink: 0, fontSize: '0.78rem', fontWeight: 700, color: '#0a1628',
+            <span className="energyday-subtitle" style={{ display: 'block', fontSize: '0.85rem', color: '#e8edf2', lineHeight: 1.5 }}>
+              {t.energyDay.subtitle}
+            </span>
+            <span className="energyday-cta" style={{
+              fontSize: '0.78rem', fontWeight: 700, color: '#0a1628',
               background: '#F4B400', padding: '0.55rem 1rem', borderRadius: 2,
-              textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap',
+              textTransform: 'uppercase', letterSpacing: '0.04em',
+              display: 'inline-block',
             }}>
               {t.energyDay.cta}
             </span>
