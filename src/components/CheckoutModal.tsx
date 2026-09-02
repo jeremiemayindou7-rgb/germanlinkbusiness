@@ -41,7 +41,6 @@ const calcShipping = (totalCbm: number, hasNoMeasurements: boolean): ShippingInf
     };
   }
   if (totalCbm < 0.05) {
-    // Klein (< 0,05 m³ — z.B. Handy, Laptop)
     return {
       mode: 'fixed',
       estimated: Math.max(MIN_SHIPPING, Math.round(totalCbm * CBM_RATE)),
@@ -60,12 +59,50 @@ const calcShipping = (totalCbm: number, hasNoMeasurements: boolean): ShippingInf
   };
 };
 
+// ── Zahlungsmethoden ──────────────────────────────────────────────────────────
+// 'lemfi'           = Banküberweisung (Kunde überweist selbstständig, für Kunden in der DR Kongo/RDC)
+// 'uba_brazzaville' = Banküberweisung auf UBA-Konto (Kunde überweist selbstständig, für Kunden in
+//                     der Republik Kongo/Congo-Brazzaville, wo LemFi nicht verfügbar ist)
+// 'cinetpay'        = Mobile Money / Karte über CinetPay — AKTUELL DEAKTIVIERT.
+//                     CinetPay-Support hat per E-Mail bestätigt: weder Deutschland (Sitzland GLB)
+//                     noch Congo-Brazzaville (Zielland) sind als Länder unterstützt. Der Typ bleibt
+//                     im Code, damit alte Bestellungen mit payment_method='cinetpay' nicht crashen,
+//                     aber die Option ist im UI nicht mehr wählbar. Falls Flutterwave (in Prüfung)
+//                     positiv antwortet, hier durch 'flutterwave' ersetzen bzw. ergänzen.
+//
+// Die frühere Option 'uba_congo' (Agent begleitet Kunden zur Bank) wurde entfernt.
+// Grund: Eine physische Begleitung durch einen "Agenten" zur Bank ist kein reguläres,
+// nachvollziehbares Zahlungsverfahren und entspricht bekannten Betrugsmustern
+// (Advance-Fee-Fraud). Kunden sollen immer selbstständig zahlen, egal ob per
+// Überweisung oder Mobile Money.
+//
+// WICHTIG zu 'uba_brazzaville': Dies ist AKTUELL eine Übergangslösung. Das Konto
+// lautet auf eine Mitinhaberin (Privatperson vor Ort), nicht auf ein eigenes
+// GLB-Geschäftskonto, weil letzteres noch nicht existiert. Deshalb wird das im
+// Checkout und in E-Mails/Rechnung TRANSPARENT als Übergangslösung ausgewiesen,
+// statt es wie ein normales Firmenkonto darzustellen. Sobald ein echtes
+// GLB-Geschäftskonto existiert, sollte UBA_ACCOUNT unten aktualisiert und dieser
+// Hinweistext entfernt werden.
+type PaymentMethod = 'lemfi' | 'uba_brazzaville' | 'cinetpay';
+
+const UBA_ACCOUNT = {
+  bankName: 'UBA Congo (United Bank for Africa)',
+  accountHolder: 'BAHOUMINA MANOU Roberta Belvine',
+  holderRole: 'Mitinhaberin GermanLink Business (Übergangskonto, bis Firmenkonto eröffnet ist)',
+  codeBanque: 'BJIQ4KB0RA', // TODO: exakten Code Banque aus RIB übernehmen, falls abweichend
+  codeGuichet: '', // TODO: aus RIB ergänzen
+  numeroCompte: '', // TODO: aus RIB ergänzen
+  ribKey: '', // TODO: RIB-Schlüssel ergänzen
+  swift: 'UNAFCGCG',
+  branchAddress: '37 Av. William Guynet, Rond point City-Center, B.P. 13534, Brazzaville',
+};
+
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, singleProduct }) => {
   const { t } = useLanguage();
   const { cartItems, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
   const [paymentOption, setPaymentOption] = useState<'full' | 'deposit'>('full');
-  const [paymentMethod, setPaymentMethod] = useState<'lemfi' | 'uba_congo'>('lemfi');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('lemfi');
   const [customerPhone, setCustomerPhone] = useState('');
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
@@ -81,7 +118,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
 
   const subtotal = singleProduct ? singleProduct.sale_price : cartTotal;
 
-  // Versandkosten berechnen sobald Modal öffnet
   useEffect(() => {
     if (!isOpen) return;
     calcShippingForCart();
@@ -105,7 +141,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
           totalCbm = data.volume_cbm || 0;
         }
       } else {
-        // Warenkorb: alle Produkt-IDs holen
         const productIds = cartItems.map(i => i.product_id);
         if (productIds.length === 0) { hasNoMeasurements = true; }
         else {
@@ -183,18 +218,29 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
 
       if (error) throw error;
 
+      let emailOk = true;
       try {
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-        await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+        const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseKey}` },
           body: JSON.stringify({ orderId: newOrder.id, type: 'order_confirmation' })
         });
-      } catch (e) { console.error('Email error:', e); }
+        if (!emailRes.ok) {
+          emailOk = false;
+          console.error('Email function returned error status:', emailRes.status, await emailRes.text());
+        }
+      } catch (e) {
+        emailOk = false;
+        console.error('Email error:', e);
+      }
 
       setOrderNumber(orderNum);
       setOrderCompleted(true);
+      // Wird im Bestätigungs-Screen genutzt, um ehrlich anzuzeigen ob die Mail
+      // tatsächlich versendet wurde statt es pauschal zu behaupten.
+      (window as any).__lastOrderEmailOk = emailOk;
       if (!singleProduct) await clearCart();
 
     } catch (error) {
@@ -215,6 +261,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
   };
 
   if (!isOpen) return null;
+
+  const emailWasSent = (window as any).__lastOrderEmailOk !== false;
 
   return (
     <div
@@ -248,7 +296,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 </div>
               </div>
 
-              {/* Versandhinweis bei Schätzung */}
               {shippingInfo.isEstimate && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-start gap-2">
@@ -265,37 +312,58 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
                   <h4 className="font-bold text-yellow-900 mb-3 flex items-center gap-2">
                     <AlertCircle className="w-5 h-5" />
-                    {t('lemfi_payment_instructions')}
+                    Zahlungsanweisung — Banküberweisung (LemFi)
                   </h4>
                   <div className="space-y-2 text-sm text-yellow-900 bg-white rounded p-3">
-                    <p><strong>{t('amount_to_pay')}:</strong> {amountToPay.toFixed(2)} €</p>
-                    <p><strong>{t('recipient')}:</strong> GermanLink Business GmbH</p>
+                    <p><strong>Zu zahlender Betrag:</strong> {amountToPay.toFixed(2)} €</p>
+                    <p><strong>Empfänger:</strong> GermanLink Business GmbH</p>
                     <p><strong>IBAN:</strong> DE89 3704 0044 0532 0130 00</p>
-                    <p className="text-red-700 font-bold"><strong>{t('mandatory_reference')}:</strong> {orderNumber}</p>
-                    <p className="pt-2 border-t border-yellow-200 text-xs">{t('email_instructions_sent')}</p>
+                    <p className="text-red-700 font-bold"><strong>Verwendungszweck (Pflicht):</strong> {orderNumber}</p>
                   </div>
                 </div>
               )}
 
-              {paymentMethod === 'uba_congo' && (
+              {paymentMethod === 'uba_brazzaville' && (
                 <div className="bg-blue-50 border-2 border-blue-400 rounded-lg p-4">
                   <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
-                    <Phone className="w-5 h-5" />
-                    {t('uba_next_steps_title')}
+                    <AlertCircle className="w-5 h-5" />
+                    Zahlungsanweisung — Banküberweisung (UBA Brazzaville)
                   </h4>
-                  <div className="space-y-3 text-sm text-blue-900 bg-white rounded p-4">
-                    {[1,2,3].map(n => (
-                      <div key={n}>
-                        <div className="flex items-center gap-2 font-bold">
-                          <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">{n}</span>
-                          {t(`uba_step${n}`)}
-                        </div>
-                        <p className="ml-8 text-gray-600 text-xs mt-0.5">{t(`uba_step${n}_sub`)}</p>
-                      </div>
-                    ))}
-                    <p className="font-mono bg-blue-50 px-3 py-2 rounded border border-blue-200 text-blue-800 font-bold ml-8">{orderNumber}</p>
-                    <p className="pt-2 border-t border-blue-200 text-xs text-blue-700">{t('email_instructions_sent')}</p>
+                  <div className="space-y-2 text-sm text-blue-900 bg-white rounded p-3">
+                    <p><strong>Zu zahlender Betrag:</strong> {amountToPay.toFixed(2)} €</p>
+                    <p><strong>Bank:</strong> {UBA_ACCOUNT.bankName}</p>
+                    <p><strong>Kontoinhaberin:</strong> {UBA_ACCOUNT.accountHolder}</p>
+                    <p><strong>Code Banque:</strong> {UBA_ACCOUNT.codeBanque || '(wird noch ergänzt)'}</p>
+                    <p><strong>Code Guichet:</strong> {UBA_ACCOUNT.codeGuichet || '(wird noch ergänzt)'}</p>
+                    <p><strong>N° de compte:</strong> {UBA_ACCOUNT.numeroCompte || '(wird noch ergänzt)'}</p>
+                    <p><strong>Clé RIB:</strong> {UBA_ACCOUNT.ribKey || '(wird noch ergänzt)'}</p>
+                    <p><strong>SWIFT/BIC:</strong> {UBA_ACCOUNT.swift}</p>
+                    <p className="text-red-700 font-bold"><strong>Verwendungszweck (Pflicht):</strong> {orderNumber}</p>
+                    <div className="mt-2 pt-2 border-t border-blue-200 bg-amber-50 -mx-3 -mb-3 px-3 pb-3 rounded-b">
+                      <p className="text-xs text-amber-900">
+                        <strong>Wichtiger Hinweis:</strong> Dies ist ein Übergangskonto von{' '}
+                        {UBA_ACCOUNT.holderRole}, bis GermanLink Business ein eigenes Geschäftskonto in
+                        Congo-Brazzaville eröffnet hat. Ihre Zahlung wird intern GermanLink Business zugeordnet
+                        und in unserer Buchhaltung entsprechend erfasst.
+                      </p>
+                    </div>
                   </div>
+                </div>
+              )}
+
+              {/* Ehrlicher E-Mail-Status statt pauschaler Behauptung */}
+              {emailWasSent ? (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <p className="text-xs text-gray-600">{t('email_instructions_sent')}</p>
+                </div>
+              ) : (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-800">
+                    Die Bestätigungs-E-Mail konnte nicht automatisch versendet werden. Bitte notiere dir die
+                    Referenznummer <strong>{orderNumber}</strong> und die obigen Zahlungsdaten, oder kontaktiere
+                    uns unter info@germanlinkbusiness.de.
+                  </p>
                 </div>
               )}
 
@@ -310,7 +378,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
           ) : (
             <div className="space-y-6">
 
-              {/* Produkt-Info */}
               {singleProduct && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
                   <div>
@@ -321,7 +388,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 </div>
               )}
 
-              {/* Telefon */}
               <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
                 <label className="block">
                   <span className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-2">
@@ -340,7 +406,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 </label>
               </div>
 
-              {/* Zahlungsoption */}
               <div className="space-y-3">
                 <h3 className="font-bold text-gray-900">{t('payment_options')}</h3>
                 {[
@@ -360,17 +425,33 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 ))}
               </div>
 
-              {/* Zahlungsmethode */}
+              {/* Zahlungsmethode — nur noch selbstständige Zahlwege, kein Agent */}
               <div className="space-y-3">
                 <h3 className="font-bold text-gray-900">{t('payment_method_title')}</h3>
+
+                {/* Länder-Hinweis: welche Methode passt zu welchem Land */}
+                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 text-xs text-indigo-800">
+                  <strong>Hinweis zur Auswahl:</strong> Kunden in der <strong>DR Kongo (RDC)</strong> nutzen bitte
+                  „Banküberweisung (LemFi)“. Kunden in der <strong>Republik Kongo / Congo-Brazzaville</strong> nutzen
+                  bitte „Banküberweisung (UBA Brazzaville)“.
+                </div>
+
                 {[
-                  { val: 'lemfi',     label: t('lemfi_method_name'),  sub: t('lemfi_method_desc') },
-                  { val: 'uba_congo', label: t('uba_method_name'),    sub: t('uba_method_desc') },
+                  {
+                    val: 'lemfi',
+                    label: 'Banküberweisung (LemFi) — für Kunden in der DR Kongo (RDC)',
+                    sub: 'Selbstständige Überweisung, mit Referenznummer.',
+                  },
+                  {
+                    val: 'uba_brazzaville',
+                    label: 'Banküberweisung (UBA Brazzaville) — für Kunden in Congo-Brazzaville (RC)',
+                    sub: 'Selbstständige Überweisung auf unser Übergangskonto bei UBA, mit Referenznummer.',
+                  },
                 ].map(m => (
                   <label key={m.val} className="flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50">
                     <input type="radio" name="paymentMethod" value={m.val}
                       checked={paymentMethod === m.val}
-                      onChange={() => setPaymentMethod(m.val as 'lemfi' | 'uba_congo')}
+                      onChange={() => setPaymentMethod(m.val as PaymentMethod)}
                       className="mt-1" />
                     <div>
                       <div className="font-medium text-gray-900">{m.label}</div>
@@ -378,22 +459,24 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                     </div>
                   </label>
                 ))}
-                {paymentMethod === 'uba_congo' && (
-                  <div className="ml-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 space-y-1">
-                    <p className="font-bold">{t('uba_how_it_works')}</p>
-                    {[1,2,3,4].map(n => <p key={n}>{'①②③④'[n-1]} {t(`uba_info_step${n}`)}</p>)}
+
+                {/* Transparenz-Hinweis direkt bei Auswahl von UBA Brazzaville */}
+                {paymentMethod === 'uba_brazzaville' && (
+                  <div className="ml-4 bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs text-amber-900">
+                    <strong>Wichtiger Hinweis:</strong> Dieses Konto ist ein <strong>Übergangskonto</strong> von{' '}
+                    {UBA_ACCOUNT.holderRole}, solange GermanLink Business noch kein eigenes Geschäftskonto in
+                    Congo-Brazzaville hat. Ihre Zahlung wird intern GermanLink Business zugeordnet.
                   </div>
                 )}
               </div>
 
-              {/* ── Preisübersicht mit dynamischen Versandkosten ── */}
+
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                 <div className="flex justify-between text-gray-600">
                   <span>{t('subtotal')}</span>
                   <span>{subtotal.toFixed(2)} €</span>
                 </div>
 
-                {/* Versandkosten — dynamisch */}
                 <div className="flex justify-between text-gray-600 items-start">
                   <div className="flex items-center gap-1">
                     <span>{t('shipping')}</span>
@@ -418,7 +501,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                   </div>
                 </div>
 
-                {/* Info-Box Versand */}
                 {showShippingInfo && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800 space-y-1">
                     <p className="font-bold flex items-center gap-1">
@@ -453,7 +535,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                   <span>{amountToPay.toFixed(2)} €</span>
                 </div>
 
-                {/* Wichtiger Hinweis bei Schätzung */}
                 {shippingInfo.isEstimate && (
                   <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-2">
                     <p className="text-xs text-orange-800">
@@ -465,7 +546,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 )}
               </div>
 
-              {/* AGB */}
               <div className="space-y-4">
                 <div className="flex items-start gap-3 p-4 border-2 rounded-lg">
                   <input type="checkbox" id="agb-checkbox" checked={agbAccepted}
@@ -489,26 +569,28 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                   <>
                     <div className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
                       <CreditCard className="w-8 h-8 text-white" />
-                      <span className="text-2xl font-bold text-white">LemFi</span>
+                      <span className="text-2xl font-bold text-white">Banküberweisung (LemFi)</span>
                     </div>
                     <button onClick={handlePayment}
                       disabled={loading || !agbAccepted || !customerPhone.trim()}
                       className="w-full py-4 bg-[#009543] text-white rounded-lg font-bold text-lg disabled:opacity-50">
-                      {loading ? t('processing_btn') : t('pay_with_lemfi')}
+                      {loading ? t('processing_btn') : 'Bestellung aufgeben & Überweisungsdaten erhalten'}
                     </button>
-                    <a href="https://lemfi.com" target="_blank" rel="noopener noreferrer"
-                      className="block text-center py-3 border-2 border-gray-300 rounded-lg font-medium">
-                      {t('register_lemfi')} →
-                    </a>
                   </>
                 )}
 
-                {paymentMethod === 'uba_congo' && (
-                  <button onClick={handlePayment}
-                    disabled={loading || !agbAccepted || !customerPhone.trim()}
-                    className="w-full py-4 bg-[#009543] text-white rounded-lg font-bold text-lg disabled:opacity-50">
-                    {loading ? t('processing_btn') : t('uba_submit_btn')}
-                  </button>
+                {paymentMethod === 'uba_brazzaville' && (
+                  <>
+                    <div className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-blue-700 to-blue-500 rounded-lg">
+                      <CreditCard className="w-8 h-8 text-white" />
+                      <span className="text-2xl font-bold text-white">Banküberweisung (UBA)</span>
+                    </div>
+                    <button onClick={handlePayment}
+                      disabled={loading || !agbAccepted || !customerPhone.trim()}
+                      className="w-full py-4 bg-[#009543] text-white rounded-lg font-bold text-lg disabled:opacity-50">
+                      {loading ? t('processing_btn') : 'Bestellung aufgeben & Überweisungsdaten erhalten'}
+                    </button>
+                  </>
                 )}
               </div>
 
