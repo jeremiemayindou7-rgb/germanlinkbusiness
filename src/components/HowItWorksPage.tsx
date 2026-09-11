@@ -77,44 +77,207 @@ const content = {
   },
 };
 
+// ─── IMPRESSUM — aktualisiert gemäß Businessplan (Stand September 2026) ───
+// Zwei getrennte Rechtstraeger unter der gemeinsamen Handelsmarke "GermanLink
+// Business (GLB)": GLB-Solar (SARLU, Kongo) und KizGP (Einzelunternehmen,
+// Deutschland; ab 01.01.2027 GLB GmbH).
 const impressum = {
   de: {
     title: 'Impressum',
     sections: [
-      { heading: '1. Allgemeine Unternehmensangaben', lines: ['GermanLink Business (GLB)', 'Logistik, Import, Einkauf und Koordination Deutschland–Afrika', 'Inhaber: Rebeca Bahoumina & Jérémie MC'] },
-      { heading: '2. Firmensitz – Republik Kongo (Kongo-Brazzaville)', lines: ['Adresse: 68, rue Raymond-Paillet, Bacongo, Brazzaville, Republik Kongo', 'Telefon: +242 53312060', 'E-Mail: info@germanlinkbusiness.de', '──────────────────────────────', 'Koordinatorin – Demokratische Republik Kongo: Angele K', 'Telefon: +243 533320604', 'E-Mail: info_ak@germanlinkbusiness.de'] },
-      { heading: '3. Rechtliche Angaben – Deutschland (gemäß § 5 TMG)', lines: ['IT & Koordination Deutschland: Jérémie MC', 'Telefon: +49 175 5169452', 'E-Mail: info_jmc@germanlinkbusiness.de', 'Weitere E-Mail: kizomba-global-post@web.de'] },
-      { heading: '4. Inhaltlich Verantwortliche (gemäß § 55 Abs. 2 RStV)', lines: ['Verantwortlich für den Inhalt: Rebeca Bahoumina & Jérémie MC'] },
-      { heading: '5. Allgemeiner Kontakt', lines: ['E-Mail: info@germanlinkbusiness.de', 'Telefon: +242 53312060'] },
-      { heading: 'Haftungsausschluss', lines: ['Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität können wir keine Gewähr übernehmen.', 'Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte verantwortlich.'] },
-      { heading: 'Urheberrecht', lines: ['Die erstellten Inhalte unterliegen dem deutschen Urheberrecht. Vervielfältigung bedarf der schriftlichen Zustimmung des Autors.'] },
-      { heading: 'Datenschutz', lines: ['Verarbeitung personenbezogener Daten erfolgt auf freiwilliger Basis. Die Datenübertragung im Internet kann Sicherheitslücken aufweisen.'] },
+      {
+        heading: '1. Allgemeine Unternehmensangaben',
+        lines: [
+          'Handelsmarke: GermanLink Business (GLB)',
+          'Logistik, Import, Einkauf und Koordination Deutschland–Afrika',
+          'Betrieben durch zwei rechtlich eigenständige Partnerunternehmen:',
+          '– GLB-Solar (SARLU, Republik Kongo) — Inhaberin: Rebeca Bahoumina',
+          '– KizGP (Einzelunternehmen, Deutschland) — Inhaber: Jérémie Mayindou',
+        ],
+      },
+      {
+        heading: '2. Firmensitz – Republik Kongo (Congo-Brazzaville)',
+        lines: [
+          'Anbieter: GLB-Solar (Société à Responsabilité Limitée Unipersonnelle, SARLU nach kongolesischem Recht, in Gründung)',
+          'Vertreten durch: Rebeca Bahoumina, Alleingesellschafterin und Geschäftsführerin',
+          'Adresse: 68, rue Raymond-Paillet, Bacongo, Brazzaville, Republik Kongo',
+          'Telefon: +242 53312060',
+          'E-Mail: info@germanlinkbusiness.de',
+          '──────────────────────────────',
+          'Koordinatorin – Demokratische Republik Kongo: Angèle K. (Kanbongo Angel)',
+          'Telefon: +243 533320604',
+          'E-Mail: info_ak@germanlinkbusiness.de',
+        ],
+      },
+      {
+        heading: '3. Rechtliche Angaben – Deutschland (gemäß § 5 TMG)',
+        lines: [
+          'Anbieter: KizGP, Einzelunternehmen (Kleingewerbe, nicht im Handelsregister eingetragen)',
+          'Inhaber: Jérémie Mayindou',
+          'Sitz: Burgwedler Straße 156 D, 30916 Isernhagen, Deutschland',
+          'Mobil: +49 176 2289 6160',
+          'Telefon: +49 511 4953 1791',
+          'E-Mail: info_jmc@germanlinkbusiness.de',
+          '──────────────────────────────',
+          'Hinweis: Zum 01.01.2027 ist die Überführung von KizGP in die GLB GmbH vorgesehen (Gesellschafter: Jérémie Mayindou und Josias Nganga). Dieses Impressum wird zu diesem Zeitpunkt entsprechend aktualisiert.',
+        ],
+      },
+      {
+        heading: '4. Inhaltlich Verantwortliche (gemäß § 55 Abs. 2 RStV)',
+        lines: [
+          'Für den Inhalt der Bereiche Republik Kongo / DR Kongo / Cabinda verantwortlich: Rebeca Bahoumina (GLB-Solar)',
+          'Für den Inhalt der Bereiche Deutschland verantwortlich: Jérémie Mayindou (KizGP)',
+        ],
+      },
+      {
+        heading: '5. Allgemeiner Kontakt',
+        lines: ['E-Mail: info@germanlinkbusiness.de', 'Telefon: +242 53312060'],
+      },
+      {
+        heading: 'Haftungsausschluss',
+        lines: [
+          'Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität können wir keine Gewähr übernehmen.',
+          'Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte verantwortlich.',
+        ],
+      },
+      {
+        heading: 'Urheberrecht',
+        lines: ['Die erstellten Inhalte unterliegen dem deutschen Urheberrecht. Vervielfältigung bedarf der schriftlichen Zustimmung des Autors.'],
+      },
+      {
+        heading: 'Datenschutz',
+        lines: ['Verarbeitung personenbezogener Daten erfolgt auf freiwilliger Basis. Die Datenübertragung im Internet kann Sicherheitslücken aufweisen.'],
+      },
     ],
   },
   fr: {
     title: 'Mentions légales',
     sections: [
-      { heading: '1. Informations générales sur l\'entreprise', lines: ['GermanLink Business (GLB)', 'Services logistiques, importation, achat et coordination Allemagne–Afrique', 'Propriétaires : Rebeca Bahoumina & Jérémie MC'] },
-      { heading: '2. Siège social – République du Congo (Congo-Brazzaville)', lines: ['Adresse : 68, rue Raymond-Paillet, Bacongo, Brazzaville, République du Congo', 'Téléphone : +242 53312060', 'E-mail : info@germanlinkbusiness.de', '──────────────────────────────', 'Responsable Coordinateur – République Démocratique du Congo : Angele K', 'Téléphone : +243 533320604', 'E-mail : info_ak@germanlinkbusiness.de'] },
-      { heading: '3. Informations légales – Allemagne (conformément au § 5 TMG)', lines: ['IT & Coordination Allemagne : Jérémie MC', 'Téléphone : +49 175 5169452', 'E-mail : info_jmc@germanlinkbusiness.de', 'E-mail supplémentaire : kizomba-global-post@web.de'] },
-      { heading: '4. Responsables du contenu (conformément au § 55 Abs. 2 RStV)', lines: ['Responsables du contenu : Rebeca Bahoumina & Jérémie MC'] },
-      { heading: '5. Contact général', lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone : +242 53312060'] },
-      { heading: 'Clause de non-responsabilité', lines: ['Le contenu de nos pages a été créé avec le plus grand soin. Nous ne pouvons garantir l\'exactitude et l\'actualité du contenu.'] },
-      { heading: 'Droit d\'auteur', lines: ['Le contenu est soumis au droit d\'auteur allemand. La reproduction nécessite le consentement écrit de l\'auteur.'] },
-      { heading: 'Protection des données', lines: ['Le traitement des données personnelles se fait sur une base volontaire.'] },
+      {
+        heading: "1. Informations générales sur l'entreprise",
+        lines: [
+          'Marque commerciale : GermanLink Business (GLB)',
+          "Services logistiques, importation, achat et coordination Allemagne–Afrique",
+          'Exploitée par deux entités juridiquement distinctes :',
+          '– GLB-Solar (SARLU, République du Congo) — Propriétaire : Rebeca Bahoumina',
+          '– KizGP (entreprise individuelle, Allemagne) — Dirigeant : Jérémie Mayindou',
+        ],
+      },
+      {
+        heading: '2. Siège social – République du Congo (Congo-Brazzaville)',
+        lines: [
+          'Prestataire : GLB-Solar (Société à Responsabilité Limitée Unipersonnelle, SARLU de droit congolais, en cours de constitution)',
+          'Représentée par : Rebeca Bahoumina, associée unique et gérante',
+          'Adresse : 68, rue Raymond-Paillet, Bacongo, Brazzaville, République du Congo',
+          'Téléphone : +242 53312060',
+          'E-mail : info@germanlinkbusiness.de',
+          '──────────────────────────────',
+          'Coordinatrice – République Démocratique du Congo : Angèle K. (Kanbongo Angel)',
+          'Téléphone : +243 533320604',
+          'E-mail : info_ak@germanlinkbusiness.de',
+        ],
+      },
+      {
+        heading: '3. Informations légales – Allemagne (conformément au § 5 TMG)',
+        lines: [
+          'Prestataire : KizGP, entreprise individuelle (micro-entreprise, non inscrite au registre du commerce)',
+          'Dirigeant : Jérémie Mayindou',
+          'Siège : Burgwedler Straße 156 D, 30916 Isernhagen, Allemagne',
+          'Mobile : +49 176 2289 6160',
+          'Téléphone : +49 511 4953 1791',
+          'E-mail : info_jmc@germanlinkbusiness.de',
+          '──────────────────────────────',
+          'Remarque : au 01.01.2027, KizGP sera transformée en GLB GmbH (associés : Jérémie Mayindou et Josias Nganga). Les présentes mentions légales seront alors actualisées.',
+        ],
+      },
+      {
+        heading: '4. Responsables du contenu (conformément au § 55 Abs. 2 RStV)',
+        lines: [
+          'Responsable du contenu pour la République du Congo / RDC / Cabinda : Rebeca Bahoumina (GLB-Solar)',
+          'Responsable du contenu pour l\'Allemagne : Jérémie Mayindou (KizGP)',
+        ],
+      },
+      {
+        heading: '5. Contact général',
+        lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone : +242 53312060'],
+      },
+      {
+        heading: 'Clause de non-responsabilité',
+        lines: ["Le contenu de nos pages a été créé avec le plus grand soin. Nous ne pouvons garantir l'exactitude et l'actualité du contenu."],
+      },
+      {
+        heading: "Droit d'auteur",
+        lines: ["Le contenu est soumis au droit d'auteur allemand. La reproduction nécessite le consentement écrit de l'auteur."],
+      },
+      {
+        heading: 'Protection des données',
+        lines: ['Le traitement des données personnelles se fait sur une base volontaire.'],
+      },
     ],
   },
   ln: {
     title: 'Makambo ya légal',
     sections: [
-      { heading: '1. Makambo ya générale ya société', lines: ['GermanLink Business (GLB)', 'Ba services ya logistique, importation, kosomba mpe coordination Allemagne–Afrique', 'Ba propriétaires : Rebeca Bahoumina & Jérémie MC'] },
-      { heading: '2. Siège ya société – République du Congo (Congo-Brazzaville)', lines: ['Adresse : 68, rue Raymond-Paillet, Bacongo, Brazzaville, République du Congo', 'Téléphone : +242 53312060', 'E-mail : info@germanlinkbusiness.de', '──────────────────────────────', 'Coordinateur – République Démocratique du Congo : Angele K', 'Téléphone : +243 533320604', 'E-mail : info_ak@germanlinkbusiness.de'] },
-      { heading: '3. Makambo ya légal – Allemagne (§ 5 TMG)', lines: ['IT & Coordination Allemagne : Jérémie MC', 'Téléphone : +49 175 5169452', 'E-mail : info_jmc@germanlinkbusiness.de', 'E-mail ya lisusu : kizomba-global-post@web.de'] },
-      { heading: '4. Ba responsáveis pelo conteúdo (§ 55 Abs. 2 RStV)', lines: ['Ba responsáveis pelo conteúdo : Rebeca Bahoumina & Jérémie MC'] },
-      { heading: '5. Contacto geral', lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone : +242 53312060'] },
-      { heading: 'Limitação da responsabilidade', lines: ['O conteúdo de nossas páginas foi criado com o máximo cuidado. Não podemos garantir a precisão e atualidade do conteúdo.'] },
-      { heading: 'Direito de autor', lines: ['O conteúdo está sujeito às leis de direitos autorais alemãs. A reprodução requer o consentimento por escrito do autor.'] },
-      { heading: 'Proteção de dados', lines: ['O tratamento de dados pessoais é feito em uma base voluntária.'] },
+      {
+        heading: '1. Makambo ya générale ya société',
+        lines: [
+          'Marque commerciale : GermanLink Business (GLB)',
+          'Ba services ya logistique, importation, kosomba mpe coordination Allemagne–Afrika',
+          'Etambwisami na ba entités mibale ya sépara na loi:',
+          '– GLB-Solar (SARLU, République du Congo) — Propriétaire : Rebeca Bahoumina',
+          '– KizGP (entreprise individuelle, Allemagne) — Motambwisi : Jérémie Mayindou',
+        ],
+      },
+      {
+        heading: '2. Siège ya société – République du Congo (Congo-Brazzaville)',
+        lines: [
+          'Mosalisi : GLB-Solar (Société à Responsabilité Limitée Unipersonnelle, SARLU na mibeko ya Congo, ezali naino kosalema)',
+          'Emonisami na : Rebeca Bahoumina, associée unique mpe gérante',
+          'Adresse : 68, rue Raymond-Paillet, Bacongo, Brazzaville, République du Congo',
+          'Téléphone : +242 53312060',
+          'E-mail : info@germanlinkbusiness.de',
+          '──────────────────────────────',
+          'Coordinatrice – République Démocratique du Congo : Angèle K. (Kanbongo Angel)',
+          'Téléphone : +243 533320604',
+          'E-mail : info_ak@germanlinkbusiness.de',
+        ],
+      },
+      {
+        heading: '3. Makambo ya légal – Allemagne (§ 5 TMG)',
+        lines: [
+          'Mosalisi : KizGP, entreprise individuelle (micro-entreprise, ezali te na registre ya commerce)',
+          'Motambwisi : Jérémie Mayindou',
+          'Siège : Burgwedler Straße 156 D, 30916 Isernhagen, Allemagne',
+          'Mobile : +49 176 2289 6160',
+          'Téléphone : +49 511 4953 1791',
+          'E-mail : info_jmc@germanlinkbusiness.de',
+          '──────────────────────────────',
+          'Liyebisi : Na 01.01.2027, KizGP ekobongwana GLB GmbH (associés: Jérémie Mayindou na Josias Nganga). Makambo oyo ekobongisama na tango wana.',
+        ],
+      },
+      {
+        heading: '4. Ba responsables ya contenu (§ 55 Abs. 2 RStV)',
+        lines: [
+          'Responsable ya contenu mpo na République du Congo / RDC / Cabinda : Rebeca Bahoumina (GLB-Solar)',
+          'Responsable ya contenu mpo na Allemagne : Jérémie Mayindou (KizGP)',
+        ],
+      },
+      {
+        heading: '5. Contacto geral',
+        lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone : +242 53312060'],
+      },
+      {
+        heading: 'Limitação da responsabilidade',
+        lines: ['O conteúdo de nossas páginas foi criado com o máximo cuidado. Não podemos garantir a precisão e atualidade do conteúdo.'],
+      },
+      {
+        heading: 'Direito de autor',
+        lines: ['O conteúdo está sujeito às leis de direitos autorais alemãs. A reprodução requer o consentimento por escrito do autor.'],
+      },
+      {
+        heading: 'Proteção de dados',
+        lines: ['O tratamento de dados pessoais é feito em uma base voluntária.'],
+      },
     ],
   },
 };
@@ -122,37 +285,31 @@ const impressum = {
 // ── Thema: Solaranlage · Traktor · Industriebackofen · Agrarpumpe ──────────
 // Eigene Fotos: gleichen Dateinamen in /public/media/ ersetzen → auto-update
 const MEDIA_IMAGES = [
-  // Bild 1 — Solaranlage (große Karte links, spans 2 rows)
   {
     src: '/media/delivery-1.jpg',
     fallback: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&q=80',
     label: 'Solaranlage',
   },
-  // Bild 2 — Traktor / Landwirtschaft (große Karte mitte, spans 2 rows)
   {
     src: '/media/delivery-2.jpg',
     fallback: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=600&q=80',
     label: 'Traktor',
   },
-  // Bild 3 — Industriebackofen (klein rechts oben)
   {
     src: '/media/delivery-3.jpg',
     fallback: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
     label: 'Industriebackofen',
   },
-  // Bild 4 — Agrarpumpe / Wasserpumpe für Bewässerung (klein rechts oben)
   {
     src: '/media/delivery-4.jpg',
     fallback: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&q=80',
     label: 'Agrarpumpe',
   },
-  // Bild 5 — Landwirtschaft / Feldarbeit Afrika (klein rechts unten)
   {
     src: '/media/delivery-5.jpg',
     fallback: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=80',
     label: 'Feldarbeit',
   },
-  // Bild 6 — Solar Installation / Energie Afrika (klein rechts unten)
   {
     src: '/media/delivery-6.jpg',
     fallback: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=600&q=80',
@@ -305,17 +462,14 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
 
             {/* ── MEDIA GALLERY — aktuelle Lieferungen ── */}
             <div className="mt-8">
-              {/* Header */}
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-1 h-6 bg-[#009543] rounded-full flex-shrink-0" />
                 <h2 className="text-base sm:text-lg font-black text-gray-900">{c.mediaTitle}</h2>
                 <span className="ml-auto text-xs text-gray-400 italic whitespace-nowrap">{c.mediaSubtitle}</span>
               </div>
 
-              {/* Grid — wie Screenshot: 1 hochkant links, 1 hochkant mitte, 2×2 rechts */}
               <div className="grid grid-cols-2 sm:grid-cols-4 grid-rows-2 gap-2 sm:gap-3" style={{ height: 320 }}>
 
-                {/* Bild 1 — Solaranlage · spans col 1, rows 1+2 */}
                 <div className="row-span-2 rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[0].src}?v=${Date.now()}`}
@@ -328,7 +482,6 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
                   </div>
                 </div>
 
-                {/* Bild 2 — Traktor · spans col 2, rows 1+2 */}
                 <div className="row-span-2 rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[1].src}?v=${Date.now()}`}
@@ -341,7 +494,6 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
                   </div>
                 </div>
 
-                {/* Bild 3 — Industriebackofen · col 3, row 1 */}
                 <div className="rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[2].src}?v=${Date.now()}`}
@@ -354,7 +506,6 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
                   </div>
                 </div>
 
-                {/* Bild 4 — Agrarpumpe · col 4, row 1 */}
                 <div className="rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[3].src}?v=${Date.now()}`}
@@ -367,7 +518,6 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
                   </div>
                 </div>
 
-                {/* Bild 5 — Feldarbeit · col 3, row 2 */}
                 <div className="rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[4].src}?v=${Date.now()}`}
@@ -380,7 +530,6 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
                   </div>
                 </div>
 
-                {/* Bild 6 — Solar Afrika · col 4, row 2 */}
                 <div className="rounded-2xl overflow-hidden bg-gray-100 relative group">
                   <img
                     src={`${MEDIA_IMAGES[5].src}?v=${Date.now()}`}
@@ -395,7 +544,6 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
 
               </div>
 
-              {/* Route Hinweis */}
               <p className="text-center text-xs text-gray-400 mt-3">{c.mediaRoute}</p>
             </div>
           </>
