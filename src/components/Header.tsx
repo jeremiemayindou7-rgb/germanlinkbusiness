@@ -14,19 +14,21 @@ interface HeaderProps {
   onOrdersClick?: () => void; // ← NEW: opens Mes commandes
 }
 
-const FLAG_MAP: Record<string, string> = { de: '🇩🇪', fr: '🇫🇷', ln: '🇨🇩' };
-const LANG_LABELS: Record<string, string> = { de: 'DE', fr: 'FR', ln: 'LN' };
+const FLAG_MAP: Record<string, string> = { de: '🇩🇪', fr: '🇫🇷', ln: '🇨🇩', en: '🇳🇬' };
+const LANG_LABELS: Record<string, string> = { de: 'DE', fr: 'FR', ln: 'LN', en: 'EN' };
 
 const HELP_LABEL: Record<string, string> = {
   de: 'Hilfe erhalten',
   fr: "Recevoir de l'aide",
   ln: 'Kozwa lisalisi',
+  en: 'Get help',
 };
 
 const ORDERS_LABEL: Record<string, string> = {
   de: 'Bestellungen',
   fr: 'Mes commandes',
   ln: 'Bileko',
+  en: 'My orders',
 };
 
 export const Header: React.FC<HeaderProps> = ({
@@ -51,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const handleSignOut = async () => { try { await signOut(); } catch (e) { console.error(e); } };
   const handleLangSelect = (lang: string) => {
-    setLanguage(lang as 'de' | 'fr' | 'ln');
+    setLanguage(lang as 'de' | 'fr' | 'ln' | 'en');
     localStorage.setItem('germanlink_language', lang);
     setLangOpen(false);
   };
@@ -109,7 +111,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
                   <div className="absolute right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 py-1 min-w-[80px]">
-                    {(['de', 'fr', 'ln'] as const).map(lang => (
+                    {(['de', 'fr', 'ln', 'en'] as const).map(lang => (
                       <button
                         key={lang}
                         onClick={() => handleLangSelect(lang)}
@@ -215,3 +217,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+

@@ -6,7 +6,7 @@ interface LandingPageProps {
   onNavigate?: (view: string) => void;
 }
 
-type Language = 'de' | 'fr' | 'ln';
+type Language = 'de' | 'fr' | 'ln' | 'en';
 
 const CAT_COLORS = [
   { bg: '#FFCE00', text: '#0a1628', abbr: 'SOL' },
@@ -360,6 +360,117 @@ const translations = {
       copyright: '2026 GermanLink Business. Qualité ya Allemagne pona Congo.',
     },
   },
+  en: {
+    languageNames: { de: 'German', fr: 'French', ln: 'Lingala', en: 'English' },
+    nav: { howItWorks: 'How it works', categories: 'Products', seller: 'Sellers', trust: 'About us' },
+    hero: {
+      tag: 'Hamburg → Congo & DR Congo',
+      title: 'German quality.',
+      titleAccent: 'Direct to Africa.',
+      subtitle: 'Buy, sell and ship certified German products — fast, secure, and with no detours between Germany and Central Africa.',
+      btn1: 'Buy products',
+      btn2: 'Sell products',
+      btn3: 'Ship a container',
+      stat1num: '200+', stat1label: 'Merchants in the network',
+      stat2num: '12×',  stat2label: 'Containers per year',
+      stat3num: '4',    stat3label: 'Cities in Congo',
+      stat4num: '3',    stat4label: 'Support languages',
+    },
+    energyDay: {
+      badge: 'Special event',
+      title: 'GLB Energy Day',
+      subtitle: 'See our new solar system live — view the product brochure now',
+      cta: 'View brochure',
+      close: 'Close',
+    },
+    system: {
+      badge: 'Complete system',
+      title: 'Solar complete system',
+      subtitle: 'Powerstation, solar panels & cables as a set — pre-configured and cheaper than buying separately.',
+      cta: 'Discover the system',
+    },
+    how: {
+      tag: 'Process',
+      title: 'How does GLB work?',
+      subtitle: 'From request to delivery in Kinshasa or Brazzaville — transparent and secure.',
+      route: ['Hamburg', 'Air / Sea freight', 'Pointe-Noire', 'Matadi', 'BZV & KIN'],
+      steps: [
+        { num: '01', title: 'Select a product',      desc: 'Customers choose products from the marketplace or send an individual request.' },
+        { num: '02', title: 'GLB organizes purchase', desc: 'Quality control & secure payment processing. Full documentation.' },
+        { num: '03', title: 'Groupage container shipping', desc: 'Monthly containers Hamburg → Pointe-Noire / Matadi.' },
+        { num: '04', title: 'Delivery to Congo',      desc: 'Delivery to Brazzaville & Kinshasa through our local agent network.' },
+      ],
+    },
+    why: {
+      tag: 'Why GLB?',
+      title: 'Your trusted partner for German-African trade.',
+      subtitle: 'We connect German quality with African reach — reliable and transparent.',
+      cards: [
+        { title: 'German quality control',   desc: 'All products are inspected and documented in Germany before shipping.' },
+        { title: 'Secure groupage container', desc: 'Regular monthly shipments with full insurance and tracking.' },
+        { title: 'Secure payment processing', desc: 'Documented and transparent payment processes — LemFi, UBA Bank and more.' },
+        { title: 'Local network in Africa',   desc: 'Our own agents and multilingual support in Congo & DR Congo on the ground.' },
+      ],
+    },
+    cats: {
+      tag: 'Range',
+      title: 'Product categories',
+      subtitle: 'German quality products for the African market — from solar energy to vehicle technology.',
+      items: [
+        { title: 'Solar systems',        desc: 'Solar panels, batteries & inverters' },
+        { title: 'Agricultural machinery', desc: 'Tractors, pumps & field equipment' },
+        { title: 'Generators',           desc: 'Diesel & petrol generators of all classes' },
+        { title: 'Household appliances', desc: 'Refrigerators, washing machines & more' },
+        { title: 'Tires & vehicles',     desc: 'Tires, spare parts & accessories' },
+        { title: 'Custom request',       desc: "Can't find a product? We'll source it." },
+      ],
+    },
+    seller: {
+      tag: 'For merchants & businesses',
+      title: 'Sell your products to Africa.',
+      subtitle: 'GLB helps German merchants and businesses sell securely to Central Africa — no prior knowledge of the African market needed.',
+      benefits: [
+        'Access to 90 million customers in Central Africa',
+        'GLB handles all logistics & customs clearance',
+        'Secure, documented payments',
+        'No Africa experience required',
+        'Marketplace listing + container solution',
+      ],
+      btn1: 'Become a seller',
+      btn2: 'Learn more',
+    },
+    proof: {
+      tag: 'Trust & numbers',
+      title: 'Germany ↔ Congo, for years.',
+      subtitle: 'Our network is growing — thanks to satisfied merchants and customers on both sides.',
+      stats: [
+        { num: '200+', label: 'Merchants in the network' },
+        { num: '12',   label: 'Containers per year' },
+        { num: '4',    label: 'Cities in Congo' },
+        { num: '3',    label: 'Support languages' },
+      ],
+      testimonials: [
+        { text: 'Through GLB I was finally able to buy a high-quality solar system from Germany. Delivery to Kinshasa was smooth and transparent.', name: 'Jean-Pierre M.', role: 'Customer · Kinshasa, DR Congo' },
+        { text: 'As a merchant in Hamburg, entering the African market without GLB would have been unthinkable. They handle all the logistics for you.', name: 'Klaus H.', role: 'Seller · Hamburg, Germany' },
+        { text: 'The service is excellent. I received my order in Brazzaville on time. I recommend GLB to everyone.', name: 'Marie-Claire N.', role: 'Customer · Brazzaville, Congo' },
+      ],
+    },
+    cta: {
+      title: 'Ready to get started?',
+      subtitle: 'Buy, sell or ship — GLB is your bridge between Germany and Central Africa.',
+      btn1: 'Buy now',
+      btn2: 'Become a seller',
+      btn3: 'Get in touch',
+    },
+    footer: {
+      tagline: 'German quality for African business',
+      contact: 'Contact',
+      agb: 'Terms & delivery conditions',
+      how: 'How GLB works',
+      about: 'About GLB',
+      copyright: '2026 GermanLink Business. German quality for the Congo.',
+    },
+  },
 };
 
 const FlagBar: React.FC<{ colors: string[]; size?: number }> = ({ colors, size = 5 }) => (
@@ -399,7 +510,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
 
   useEffect(() => {
     const saved = localStorage.getItem('germanlink_language') as Language;
-    if (saved && ['de', 'fr', 'ln'].includes(saved)) setLanguage(saved);
+    if (saved && ['de', 'fr', 'ln', 'en'].includes(saved)) setLanguage(saved);
   }, []);
 
   const changeLanguage = (lang: Language) => {
@@ -424,13 +535,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.07)', borderRadius: 8, padding: 4 }}>
-            {(['de','fr','ln'] as Language[]).map(lang => (
+            {(['de','fr','ln','en'] as Language[]).map(lang => (
               <button key={lang} onClick={() => changeLanguage(lang)} style={{
                 padding: '6px 12px', borderRadius: 6, fontSize: '0.8rem', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                 background: language === lang ? '#DD0000' : 'transparent',
                 color: language === lang ? '#fff' : '#8fa3b8',
               }}>
-                {lang === 'de' ? 'DE' : lang === 'fr' ? 'FR' : 'LN'}
+                {lang === 'de' ? 'DE' : lang === 'fr' ? 'FR' : lang === 'ln' ? 'LN' : 'EN'}
               </button>
             ))}
           </div>

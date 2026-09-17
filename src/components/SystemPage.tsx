@@ -8,7 +8,7 @@ import imgMc4Kabel from '../assets/system-mc4-kabel.png';
 import imgR5200 from '../assets/system-r5200.png';
 import imgHero from '../assets/system-hero.png';
 
-type Language = 'de' | 'fr' | 'ln';
+type Language = 'de' | 'fr' | 'ln' | 'en';
 
 interface SystemPageProps {
   onBack: () => void;
@@ -196,6 +196,52 @@ const translations = {
       { step: '05 — Réseau', title: 'Réseau ya courant', desc: 'Kotinda oyo etikali, na ba sens mibale' },
     ],
   },
+  en: {
+    back: 'Back',
+    eyebrow: 'Complete system',
+    title: 'Solar complete system',
+    subtitle: 'Powerstation, solar panels, cables and mounting as a ready-assembled set — you order one system, not separate parts.',
+    popular: 'Popular',
+    variants: {
+      basic: { name: 'Basic', tagline: 'With RUNHOOD R5200 (4× 1000 W MPPT)' },
+      pro: { name: 'Pro', tagline: 'With RUNHOOD R5200-AC (more capacity)' },
+    },
+    youSave: (amount: string, pct: number) => `You save ${amount} (${pct}%)`,
+    included: "What's included",
+    perPiece: '/unit',
+    features: [
+      'German quality control before shipping',
+      'Delivery to Kinshasa & Brazzaville',
+      'Can be self-installed without a technician',
+    ],
+    assemblyTitle: 'Self-install in minutes',
+    assemblyLink: 'Watch the installation video on YouTube',
+    systemLabel: (name: string) => `System "${name}"`,
+    insteadOf: (amount: string) => `instead of ${amount} bought separately`,
+    orderButton: 'Order the system',
+    adding: 'Adding…',
+    registerHint: 'Registration only needed to complete the order',
+    authTitleLogin: 'Log in',
+    authTitleRegister: 'Register',
+    authIntro: (name: string, price: string) => `To order the "${name}" system (${price}), please log in or register quickly.`,
+    tabLogin: 'Log in',
+    tabRegister: 'Register',
+    namePlaceholder: 'Name',
+    emailPlaceholder: 'Email',
+    passwordPlaceholder: 'Password',
+    submitLogin: 'Log in & order',
+    submitRegister: 'Register & order',
+    submitBusy: 'One moment…',
+    genericError: 'Something went wrong. Please try again.',
+    cartError: 'An error occurred while adding to the cart. Please try again.',
+    flow: [
+      { step: '01 — Generation', title: 'Solar panel', desc: 'Installed on flat roof, up to 4 strings (PV1–PV4)' },
+      { step: '02 — Connection', title: 'MC4 solar cable', desc: 'DC, red / black connectors' },
+      { step: '03 — Storage', title: 'R5200', desc: 'Charging, buffering, feeding in — controlled via app' },
+      { step: '04 — Consumption', title: 'Home network', desc: 'AC output into the home installation' },
+      { step: '05 — Grid', title: 'Power grid', desc: 'Feeding in surplus power, bidirectional' },
+    ],
+  },
 };
 
 const calcTotals = (variant: SystemVariant) => {
@@ -362,9 +408,15 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
         .system-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2.5rem; align-items: start; }
         .spin { animation: system-spin 0.8s linear infinite; }
         @keyframes system-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .system-price-panel { position: sticky; top: 100px; }
         @media (max-width: 720px) {
           .system-variants { grid-template-columns: 1fr; }
           .system-layout { grid-template-columns: 1fr; gap: 2rem; }
+          /* Sticky makes no sense in a single-column mobile layout and can end up
+             fighting the app's fixed bottom navigation. Let it flow normally instead,
+             and add extra bottom clearance so the order button is never hidden behind
+             the bottom nav bar. */
+          .system-price-panel { position: static; margin-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
         }
       `}</style>
 
@@ -508,9 +560,9 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
           </div>
 
           {/* Right: price + order */}
-          <div style={{
+          <div className="system-price-panel" style={{
             background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 10, padding: '1.8rem', position: 'sticky', top: 100,
+            borderRadius: 10, padding: '1.8rem',
           }}>
             <div style={{ fontSize: '0.72rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8fa3b8', marginBottom: '0.4rem' }}>
               {t.systemLabel(selectedLabel.name)}
