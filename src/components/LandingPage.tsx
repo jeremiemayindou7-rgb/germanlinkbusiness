@@ -50,6 +50,12 @@ const translations = {
       cta: 'Broschüre ansehen',
       close: 'Schließen',
     },
+    system: {
+      badge: 'Komplettsystem',
+      title: 'Solar-Komplettsystem',
+      subtitle: 'Powerstation, Solarmodule & Kabel im Set — fertig konfiguriert und günstiger als einzeln.',
+      cta: 'System entdecken',
+    },
     how: {
       tag: 'Ablauf',
       title: 'Wie funktioniert GLB?',
@@ -155,6 +161,12 @@ const translations = {
       cta: 'Voir la brochure',
       close: 'Fermer',
     },
+    system: {
+      badge: 'Système complet',
+      title: 'Kit solaire complet',
+      subtitle: 'Powerstation, panneaux solaires et câbles en set — déjà configuré et moins cher qu\'à l\'unité.',
+      cta: 'Découvrir le système',
+    },
     how: {
       tag: 'Processus',
       title: 'Comment fonctionne GLB?',
@@ -259,6 +271,12 @@ const translations = {
       subtitle: 'Mona na vivo système solaire ya sika na biso — tala brochure ya produit',
       cta: 'Tala brochure',
       close: 'Kanga',
+    },
+    system: {
+      badge: 'Système ya mobimba',
+      title: 'Kit solaire ya mobimba',
+      subtitle: 'Powerstation, ba panneaux solaires na ba câbles na set — esili configurée mpe ntalo moke koleka na moko moko.',
+      cta: 'Yeba système',
     },
     how: {
       tag: 'Processus',
@@ -506,7 +524,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
             }
           `}</style>
           <button
-            onClick={() => setShowBrochure(true)}
+            onClick={() => go('system')}
             className="energyday-banner"
             style={{
               width: '100%', maxWidth: 640,
@@ -525,15 +543,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
               }}>☀</span>
               <span className="energyday-text">
                 <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#F4B400', marginBottom: 2 }}>
-                  {t.energyDay.badge}
+                  {t.system.badge}
                 </span>
                 <span style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, color: '#f5f2eb', lineHeight: 1.3 }}>
-                  {t.energyDay.title}
+                  {t.system.title}
                 </span>
               </span>
             </span>
             <span className="energyday-subtitle" style={{ display: 'block', fontSize: '0.85rem', color: '#e8edf2', lineHeight: 1.5 }}>
-              {t.energyDay.subtitle}
+              {t.system.subtitle}
             </span>
             <span className="energyday-cta" style={{
               fontSize: '0.78rem', fontWeight: 700, color: '#0a1628',
@@ -541,7 +559,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
               textTransform: 'uppercase', letterSpacing: '0.04em',
               display: 'inline-block',
             }}>
-              {t.energyDay.cta}
+              {t.system.cta}
             </span>
           </button>
         </div>

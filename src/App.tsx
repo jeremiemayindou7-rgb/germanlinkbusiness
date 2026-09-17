@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
 import { LandingPage } from './components/LandingPage';
 import { Header } from './components/Header';
 import { ProductCatalog } from './components/ProductCatalog';
@@ -24,6 +25,7 @@ import { AboutPage } from './components/AboutPage';
 import { CookieConsent } from './components/CookieConsent';
 import { ParcelPage } from './components/ParcelPage';
 import { AdemaxImportPage } from './components/ademax-import/AdemaxImportPage';
+import { SystemPage } from './components/SystemPage';
 
 function AppContent() {
   const { user } = useAuth();
@@ -32,7 +34,7 @@ function AppContent() {
   // ── Hash-basiertes Routing ─────────────────────────────────────────────────
   const getInitialView = () => {
     const hash = window.location.hash.replace('#', '');
-    const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import', 'about', 'parcel', 'ademax-import'];
+    const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import', 'about', 'parcel', 'ademax-import', 'system'];
     return validViews.includes(hash) ? hash : 'dashboard';
   };
 
@@ -139,6 +141,16 @@ function AppContent() {
 
   const renderMain = () => {
     if (activeView === 'parcel') return <ParcelPage />;
+
+    if (activeView === 'system') {
+      return (
+        <SystemPage
+          onBack={() => navigateTo('dashboard')}
+          onGoToCart={() => setCartOpen(true)}
+          assemblyVideoUrl="https://www.youtube.com/@GermanLinkBusiness" // ← ggf. durch den echten Montagevideo-Link ersetzen
+        />
+      );
+    }
 
     if (activeView === 'how-it-works') {
       if (!user) {
@@ -278,7 +290,9 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <AppContent />
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
       </AuthProvider>
     </LanguageProvider>
   );
