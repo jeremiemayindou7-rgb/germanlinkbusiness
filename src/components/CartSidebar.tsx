@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../hooks/useCart';
+import { supabase } from '../lib/supabase';
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -9,12 +10,50 @@ interface CartSidebarProps {
   onCheckout: () => void;
 }
 
+// Formats a `YYYY-MM-DD` (or full ISO) date string from Supabase as `DD/MM/YYYY`.
+const formatShipmentDate = (isoDate: string): string => {
+  const d = new Date(isoDate);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
 export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, onCheckout }) => {
   const { t } = useLanguage();
   const { cartItems, cartTotal, updateQuantity, removeFromCart } = useCart();
 
   const shippingCost = 50;
   const total = cartTotal + shippingCost;
+
+  const [nextShipmentDate, setNextShipmentDate] = useState<string | null>(null);
+  const [loadingShipment, setLoadingShipment] = useState(true);
+
+  useEffect(() => {
+    const fetchNextShipment = async () => {
+      setLoadingShipment(true);
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const { data, error } = await supabase
+          .from('containers')
+          .select('shipping_date')
+          .gte('shipping_date', today)
+          .order('shipping_date', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) throw error;
+        setNextShipmentDate(data?.shipping_date ?? null);
+      } catch (error) {
+        console.error('[CartSidebar] Error fetching next container shipment date:', error);
+        setNextShipmentDate(null);
+      } finally {
+        setLoadingShipment(false);
+      }
+    };
+
+    if (isOpen) fetchNextShipment();
+  }, [isOpen]);
 
   const handleCheckout = () => {
     if (cartItems.length > 0) {
@@ -140,10 +179,12 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, onChe
                   <span className="text-[#00A86B]">{total.toFixed(2)} €</span>
                 </div>
 
-                <div className="bg-[#0099CC] bg-opacity-10 border border-[#0099CC] p-3 rounded-lg text-sm text-center">
-                  <span className="font-bold text-[#1C1C1C]">{t('next_shipment')}:</span>{' '}
-                  <span className="font-bold text-[#0A5EB0]">15/02/2026</span>
-                </div>
+                {!loadingShipment && nextShipmentDate && (
+                  <div className="bg-[#0099CC] bg-opacity-10 border border-[#0099CC] p-3 rounded-lg text-sm text-center">
+                    <span className="font-bold text-[#1C1C1C]">{t('next_shipment')}:</span>{' '}
+                    <span className="font-bold text-[#0A5EB0]">{formatShipmentDate(nextShipmentDate)}</span>
+                  </div>
+                )}
 
                 <button
                   onClick={handleCheckout}
@@ -159,3 +200,4 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, onChe
     </>
   );
 };
+
