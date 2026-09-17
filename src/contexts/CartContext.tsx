@@ -20,7 +20,7 @@ interface CartContextType {
   loading: boolean;
   cartCount: number;
   cartTotal: number;
-  addToCart: (productId: string) => Promise<void>;
+  addToCart: (productId: string, quantity?: number) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -58,14 +58,35 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => { fetchCart(); }, [user]);
 
-  const addToCart = async (productId: string) => {
+  // Adds `quantity` units of a product to the cart in a single DB round-trip.
+  // Reads the current row directly from Supabase (not from local React state) so that
+  // calling this repeatedly in quick succession (e.g. adding several system components
+  // right after another) never races against a stale `cartItems` snapshot.
+  const addToCart = async (productId: string, quantity: number = 1) => {
     if (!user) return;
-    const existing = cartItems.find(i => i.product_id === productId);
-    if (existing) {
-      await supabase.from('cart_items').update({ quantity: existing.quantity + 1 }).eq('id', existing.id);
+
+    const { data: existingRow, error: fetchError } = await supabase
+      .from('cart_items')
+      .select('id, quantity')
+      .eq('user_id', user.id)
+      .eq('product_id', productId)
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+
+    if (existingRow) {
+      const { error } = await supabase
+        .from('cart_items')
+        .update({ quantity: existingRow.quantity + quantity })
+        .eq('id', existingRow.id);
+      if (error) throw error;
     } else {
-      await supabase.from('cart_items').insert({ user_id: user.id, product_id: productId, quantity: 1 });
+      const { error } = await supabase
+        .from('cart_items')
+        .insert({ user_id: user.id, product_id: productId, quantity });
+      if (error) throw error;
     }
+
     await fetchCart();
   };
 
@@ -101,3 +122,4 @@ export const useCartContext = () => {
   if (!ctx) throw new Error('useCartContext must be used within CartProvider');
   return ctx;
 };
+

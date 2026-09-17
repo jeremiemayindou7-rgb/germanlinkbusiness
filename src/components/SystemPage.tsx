@@ -6,6 +6,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import imgSolarmodul from '../assets/system-solarmodul.png';
 import imgMc4Kabel from '../assets/system-mc4-kabel.png';
 import imgR5200 from '../assets/system-r5200.png';
+import imgHero from '../assets/system-hero.png';
 
 type Language = 'de' | 'fr' | 'ln';
 
@@ -197,9 +198,6 @@ const translations = {
   },
 };
 
-const formatEUR = (n: number) =>
-  n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
-
 const calcTotals = (variant: SystemVariant) => {
   const sum = variant.components.reduce((acc, c) => acc + c.qty * c.unitPrice, 0);
   const discounted = sum * (1 - variant.discountPercent / 100);
@@ -291,7 +289,7 @@ const SystemFlow: React.FC<{ steps: { step: string; title: string; desc: string 
 export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, assemblyVideoUrl }) => {
   const { user, signIn, signUp } = useAuth();
   const { addToCart } = useCartContext();
-  const { language } = useLanguage();
+  const { language, formatPrice } = useLanguage();
   const lang = ((language as Language) && translations[language as Language]) ? (language as Language) : 'de';
   const t = translations[lang];
 
@@ -311,14 +309,13 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
   const [authBusy, setAuthBusy] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
 
-  // Adds every component of the selected system to the cart, respecting quantities.
+  // Adds every component of the selected system to the cart with its correct
+  // quantity in one DB call each — no per-unit loop, so no race with cart state.
   const addSystemToCart = async () => {
     setAddingToCart(true);
     try {
       for (const component of selected.components) {
-        for (let i = 0; i < component.qty; i++) {
-          await addToCart(component.productId);
-        }
+        await addToCart(component.productId, component.qty);
       }
       onGoToCart();
     } catch (err) {
@@ -394,6 +391,20 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
         </p>
       </div>
 
+      {/* Hero image — shows what the system looks like & does, before any price */}
+      <div style={{ padding: '0 4vw', marginBottom: '2.5rem' }}>
+        <div style={{
+          width: '100%', borderRadius: 10, overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.08)',
+        }}>
+          <img
+            src={imgHero}
+            alt="Runhood R5200 mit App-Steuerung im Einsatz zuhause, inklusive Smart-Meter-Optionen"
+            style={{ display: 'block', width: '100%', height: 'auto' }}
+          />
+        </div>
+      </div>
+
       {/* Variant selector */}
       <div style={{ padding: '0 4vw', marginBottom: '2.5rem' }}>
         <div className="system-variants">
@@ -421,14 +432,14 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
                 <div style={{ fontSize: '0.82rem', color: '#8fa3b8', marginBottom: '0.9rem' }}>{label.tagline}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                   <span style={{ fontFamily: 'Georgia, serif', fontSize: '1.5rem', fontWeight: 900, color: '#F4B400' }}>
-                    {formatEUR(vt.discounted)}
+                    {formatPrice(vt.discounted)}
                   </span>
                   <span style={{ fontSize: '0.8rem', color: '#8fa3b8', textDecoration: 'line-through' }}>
-                    {formatEUR(vt.sum)}
+                    {formatPrice(vt.sum)}
                   </span>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#5dcaa5', marginTop: 4 }}>
-                  {t.youSave(formatEUR(vt.savings), v.discountPercent)}
+                  {t.youSave(formatPrice(vt.savings), v.discountPercent)}
                 </div>
               </button>
             );
@@ -460,7 +471,7 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
                     {c.qty}×
                   </span>
                   <span style={{ flex: 1, fontSize: '0.88rem' }}>{c.name}</span>
-                  <span style={{ fontSize: '0.85rem', color: '#8fa3b8' }}>{formatEUR(c.unitPrice)} {t.perPiece}</span>
+                  <span style={{ fontSize: '0.85rem', color: '#8fa3b8' }}>{formatPrice(c.unitPrice)} {t.perPiece}</span>
                 </div>
               ))}
             </div>
@@ -507,11 +518,11 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: '0.3rem' }}>
               <span style={{ fontFamily: 'Georgia, serif', fontSize: '2.2rem', fontWeight: 900, color: '#F4B400' }}>
-                {formatEUR(totals.discounted)}
+                {formatPrice(totals.discounted)}
               </span>
             </div>
             <div style={{ fontSize: '0.85rem', color: '#8fa3b8', marginBottom: '1.3rem' }}>
-              {t.insteadOf(formatEUR(totals.sum))}
+              {t.insteadOf(formatPrice(totals.sum))}
               {' · '}
               <span style={{ color: '#5dcaa5', fontWeight: 700 }}>−{selected.discountPercent}%</span>
             </div>
@@ -520,7 +531,7 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
               {selected.components.map((c, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#8fa3b8' }}>
                   <span>{c.qty}× {c.name.split('—')[0].trim()}</span>
-                  <span>{formatEUR(c.qty * c.unitPrice)}</span>
+                  <span>{formatPrice(c.qty * c.unitPrice)}</span>
                 </div>
               ))}
             </div>
@@ -576,7 +587,7 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
             </div>
 
             <p style={{ fontSize: '0.82rem', color: '#8fa3b8', marginBottom: '1.2rem' }}>
-              {t.authIntro(selectedLabel.name, formatEUR(totals.discounted))}
+              {t.authIntro(selectedLabel.name, formatPrice(totals.discounted))}
             </p>
 
             <div style={{ display: 'flex', gap: 6, marginBottom: '1.2rem', background: 'rgba(255,255,255,0.05)', padding: 4, borderRadius: 8 }}>
