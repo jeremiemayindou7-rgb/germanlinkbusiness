@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CreditCard, AlertCircle, CheckCircle, Phone, Package, Info } from 'lucide-react';
+import { X, CreditCard, AlertCircle, CheckCircle, Phone, Package, Info, MapPin } from 'lucide-react';
 import { useLanguage, formatPrice as formatPriceStandalone } from '../contexts/LanguageContext';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../contexts/AuthContext';
@@ -117,6 +117,10 @@ const CT: Record<string, Record<CheckoutLang, string>> = {
   shipping_cbm_note: { fr: 'Conteneur groupé · délai 8–12 semaines', ln: 'Container ya bango nyonso · ngonga 8–12 semaine', en: 'Groupage container · 8–12 weeks delivery time' },
   shipping_quote_note: { fr: 'Vous recevrez une offre personnalisée après réception de votre commande.', ln: 'Okozwa prix ya sika soki commande na yo eyaki.', en: 'You will receive a personalized offer after your order is received.' },
   phone_placeholder: { fr: '+243 XXX XXX XXX ou +242 XXX XXX XXX', ln: '+243 XXX XXX XXX to +242 XXX XXX XXX', en: '+234 XXX XXX XXXX (Nigeria) or +243/+242 (Congo)' },
+  delivery_address_label: { fr: 'Adresse de livraison', ln: 'Adresse ya livraison', en: 'Delivery address' },
+  delivery_address_placeholder: { fr: 'ex : 44, rue Massina Munkondo, Brazzaville', ln: 'ex: 44, rue Massina Munkondo, Brazzaville', en: 'e.g. 44, rue Massina Munkondo, Brazzaville' },
+  delivery_address_note: { fr: 'Adresse complète où la commande doit être livrée.', ln: 'Adresse ya mobimba esika commande esengeli kokoma.', en: 'Full address where the order should be delivered.' },
+  delivery_address_required: { fr: "Veuillez indiquer l'adresse de livraison", ln: 'Tiya adresse ya livraison', en: 'Please provide a delivery address' },
 };
 
 const ct = (lang: CheckoutLang, key: keyof typeof CT, vars?: Record<string, string>): string => {
@@ -193,6 +197,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
   const [paymentOption, setPaymentOption] = useState<'full' | 'deposit'>('full');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('lemfi');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
   const [loading, setLoading] = useState(false);
@@ -268,6 +273,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
     if (!user) return;
     if (!agbAccepted) { setAgbError(true); return; }
     if (!customerPhone.trim()) { alert(ct(lang, 'phone_required')); return; }
+    if (!deliveryAddress.trim()) { alert(ct(lang, 'delivery_address_required')); return; }
 
     setLoading(true);
     setAgbError(false);
@@ -297,6 +303,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
         payment_option:     paymentOption,
         payment_method:     paymentMethod,
         customer_phone:     customerPhone,
+        delivery_address:   deliveryAddress,
         payment_status:     'pending',
         order_status:       'awaiting_payment',
         source_type:        'own',
@@ -488,6 +495,24 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 </label>
               </div>
 
+              <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+                <label className="block">
+                  <span className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-2">
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                    {ct(lang, 'delivery_address_label')}
+                    <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">{ct(lang, 'required_field')}</span>
+                  </span>
+                  <textarea
+                    value={deliveryAddress}
+                    onChange={e => setDeliveryAddress(e.target.value)}
+                    placeholder={ct(lang, 'delivery_address_placeholder')}
+                    rows={2}
+                    className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                  <p className="text-xs text-blue-600 mt-1">{ct(lang, 'delivery_address_note')}</p>
+                </label>
+              </div>
+
               <div className="space-y-3">
                 <h3 className="font-bold text-gray-900">{ct(lang, 'payment_options')}</h3>
                 {[
@@ -632,7 +657,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                       <span className="text-2xl font-bold text-white">{ct(lang, 'lemfi_button_banner')}</span>
                     </div>
                     <button onClick={handlePayment}
-                      disabled={loading || !agbAccepted || !customerPhone.trim()}
+                      disabled={loading || !agbAccepted || !customerPhone.trim() || !deliveryAddress.trim()}
                       className="w-full py-4 bg-[#009543] text-white rounded-lg font-bold text-lg disabled:opacity-50">
                       {loading ? ct(lang, 'processing_btn') : ct(lang, 'submit_button_label')}
                     </button>
@@ -646,7 +671,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                       <span className="text-2xl font-bold text-white">{ct(lang, 'uba_button_banner')}</span>
                     </div>
                     <button onClick={handlePayment}
-                      disabled={loading || !agbAccepted || !customerPhone.trim()}
+                      disabled={loading || !agbAccepted || !customerPhone.trim() || !deliveryAddress.trim()}
                       className="w-full py-4 bg-[#009543] text-white rounded-lg font-bold text-lg disabled:opacity-50">
                       {loading ? ct(lang, 'processing_btn') : ct(lang, 'submit_button_label')}
                     </button>
