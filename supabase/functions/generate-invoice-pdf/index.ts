@@ -308,7 +308,8 @@ async function buildInvoicePdf(order: any, customerEmail: string, customerName: 
       `Référence (obligatoire) : ${order.order_number}`,
     ];
     L.ensureSpace(15 + 18 + lines.length * 15 + 8);
-    L.rect(15 + 18 + lines.length * 15 + 8, lightGray, 8);
+    const cinetpayBoxHeight = 15 + 18 + lines.length * 15 + 8;
+    L.rect(cinetpayBoxHeight, lightGray, 8 - cinetpayBoxHeight);
     L.y -= 15;
     L.text("Informations de paiement", MARGIN + 10, 11, true);
     L.y -= 18;
@@ -341,7 +342,13 @@ async function buildInvoicePdf(order: any, customerEmail: string, customerName: 
     ];
     const congoBoxHeight = 20 + congoLines.length * 15 + 10;
     L.ensureSpace(congoBoxHeight);
-    L.rect(congoBoxHeight, lightGray, 4);
+    // yOffset = 8 - height statt fixer 4: die Box muss sich NACH UNTEN über den
+    // nachfolgenden Text ausdehnen, nicht nach oben über bereits gezeichneten
+    // Inhalt (das war der Bug: bei groẞen Boxen (>~30pt) reichte die alte,
+    // immer nach oben wachsende Box so weit zurück, dass sie Artikel/Summen
+    // weiter oben auf der Seite komplett überdeckte, obwohl deren Text im PDF
+    // weiterhin vorhanden war — nur eben unsichtbar).
+    L.rect(congoBoxHeight, lightGray, 8 - congoBoxHeight);
     L.y -= 14;
     L.text("Pour les clients au Congo (RDC / Congo-Brazzaville) :", MARGIN + 10, 10.5, true, blue);
     L.y -= 18;
@@ -364,7 +371,8 @@ async function buildInvoicePdf(order: any, customerEmail: string, customerName: 
     ];
     const europeBoxHeight = 20 + europeLines.length * 15 + 10;
     L.ensureSpace(europeBoxHeight);
-    L.rect(europeBoxHeight, lightGray, 4);
+    // Gleicher Fix wie beim Congo-Block oben.
+    L.rect(europeBoxHeight, lightGray, 8 - europeBoxHeight);
     L.y -= 14;
     L.text("Pour les clients d'Europe ou d'autres pays :", MARGIN + 10, 10.5, true, blue);
     L.y -= 18;
