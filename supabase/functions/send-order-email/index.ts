@@ -17,17 +17,26 @@ interface RequestBody {
 const FROM = "GermanLink Business <info@germanlinkbusiness.de>";
 const RESEND_API_URL = "https://api.resend.com/emails";
 
-// Muss synchron zu UBA_ACCOUNT in src/components/CheckoutModal.tsx gehalten werden.
+// Muss synchron zu UBA_ACCOUNT in src/components/CheckoutModal.tsx und
+// generate-invoice-pdf/index.ts gehalten werden.
 // TODO: codeGuichet / numeroCompte / ribKey aus dem echten RIB ergänzen.
 const UBA_ACCOUNT = {
   bankName: "UBA Congo (United Bank for Africa)",
   accountHolder: "BAHOUMINA MANOU Roberta Belvine",
-  holderRole: "Mitinhaberin GermanLink Business (Übergangskonto, bis Firmenkonto eröffnet ist)",
+  holderNote: "Compte transitoire de la co-titulaire, en attendant l'ouverture du compte officiel de GLB",
   codeBanque: "BJIQ4KB0RA", // TODO: exakten Code Banque aus RIB übernehmen, falls abweichend
   codeGuichet: "", // TODO: aus RIB ergänzen
   numeroCompte: "", // TODO: aus RIB ergänzen
   ribKey: "", // TODO: RIB-Schlüssel ergänzen
   swift: "UNAFCGCG",
+};
+
+// Bankverbindung für Kunden aus Europa oder anderen Ländern.
+const EUROPE_ACCOUNT = {
+  bankName: "Sparkasse Hannover",
+  accountHolder: "Jeremie Mayindou",
+  iban: "DE75 2505 0180 1901 0481 10",
+  bic: "SPKHDE2HXXX",
 };
 
 interface EmailAttachment {
@@ -63,7 +72,7 @@ async function sendEmail(
   return res.json();
 }
 
-async function fetchInvoicePdf(supabaseUrl: string, supabaseServiceKey: string, orderId: string): Promise<EmailAttachment | null> {
+async function fetchInvoicePdf(supabaseUrl: string, supabaseServiceKey: string, orderId: string): Promise<{ attachment: EmailAttachment | null; error: string | null }> {
   try {
     const res = await fetch(`${supabaseUrl}/functions/v1/generate-invoice-pdf`, {
       method: "POST",
@@ -74,14 +83,16 @@ async function fetchInvoicePdf(supabaseUrl: string, supabaseServiceKey: string, 
       body: JSON.stringify({ orderId, responseFormat: "base64" }),
     });
     if (!res.ok) {
-      console.error("generate-invoice-pdf failed:", res.status, await res.text());
-      return null;
+      const text = await res.text();
+      console.error("generate-invoice-pdf failed:", res.status, text);
+      return { attachment: null, error: `generate-invoice-pdf returned ${res.status}: ${text}` };
     }
     const data = await res.json();
-    return { filename: data.filename, content: data.contentBase64 };
+    return { attachment: { filename: data.filename, content: data.contentBase64 }, error: null };
   } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
     console.error("Could not fetch invoice PDF:", e);
-    return null;
+    return { attachment: null, error: message };
   }
 }
 
@@ -90,7 +101,7 @@ function wrapLayout(title: string, bodyHtml: string) {
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff">
       <div style="background:#0a1628;padding:24px;text-align:center">
         <h1 style="color:#F4B400;margin:0;font-size:20px">GermanLink Business</h1>
-        <p style="color:#8fa3b8;margin:4px 0 0;font-size:12px">Deutsche Qualität für den Kongo</p>
+        <p style="color:#8fa3b8;margin:4px 0 0;font-size:12px">Qualité allemande pour le Congo</p>
       </div>
       <div style="padding:32px 24px">
         <h2 style="color:#0a1628;margin:0 0 16px">${title}</h2>
@@ -119,9 +130,9 @@ function orderItemsTable(items: any[]) {
     <table style="width:100%;border-collapse:collapse;margin:16px 0">
       <thead>
         <tr style="background:#f5f5f5">
-          <th style="padding:8px;text-align:left;font-size:13px">Produkt</th>
-          <th style="padding:8px;text-align:center;font-size:13px">Menge</th>
-          <th style="padding:8px;text-align:right;font-size:13px">Preis</th>
+          <th style="padding:8px;text-align:left;font-size:13px">Produit</th>
+          <th style="padding:8px;text-align:center;font-size:13px">Quantité</th>
+          <th style="padding:8px;text-align:right;font-size:13px">Prix</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -129,119 +140,122 @@ function orderItemsTable(items: any[]) {
   `;
 }
 
-function buildOrderConfirmationEmail(order: any) {
-  let paymentBlock: string;
-
+// Baut den gemeinsamen Zahlungsinformations-Block (beide Bankverbindungen),
+// der sowohl in der Bestellbestätigung als auch (kompakter) genutzt wird.
+function paymentInfoBlock(order: any, amountDue: number) {
   if (order.payment_method === "cinetpay") {
-    paymentBlock = `
+    return `
       <div style="background:#f5f0ff;border-left:4px solid #7c3aed;padding:16px;margin:16px 0;border-radius:4px">
-        <p style="margin:0 0 8px;font-weight:bold;color:#5b21b6">Zahlung per Mobile Money / Karte (CinetPay)</p>
-        <p style="margin:0;font-size:14px">Betrag: <strong>${Number(order.total_amount).toFixed(2)} €</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">Referenz: <strong>${order.order_number}</strong></p>
-      </div>
-    `;
-  } else if (order.payment_method === "uba_brazzaville") {
-    paymentBlock = `
-      <div style="background:#e3f2fd;border-left:4px solid #0A5EB0;padding:16px;margin:16px 0;border-radius:4px">
-        <p style="margin:0 0 8px;font-weight:bold;color:#0A5EB0">Zahlung per Banküberweisung (UBA Brazzaville)</p>
-        <p style="margin:0;font-size:14px">Betrag: <strong>${Number(order.total_amount).toFixed(2)} €</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">Bank: <strong>${UBA_ACCOUNT.bankName}</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">Kontoinhaberin: <strong>${UBA_ACCOUNT.accountHolder}</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">Code Banque: <strong>${UBA_ACCOUNT.codeBanque || "(wird noch ergänzt)"}</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">Code Guichet: <strong>${UBA_ACCOUNT.codeGuichet || "(wird noch ergänzt)"}</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">N° de compte: <strong>${UBA_ACCOUNT.numeroCompte || "(wird noch ergänzt)"}</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">Clé RIB: <strong>${UBA_ACCOUNT.ribKey || "(wird noch ergänzt)"}</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">SWIFT/BIC: <strong>${UBA_ACCOUNT.swift}</strong></p>
-        <p style="margin:4px 0 0;font-size:14px;color:#c62828">Verwendungszweck (Pflicht): <strong>${order.order_number}</strong></p>
-        <p style="margin:12px 0 0;font-size:12px;color:#8a6d00;background:#fff8e1;padding:8px;border-radius:4px">
-          <strong>Hinweis:</strong> Dies ist ein Übergangskonto von ${UBA_ACCOUNT.holderRole}, bis GermanLink
-          Business ein eigenes Geschäftskonto in Congo-Brazzaville eröffnet hat. Ihre Zahlung wird intern
-          GermanLink Business zugeordnet.
-        </p>
-      </div>
-    `;
-  } else {
-    // Standardfall: lemfi (Banküberweisung für Kunden in der DR Kongo)
-    paymentBlock = `
-      <div style="background:#fff8e1;border-left:4px solid #f4b400;padding:16px;margin:16px 0;border-radius:4px">
-        <p style="margin:0 0 8px;font-weight:bold;color:#8a6d00">Zahlung per Banküberweisung (LemFi)</p>
-        <p style="margin:0;font-size:14px">Betrag: <strong>${Number(order.total_amount).toFixed(2)} €</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">Empfänger: <strong>GermanLink Business GmbH</strong></p>
-        <p style="margin:4px 0 0;font-size:14px">IBAN: <strong>DE89 3704 0044 0532 0130 00</strong></p>
-        <p style="margin:4px 0 0;font-size:14px;color:#c62828">Verwendungszweck (Pflicht): <strong>${order.order_number}</strong></p>
+        <p style="margin:0 0 8px;font-weight:bold;color:#5b21b6">Paiement par Mobile Money / carte (CinetPay)</p>
+        <p style="margin:0;font-size:14px">Montant : <strong>${amountDue.toFixed(2)} €</strong></p>
+        <p style="margin:4px 0 0;font-size:14px">Référence : <strong>${order.order_number}</strong></p>
       </div>
     `;
   }
 
+  return `
+    <div style="background:#e3f2fd;border-left:4px solid #0A5EB0;padding:16px;margin:16px 0;border-radius:4px">
+      <p style="margin:0 0 8px;font-weight:bold;color:#0A5EB0">Pour les clients au Congo (RDC / Congo-Brazzaville)</p>
+      <p style="margin:0;font-size:14px">Montant : <strong>${amountDue.toFixed(2)} €</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">Banque : <strong>${UBA_ACCOUNT.bankName}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">Titulaire du compte : <strong>${UBA_ACCOUNT.accountHolder}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">Code Banque : <strong>${UBA_ACCOUNT.codeBanque || "(à compléter)"}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">Code Guichet : <strong>${UBA_ACCOUNT.codeGuichet || "(à compléter)"}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">N° de compte : <strong>${UBA_ACCOUNT.numeroCompte || "(à compléter)"}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">Clé RIB : <strong>${UBA_ACCOUNT.ribKey || "(à compléter)"}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">SWIFT/BIC : <strong>${UBA_ACCOUNT.swift}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px;color:#c62828">Référence (obligatoire) : <strong>${order.order_number}</strong></p>
+      <p style="margin:12px 0 0;font-size:12px;color:#8a6d00;background:#fff8e1;padding:8px;border-radius:4px">
+        <strong>Remarque :</strong> ${UBA_ACCOUNT.holderNote}.
+      </p>
+    </div>
+
+    <div style="background:#fff8e1;border-left:4px solid #f4b400;padding:16px;margin:16px 0;border-radius:4px">
+      <p style="margin:0 0 8px;font-weight:bold;color:#8a6d00">Pour les clients d'Europe ou d'autres pays</p>
+      <p style="margin:0;font-size:14px">Montant : <strong>${amountDue.toFixed(2)} €</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">Banque : <strong>${EUROPE_ACCOUNT.bankName}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">Titulaire du compte : <strong>${EUROPE_ACCOUNT.accountHolder}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">IBAN : <strong>${EUROPE_ACCOUNT.iban}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">BIC : <strong>${EUROPE_ACCOUNT.bic}</strong></p>
+      <p style="margin:4px 0 0;font-size:14px;color:#c62828">Référence (obligatoire) : <strong>${order.order_number}</strong></p>
+    </div>
+  `;
+}
+
+function buildOrderConfirmationEmail(order: any) {
+  const totalAmount = Number(order.total_amount ?? 0);
+  const amountDue = order.payment_option === "deposit" ? totalAmount * 0.5 : totalAmount;
+  const paymentBlock = paymentInfoBlock(order, amountDue);
+
   const body = `
-    <p style="color:#555">Vielen Dank für deine Bestellung! Hier deine Bestätigung.</p>
+    <p style="color:#555">Merci pour votre commande ! Voici votre confirmation.</p>
     <div style="background:#f0f7ff;border-left:4px solid #0A5EB0;padding:16px;margin:20px 0;border-radius:4px">
-      <p style="margin:0;font-size:13px;color:#555">Bestellreferenz</p>
+      <p style="margin:0;font-size:13px;color:#555">Référence de commande</p>
       <p style="margin:4px 0 0;font-size:22px;font-weight:bold;color:#0A5EB0">${order.order_number}</p>
     </div>
     ${orderItemsTable(order.items)}
     ${paymentBlock}
-    <p style="color:#555;font-size:14px">Nächster Versandtermin: <strong>15. des Monats</strong></p>
-    <p style="color:#555;font-size:14px">Fragen? Antworte einfach auf diese E-Mail.</p>
+    <p style="color:#555;font-size:14px">Prochain envoi : <strong>le 15 du mois</strong></p>
+    <p style="color:#555;font-size:14px">Des questions ? Répondez simplement à cet email.</p>
   `;
 
   return {
-    subject: `✅ Bestellung bestätigt – ${order.order_number}`,
-    html: wrapLayout("Bestellung bestätigt!", body),
+    subject: `✅ Commande confirmée – ${order.order_number}`,
+    html: wrapLayout("Commande confirmée !", body),
   };
 }
 
 function buildPaymentConfirmedEmail(order: any) {
   const methodLabel =
-    order.payment_method === "cinetpay" ? "Mobile Money / Karte (CinetPay)" :
-    order.payment_method === "uba_brazzaville" ? "Banküberweisung (UBA Brazzaville)" :
-    "Banküberweisung (LemFi)";
+    order.payment_method === "cinetpay" ? "Mobile Money / carte (CinetPay)" :
+    order.payment_method === "uba_brazzaville" ? "Virement bancaire (UBA Brazzaville)" :
+    "Virement bancaire (LemFi)";
 
   const body = `
-    <p style="color:#555">Wir haben deine Zahlung für die folgende Bestellung erhalten:</p>
+    <p style="color:#555">Nous avons bien reçu votre paiement pour la commande suivante :</p>
     <div style="background:#e8f5e9;border-left:4px solid #009543;padding:16px;margin:20px 0;border-radius:4px">
-      <p style="margin:0;font-size:13px;color:#555">Bestellreferenz</p>
+      <p style="margin:0;font-size:13px;color:#555">Référence de commande</p>
       <p style="margin:4px 0 0;font-size:22px;font-weight:bold;color:#009543">${order.order_number}</p>
-      <p style="margin:8px 0 0;font-size:14px">Betrag: <strong>${Number(order.total_amount).toFixed(2)} €</strong></p>
-      <p style="margin:4px 0 0;font-size:14px">Zahlungsart: <strong>${methodLabel}</strong></p>
+      <p style="margin:8px 0 0;font-size:14px">Montant : <strong>${Number(order.total_amount).toFixed(2)} €</strong></p>
+      <p style="margin:4px 0 0;font-size:14px">Mode de paiement : <strong>${methodLabel}</strong></p>
     </div>
-    <p style="color:#555;font-size:14px">Deine Bestellung wird nun für den Versand vorbereitet.</p>
-    <p style="color:#555;font-size:14px">Nächster Versandtermin: <strong>15. des Monats</strong></p>
+    <p style="color:#555;font-size:14px">Votre commande est maintenant préparée pour l'expédition.</p>
+    <p style="color:#555;font-size:14px">Prochain envoi : <strong>le 15 du mois</strong></p>
   `;
 
   return {
-    subject: `💰 Zahlung bestätigt – ${order.order_number}`,
-    html: wrapLayout("Zahlung erhalten", body),
+    subject: `💰 Paiement confirmé – ${order.order_number}`,
+    html: wrapLayout("Paiement reçu", body),
   };
 }
 
 function buildShippedEmail(order: any) {
   const body = `
-    <p style="color:#555">Deine Bestellung ist unterwegs!</p>
+    <p style="color:#555">Votre commande est en route !</p>
     <div style="background:#e3f2fd;border-left:4px solid #0A5EB0;padding:16px;margin:20px 0;border-radius:4px">
-      <p style="margin:0;font-size:13px;color:#555">Bestellreferenz</p>
+      <p style="margin:0;font-size:13px;color:#555">Référence de commande</p>
       <p style="margin:4px 0 0;font-size:22px;font-weight:bold;color:#0A5EB0">${order.order_number}</p>
     </div>
-    <p style="color:#555;font-size:14px">Voraussichtliche Ankunft: <strong>4–8 Wochen</strong></p>
+    <p style="color:#555;font-size:14px">Arrivée estimée : <strong>4 à 8 semaines</strong></p>
   `;
   return {
-    subject: `🚢 Bestellung versendet – ${order.order_number}`,
-    html: wrapLayout("Deine Bestellung ist unterwegs", body),
+    subject: `🚢 Commande expédiée – ${order.order_number}`,
+    html: wrapLayout("Votre commande est en route", body),
   };
 }
 
 function buildDeliveredEmail(order: any) {
   const body = `
-    <p style="color:#555">Deine Bestellung wurde als geliefert markiert. Wir hoffen, du bist zufrieden!</p>
+    <p style="color:#555">Votre commande a été marquée comme livrée. Nous espérons que vous êtes satisfait(e) !</p>
     <div style="background:#f0f7ff;border-left:4px solid #0A5EB0;padding:16px;margin:20px 0;border-radius:4px">
-      <p style="margin:0;font-size:13px;color:#555">Bestellreferenz</p>
+      <p style="margin:0;font-size:13px;color:#555">Référence de commande</p>
       <p style="margin:4px 0 0;font-size:22px;font-weight:bold;color:#0A5EB0">${order.order_number}</p>
     </div>
-    <p style="color:#555;font-size:14px">Danke für dein Vertrauen in GermanLink Business!</p>
+    <p style="color:#555;font-size:14px">Merci pour votre confiance en GermanLink Business !</p>
   `;
   return {
-    subject: `📦 Bestellung geliefert – ${order.order_number}`,
-    html: wrapLayout("Lieferung abgeschlossen", body),
+    subject: `📦 Commande livrée – ${order.order_number}`,
+    html: wrapLayout("Livraison terminée", body),
   };
 }
 
@@ -272,10 +286,12 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Bestellung + Kunden-E-Mail laden (E-Mail liegt im auth.users-Eintrag)
+    // WICHTIG: KEIN "user:user_id ( email )" Embed hier — orders.user_id hat keine
+    // über PostgREST einbettbare Fremdschlüssel-Beziehung zu einer Tabelle mit
+    // 'email' (auth.users ist dafür nicht nutzbar). Bestellung daher ohne Join laden.
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("*, user:user_id ( email )")
+      .select("*")
       .eq("id", body.orderId)
       .maybeSingle();
 
@@ -287,16 +303,12 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Fallback: falls kein Join möglich ist, Auth-User separat holen
-    let customerEmail: string | null = order.user?.email ?? null;
-    if (!customerEmail) {
-      const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(order.user_id);
-      if (authError) {
-        console.error("Could not resolve customer email:", authError);
-      } else {
-        customerEmail = authUser?.user?.email ?? null;
-      }
+    // E-Mail-Adresse des Kunden immer über die Auth-Admin-API auflösen.
+    const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(order.user_id);
+    if (authError) {
+      console.error("Could not resolve customer email:", authError);
     }
+    const customerEmail: string | null = authUser?.user?.email ?? null;
 
     if (!customerEmail) {
       return new Response(
@@ -328,15 +340,29 @@ Deno.serve(async (req: Request) => {
 
     // Bei Bestellbestätigung und Zahlungsbestätigung die PDF-Rechnung anhängen
     let attachment: EmailAttachment | null = null;
+    let invoiceError: string | null = null;
     if (body.type === "order_confirmation" || body.type === "payment_confirmed") {
-      attachment = await fetchInvoicePdf(supabaseUrl, supabaseServiceKey, order.id);
+      const result = await fetchInvoicePdf(supabaseUrl, supabaseServiceKey, order.id);
+      attachment = result.attachment;
+      invoiceError = result.error;
     }
     const attachments = attachment ? [attachment] : undefined;
 
     // An Kunde
     await sendEmail(resendApiKey, customerEmail, built.subject, built.html, attachments);
     // Interne Kopie ans Team
-    await sendEmail(resendApiKey, "info@germanlinkbusiness.de", `[Kopie] ${built.subject}`, built.html, attachments);
+    await sendEmail(resendApiKey, "info@germanlinkbusiness.de", `[Copie] ${built.subject}`, built.html, attachments);
+
+    // Falls die PDF-Rechnung nicht angehängt werden konnte, das intern sichtbar
+    // machen (statt es nur in den Function-Logs verschwinden zu lassen).
+    if (invoiceError) {
+      await supabase.from("orders").update({
+        invoice_pdf_attached: false,
+        invoice_pdf_error: invoiceError,
+      }).eq("id", order.id).then(({ error }) => {
+        if (error) console.error("Could not record invoice_pdf_error (columns may not exist yet):", error);
+      });
+    }
 
     // email_sent-Flag setzen (Feld existiert laut Doku bereits in der orders-Tabelle)
     const { error: updateError } = await supabase
@@ -346,11 +372,17 @@ Deno.serve(async (req: Request) => {
 
     if (updateError) {
       console.error("Could not update email_sent flag:", updateError);
-      // Kein harter Fehler: die Mail wurde ja verschickt, nur das Flag-Update scheiterte
     }
 
     return new Response(
-      JSON.stringify({ success: true, orderId: order.id, type: body.type, sentTo: customerEmail }),
+      JSON.stringify({
+        success: true,
+        orderId: order.id,
+        type: body.type,
+        sentTo: customerEmail,
+        invoicePdfAttached: !!attachment,
+        invoicePdfError: invoiceError,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
