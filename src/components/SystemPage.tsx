@@ -542,7 +542,7 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
 
             {assemblyVideoUrl && (
               <a
-                href={https://www.youtube.com/@GLB-Africa}
+                href="https://www.youtube.com/channel/UC8y7XmTuIbVlCPcMvg4F1_A"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
