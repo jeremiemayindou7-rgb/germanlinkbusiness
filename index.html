@@ -4,15 +4,60 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GLB - GermanLink Business</title>
+
+    <title>GLB – GermanLink Business | Germany–Africa Trade & Technology</title>
+    <meta
+      name="description"
+      content="GLB – GermanLink Business verbindet deutsche Technologien, Produkte und Geschäftsmöglichkeiten mit Zentralafrika. Handel, Energie, Solar und Logistik zwischen Deutschland und Afrika."
+    />
+
+    <!-- Open Graph / social sharing -->
+    <meta property="og:site_name" content="GLB – GermanLink Business" />
+    <meta property="og:title" content="GLB – GermanLink Business | Germany–Africa Trade & Technology" />
+    <meta
+      property="og:description"
+      content="GLB – GermanLink Business verbindet deutsche Technologien, Produkte und Geschäftsmöglichkeiten mit Zentralafrika."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://germanlinkbusiness.de/" />
     <meta property="og:image" content="/glb-og-image.png" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GLB – GermanLink Business" />
     <meta name="twitter:image" content="/glb-og-image.png" />
+
+    <!-- WebSite schema: gibt Google den Namen + das Akronym GLB als alternateName -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "GLB – GermanLink Business",
+        "alternateName": ["GLB", "GermanLink Business"],
+        "url": "https://germanlinkbusiness.de/"
+      }
+    </script>
+
+    <!-- Organization schema: OHNE "GmbH" bis zur offiziellen Handelsregister-Eintragung -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "GermanLink Business",
+        "alternateName": "GLB",
+        "url": "https://germanlinkbusiness.de/",
+        "logo": "https://germanlinkbusiness.de/logo.png",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Burgwedeler Straße 156D",
+          "postalCode": "30916",
+          "addressLocality": "Isernhagen",
+          "addressCountry": "DE"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
 

@@ -562,6 +562,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           </div>
 
           <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(2.4rem,5.5vw,4.8rem)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.02em', marginBottom: '1.2rem' }}>
+            <span style={{
+              display: 'block',
+              fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+              fontSize: 'clamp(1rem,1.6vw,1.3rem)',
+              fontWeight: 700,
+              letterSpacing: '0.01em',
+              color: '#F4B400',
+              marginBottom: '0.5rem',
+            }}>
+              GLB – GermanLink Business
+            </span>
             {t.hero.title}<br />
             <span style={{ color: '#F4B400', fontStyle: 'italic' }}>{t.hero.titleAccent}</span>
           </h1>

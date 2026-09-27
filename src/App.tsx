@@ -26,6 +26,7 @@ import { CookieConsent } from './components/CookieConsent';
 import { ParcelPage } from './components/ParcelPage';
 import { AdemaxImportPage } from './components/ademax-import/AdemaxImportPage';
 import { SystemPage } from './components/SystemPage';
+import { GlbPage } from './components/GlbPage';
 
 function AppContent() {
   const { user } = useAuth();
@@ -75,7 +76,7 @@ function AppContent() {
   React.useEffect(() => {
     const path = window.location.pathname;
     setCurrentRoute(path);
-    if (path === '/auth/confirm' || path === '/agb') return;
+    if (path === '/auth/confirm' || path === '/agb' || path === '/glb') return;
 
     if (path === '/how-it-works') {
       setShowLanding(false);
@@ -99,6 +100,13 @@ function AppContent() {
 
   if (currentRoute === '/auth/confirm') return <PasswordConfirm />;
   if (currentRoute === '/agb') return <AGBPage />;
+  // Eigene, echte Pfad-Route für SEO (Punkt ⑦ im GLB-Branding-Plan) — bewusst
+  // NICHT als Hash-View, da Google Hash-Fragmente nicht als eigene Seite indexiert.
+  if (currentRoute === '/glb') {
+    return (
+      <GlbPage onBack={() => { window.history.pushState(null, '', '/'); window.location.reload(); }} />
+    );
+  }
 
   if (showLanding) {
     return (
@@ -147,7 +155,7 @@ function AppContent() {
         <SystemPage
           onBack={() => navigateTo('dashboard')}
           onGoToCart={() => setCartOpen(true)}
-          assemblyVideoUrl="https://www.youtube.com/@GermanLinkBusiness" // ← ggf. durch den echten Montagevideo-Link ersetzen
+          assemblyVideoUrl="https://www.youtube.com/channel/UC8y7XmTuIbVlCPcMvg4F1_A" // GLB-Kanal (Handle noch nicht vergeben, daher feste Kanal-ID)
         />
       );
     }
@@ -283,6 +291,16 @@ function App() {
     return (
       <LanguageProvider>
         <AuthProvider><AGBPage /></AuthProvider>
+      </LanguageProvider>
+    );
+  }
+
+  if (currentRoute === '/glb') {
+    return (
+      <LanguageProvider>
+        <AuthProvider>
+          <GlbPage onBack={() => { window.history.pushState(null, '', '/'); window.location.reload(); }} />
+        </AuthProvider>
       </LanguageProvider>
     );
   }
