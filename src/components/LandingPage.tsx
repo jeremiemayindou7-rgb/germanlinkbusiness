@@ -13,7 +13,7 @@ const WHATSAPP_COMMUNITY_URL = 'https://chat.whatsapp.com/Cd56t4utPYK8ND8Bc1k6d1
 
 // Foto der Installation aus dem GLB-Solar-Pilotprojekt.
 // Sobald das echte Bild vorliegt, hier den Pfad eintragen (z. B. '/glb-solar/pilot.jpg').
-const SOLAR_PILOT_PHOTO = '';
+const SOLAR_PILOT_PHOTO = '/glb-solar/startseite.jpg';
 
 const translations = {
   de: {
@@ -47,9 +47,10 @@ const translations = {
     },
     solar: {
       badge: 'Erster Partner · GLB Solar, Pointe-Noire',
-      title: 'Sie kaufen keine Solarmodule.',
-      titleAccent: 'Sie kaufen Freiheit.',
-      text: 'Ein mobiles Solarsystem, ohne Elektriker. Aufstellen, anschließen, und Ihr Haus hängt nicht mehr von Stromausfällen ab.',
+      title: 'Sie kaufen keine Solaranlage.',
+      titleAccent: 'Sie kaufen eine Maschine, die jeden Tag Energie produziert.',
+      text: 'Mehr Strom für Ihr Zuhause. Mehr Sicherheit für Ihre Familie. Mehr Möglichkeiten für Ihr Geschäft.',
+      text2: 'Denn wer seine eigene Energie produziert, kontrolliert seine Zukunft.',
       btnWhatsapp: 'Auf WhatsApp informieren',
       btnKit: 'Inhalt des Kits ansehen',
       point1Title: 'Ein Konto, das nie leer wird.',
@@ -190,9 +191,10 @@ const translations = {
     },
     solar: {
       badge: 'Premier partenaire · GLB Solar, Pointe-Noire',
-      title: 'Vous n’achetez pas des panneaux solaires.',
-      titleAccent: 'Vous achetez la liberté.',
-      text: 'Un système solaire mobile, sans électricien. Vous le posez, vous le branchez, et votre maison ne dépend plus des coupures.',
+      title: 'Vous n’achetez pas une installation solaire.',
+      titleAccent: 'Vous achetez une machine qui produit de l’énergie chaque jour.',
+      text: 'Plus d’électricité pour votre maison. Plus de sécurité pour votre famille. Plus de possibilités pour votre commerce.',
+      text2: 'Car celui qui produit sa propre énergie contrôle son avenir.',
       btnWhatsapp: 'S’informer sur WhatsApp',
       btnKit: 'Voir le contenu du kit',
       point1Title: 'Un compte qui ne se vide jamais.',
@@ -333,9 +335,10 @@ const translations = {
     },
     solar: {
       badge: 'Partenaire ya liboso · GLB Solar, Pointe-Noire',
-      title: 'Ozali kosomba ba panneaux solaires te.',
-      titleAccent: 'Ozali kosomba bonsomi.',
-      text: 'Système solaire mobile, kozanga électricien. Otie yango, obranché yango, mpe ndako na yo ekotala lisusu coupures te.',
+      title: 'Ozali kosomba installation solaire te.',
+      titleAccent: 'Ozali kosomba machine oyo ebimisaka énergie mokolo na mokolo.',
+      text: 'Courant mingi pona ndako na yo. Sécurité mingi pona libota na yo. Ba possibilités mingi pona mombongo na yo.',
+      text2: 'Pamba te moto oyo abimisaka énergie na ye moko akambaka avenir na ye.',
       btnWhatsapp: 'Yeba mingi na WhatsApp',
       btnKit: 'Tala biloko ya kit',
       point1Title: 'Compte oyo esilaka te.',
@@ -476,9 +479,10 @@ const translations = {
     },
     solar: {
       badge: 'First partner · GLB Solar, Pointe-Noire',
-      title: 'You are not buying solar panels.',
-      titleAccent: 'You are buying freedom.',
-      text: 'A mobile solar system, no electrician needed. Set it down, plug it in, and your home no longer depends on power cuts.',
+      title: 'You are not buying a solar installation.',
+      titleAccent: 'You are buying a machine that produces energy every day.',
+      text: 'More power for your home. More security for your family. More opportunities for your business.',
+      text2: 'Because whoever produces their own energy controls their future.',
       btnWhatsapp: 'Find out more on WhatsApp',
       btnKit: 'See what is in the kit',
       point1Title: 'An account that never runs dry.',
@@ -689,30 +693,33 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
               {t.solar.badge}
             </div>
 
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.7rem,3.4vw,3rem)', fontWeight: 900, lineHeight: 1.12, letterSpacing: '-0.01em', marginBottom: '1rem' }}>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.6rem,3vw,2.6rem)', fontWeight: 900, lineHeight: 1.15, letterSpacing: '-0.01em', marginBottom: '1rem' }}>
               {t.solar.title}{' '}
               <span style={{ color: '#F4B400', fontStyle: 'italic' }}>{t.solar.titleAccent}</span>
             </h2>
 
-            <p style={{ fontSize: 'clamp(1rem,1.3vw,1.15rem)', color: '#e8edf2', lineHeight: 1.7, maxWidth: 560, marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: 'clamp(1rem,1.3vw,1.15rem)', color: '#e8edf2', lineHeight: 1.7, maxWidth: 560, margin: '0 0 0.6rem' }}>
               {t.solar.text}
+            </p>
+            <p style={{ fontSize: 'clamp(1rem,1.3vw,1.15rem)', color: '#F4B400', fontWeight: 700, lineHeight: 1.6, maxWidth: 560, marginBottom: '1.5rem' }}>
+              {t.solar.text2}
             </p>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <button
+                onClick={() => go('system')}
+                style={{ minHeight: 48, background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}
+              >
+                {t.solar.btnKit}
+              </button>
               <a
                 href={WHATSAPP_COMMUNITY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: 48, background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', borderRadius: 2, textDecoration: 'none' }}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: 48, background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', borderRadius: 2, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.3)' }}
               >
                 {t.solar.btnWhatsapp}
               </a>
-              <button
-                onClick={() => go('system')}
-                style={{ minHeight: 48, background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 2, cursor: 'pointer' }}
-              >
-                {t.solar.btnKit}
-              </button>
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', paddingTop: '1.2rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>

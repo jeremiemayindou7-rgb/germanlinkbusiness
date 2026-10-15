@@ -57,9 +57,9 @@ interface SystemVariant {
 const VARIANTS: SystemVariant[] = [
   {
     id: 'basic',
-    discountPercent: 8,
+    discountPercent: 0, // Endpreis 2.750,00 € (Stand 12.10.2026)
     components: [
-      { productId: '88ea3936-c939-4f94-a06d-0ec2c53a619f', name: 'RUNHOOD SOMMAR R5200 — Energiespeichersystem, All-in-One', qty: 1, unitPrice: 1558.80 },
+      { productId: '88ea3936-c939-4f94-a06d-0ec2c53a619f', name: 'RUNHOOD SOMMAR R5200 — Energiespeichersystem, All-in-One', qty: 1, unitPrice: 1804.40 },
       { productId: 'b02daf1b-4181-4885-9cd1-c06d0681e5d1', name: '500W Bifazial Solarmodul (JW500-Äquivalent)', qty: 4, unitPrice: 94.80 },
       { productId: '43490333-bb1c-4de9-907e-09317b863c1e', name: '10M MC4 Kabel', qty: 4, unitPrice: 58.80 },
       { productId: 'be39d9ae-4ea7-410d-98f5-b4ddbb77b9bb', name: 'Set Aufständerungen für ein Solarpanel 10–15° (BR5)', qty: 4, unitPrice: 82.80 },
@@ -67,10 +67,10 @@ const VARIANTS: SystemVariant[] = [
   },
   {
     id: 'pro',
-    discountPercent: 12,
+    discountPercent: 0, // Endpreis 2.378,35 € (Stand 12.10.2026)
     highlight: true,
     components: [
-      { productId: 'dd2708e9-4afb-4a57-b6e8-e80dd9f7c66b', name: 'RUNHOOD SOMMAR R5200-AC — Energiespeichersystem', qty: 1, unitPrice: 1318.80 },
+      { productId: 'dd2708e9-4afb-4a57-b6e8-e80dd9f7c66b', name: 'RUNHOOD SOMMAR R5200-AC — Energiespeichersystem', qty: 1, unitPrice: 1432.75 },
       { productId: 'b02daf1b-4181-4885-9cd1-c06d0681e5d1', name: '500W Bifazial Solarmodul (JW500-Äquivalent)', qty: 4, unitPrice: 94.80 },
       { productId: '43490333-bb1c-4de9-907e-09317b863c1e', name: '10M MC4 Kabel', qty: 4, unitPrice: 58.80 },
       { productId: 'be39d9ae-4ea7-410d-98f5-b4ddbb77b9bb', name: 'Set Aufständerungen für ein Solarpanel 10–15° (BR5)', qty: 4, unitPrice: 82.80 },
@@ -510,7 +510,10 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
              fighting the app's fixed bottom navigation. Let it flow normally instead,
              and add extra bottom clearance so the order button is never hidden behind
              the bottom nav bar. */
-          .system-price-panel { position: static; margin-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
+          .system-price-panel { position: static; order: -1; }
+          /* Pilotfotos auf dem Handy als waagerechte Wischleiste */
+          .solar-pilot-grid { display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0.75rem !important; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+          .solar-pilot-grid img { flex: 0 0 86%; scroll-snap-align: start; }
         }
       `}</style>
 
@@ -615,13 +618,17 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
                   <span style={{ fontFamily: 'Georgia, serif', fontSize: '1.5rem', fontWeight: 900, color: '#F4B400' }}>
                     {formatPrice(vt.discounted)}
                   </span>
-                  <span style={{ fontSize: '0.8rem', color: '#8fa3b8', textDecoration: 'line-through' }}>
-                    {formatPrice(vt.sum)}
-                  </span>
+                  {v.discountPercent > 0 && (
+                    <span style={{ fontSize: '0.8rem', color: '#8fa3b8', textDecoration: 'line-through' }}>
+                      {formatPrice(vt.sum)}
+                    </span>
+                  )}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#5dcaa5', marginTop: 4 }}>
-                  {t.youSave(formatPrice(vt.savings), v.discountPercent)}
-                </div>
+                {v.discountPercent > 0 && (
+                  <div style={{ fontSize: '0.75rem', color: '#5dcaa5', marginTop: 4 }}>
+                    {t.youSave(formatPrice(vt.savings), v.discountPercent)}
+                  </div>
+                )}
               </button>
             );
           })}
@@ -634,27 +641,7 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
           {/* Left: flow diagram + components */}
           <div>
             <div style={{ marginBottom: '1.5rem' }}>
-              <SystemFlow steps={t.flow} />
-            </div>
-
-            <h2 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '1rem' }}>{t.included}</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
-              {selected.components.map((c, i) => (
-                <div key={i} style={{
-                  display: 'flex', alignItems: 'center', gap: '0.9rem',
-                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 6, padding: '0.85rem 1rem',
-                }}>
-                  <span style={{
-                    flexShrink: 0, width: 30, height: 30, borderRadius: 6, background: 'rgba(244,180,0,0.15)',
-                    color: '#F4B400', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.85rem',
-                  }}>
-                    {c.qty}×
-                  </span>
-                  <span style={{ flex: 1, fontSize: '0.88rem' }}>{c.name}</span>
-                  <span style={{ fontSize: '0.85rem', color: '#8fa3b8' }}>{formatPrice(c.unitPrice)} {t.perPiece}</span>
-                </div>
-              ))}
+              <SystemFlow steps={t.flow.slice(0, 3)} />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.5rem' }}>
@@ -686,6 +673,19 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
                 </span>
               </a>
             )}
+
+            {/* ── GLB SOLAR · Pilotprojekt ── */}
+            {SOLAR_PILOT_PHOTOS.length > 0 && (
+              <div style={{ marginTop: '2rem' }}>
+                <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 700, marginBottom: '0.5rem' }}>{t.solar.pilotTag}</div>
+                <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.4rem,2.6vw,2rem)', fontWeight: 900, margin: '0 0 1rem' }}>{t.solar.pilotTitle}</h2>
+                <div className="solar-pilot-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                  {SOLAR_PILOT_PHOTOS.map((src, i) => (
+                    <img key={i} src={src} alt={t.solar.photoAlt} loading="lazy" style={{ display: 'block', width: '100%', aspectRatio: '16 / 10', objectFit: 'cover', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }} />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right: price + order */}
@@ -702,11 +702,15 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
                 {formatPrice(totals.discounted)}
               </span>
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#8fa3b8', marginBottom: '1.3rem' }}>
-              {t.insteadOf(formatPrice(totals.sum))}
-              {' · '}
-              <span style={{ color: '#5dcaa5', fontWeight: 700 }}>−{selected.discountPercent}%</span>
-            </div>
+            {selected.discountPercent > 0 ? (
+              <div style={{ fontSize: '0.85rem', color: '#8fa3b8', marginBottom: '1.3rem' }}>
+                {t.insteadOf(formatPrice(totals.sum))}
+                {' · '}
+                <span style={{ color: '#5dcaa5', fontWeight: 700 }}>−{selected.discountPercent}%</span>
+              </div>
+            ) : (
+              <div style={{ marginBottom: '1.3rem' }} />
+            )}
 
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', marginBottom: '1.3rem', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {selected.components.map((c, i) => (
@@ -749,19 +753,6 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
           ))}
         </div>
       </section>
-
-      {/* ── GLB SOLAR · Pilotprojekt (erscheint erst, wenn Fotos eingetragen sind) ── */}
-      {SOLAR_PILOT_PHOTOS.length > 0 && (
-        <section style={{ padding: 'clamp(2rem,5vw,4rem) 4vw' }}>
-          <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 700, marginBottom: '0.6rem' }}>{t.solar.pilotTag}</div>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.6rem,3vw,2.6rem)', fontWeight: 900, margin: '0 0 1.5rem' }}>{t.solar.pilotTitle}</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
-            {SOLAR_PILOT_PHOTOS.map((src, i) => (
-              <img key={i} src={src} alt={t.solar.photoAlt} loading="lazy" style={{ display: 'block', width: '100%', aspectRatio: '16 / 10', objectFit: 'cover', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }} />
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* ── GLB SOLAR · Abschluss ──────────────────────────────────────────── */}
       <section style={{ padding: 'clamp(2rem,5vw,4rem) 4vw calc(90px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
@@ -882,5 +873,6 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
     </div>
   );
 };
+
 
 
