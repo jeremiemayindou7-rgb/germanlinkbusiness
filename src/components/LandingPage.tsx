@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, X, ChevronDown } from 'lucide-react';
+import { X, ChevronDown } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -8,23 +8,12 @@ interface LandingPageProps {
 
 type Language = 'de' | 'fr' | 'ln' | 'en';
 
-const CAT_COLORS = [
-  { bg: '#FFCE00', text: '#0a1628', abbr: 'SOL' },
-  { bg: '#009A00', text: '#fff',    abbr: 'AGR' },
-  { bg: '#DD0000', text: '#fff',    abbr: 'GEN' },
-  { bg: '#000000', text: '#FFCE00', abbr: 'ÉLM' },
-  { bg: '#007FFF', text: '#fff',    abbr: 'VÉH' },
-  { bg: '#CE1021', text: '#fff',    abbr: 'IND' },
-];
+// WhatsApp-Community von GLB Solar
+const WHATSAPP_COMMUNITY_URL = 'https://chat.whatsapp.com/Cd56t4utPYK8ND8Bc1k6d1';
 
-const WHY_COLORS = [
-  { colors: ['#000000','#DD0000','#FFCE00'], label: 'DQ' },
-  { colors: ['#009A00','#FBDE2A','#CE1021'], label: 'CS' },
-  { colors: ['#000000','#DD0000','#FFCE00'], label: 'PS' },
-  { colors: ['#007FFF','#F7D618','#CE1021'], label: 'RL' },
-];
-
-const STEP_COLORS = ['#FFCE00', '#009A00', '#DD0000', '#007FFF'];
+// Foto der Installation aus dem GLB-Solar-Pilotprojekt.
+// Sobald das echte Bild vorliegt, hier den Pfad eintragen (z. B. '/glb-solar/pilot.jpg').
+const SOLAR_PILOT_PHOTO = '';
 
 const translations = {
   de: {
@@ -55,6 +44,38 @@ const translations = {
       title: 'Solar-Komplettsystem',
       subtitle: 'Powerstation, Solarmodule & Kabel im Set — fertig konfiguriert und günstiger als einzeln.',
       cta: 'System entdecken',
+    },
+    solar: {
+      badge: 'Erster Partner · GLB Solar, Pointe-Noire',
+      title: 'Sie kaufen keine Solarmodule.',
+      titleAccent: 'Sie kaufen Freiheit.',
+      text: 'Ein mobiles Solarsystem, ohne Elektriker. Aufstellen, anschließen, und Ihr Haus hängt nicht mehr von Stromausfällen ab.',
+      btnWhatsapp: 'Auf WhatsApp informieren',
+      btnKit: 'Inhalt des Kits ansehen',
+      point1Title: 'Ein Konto, das nie leer wird.',
+      point1Text: 'Die Sonne füllt es jeden Morgen auf. Sie heben Ihre Energie ab, ohne Gebühren und ohne Treibstoff.',
+      point2Title: 'Seien Sie der, der das Haus schützt.',
+      point2Text: 'Wenn das Viertel dunkel wird, bleibt bei Ihnen das Licht an und das Geschäft läuft weiter.',
+      photoAlt: 'Installation aus dem GLB-Solar-Pilotprojekt',
+      photoSoon: 'Fotos vom GLB-Solar-Pilotprojekt folgen',
+    },
+    platform: {
+      tag: 'Die Mission von GLB',
+      title: 'Eine Brücke produziert nichts. Sie macht alles möglich.',
+      text: 'GLB ist diese Brücke zwischen hochwertiger Technologie und denen, die Afrika aufbauen. Jedes gelieferte System ist ein weiterer Stein: eine Werkstatt, die nicht mehr stillsteht, eine Schule, die beleuchtet bleibt, ein Geschäft, das seine Kunden behält.',
+      steps: [
+        { num: '01', title: 'Sie bestellen auf GLB', desc: 'Eine Plattform für alle Produkte und alle Partner.' },
+        { num: '02', title: 'Der Partner vor Ort meldet sich', desc: 'Er bestätigt Ihre Bestellung, stellt die Rechnung und erhält Ihre Zahlung.' },
+        { num: '03', title: 'GLB liefert aus Deutschland', desc: 'Einkauf bei deutschen Lieferanten und Versand bis zum Hafen. Der Partner verzollt und übergibt Ihnen das Produkt.' },
+      ],
+      active: 'Aktiv',
+      soon: 'Demnächst',
+      partners: [
+        { title: 'GLB Solar', desc: 'Energielösungen. Partner: GLB-Solar SARLU, Pointe-Noire.' },
+        { title: 'Reifen', desc: 'Öffnet, sobald ein Partner feststeht.' },
+        { title: 'Landmaschinen', desc: 'Öffnet, sobald ein Partner feststeht.' },
+      ],
+      partnerLine: 'Partner im Kongo: GLB-Solar SARLU, Pointe-Noire',
     },
     how: {
       tag: 'Ablauf',
@@ -167,6 +188,38 @@ const translations = {
       subtitle: 'Powerstation, panneaux solaires et câbles en set — déjà configuré et moins cher qu\'à l\'unité.',
       cta: 'Découvrir le système',
     },
+    solar: {
+      badge: 'Premier partenaire · GLB Solar, Pointe-Noire',
+      title: 'Vous n’achetez pas des panneaux solaires.',
+      titleAccent: 'Vous achetez la liberté.',
+      text: 'Un système solaire mobile, sans électricien. Vous le posez, vous le branchez, et votre maison ne dépend plus des coupures.',
+      btnWhatsapp: 'S’informer sur WhatsApp',
+      btnKit: 'Voir le contenu du kit',
+      point1Title: 'Un compte qui ne se vide jamais.',
+      point1Text: 'Le soleil le recharge chaque matin. Vous retirez votre énergie sans frais et sans carburant.',
+      point2Title: 'Soyez celui qui protège la maison.',
+      point2Text: "Quand le quartier s'éteint, chez vous la lumière reste et le commerce continue.",
+      photoAlt: 'Installation du projet pilote GLB Solar',
+      photoSoon: 'Photos du projet pilote GLB Solar à venir',
+    },
+    platform: {
+      tag: 'La mission de GLB',
+      title: 'Un pont ne produit rien. Il rend tout possible.',
+      text: "GLB est ce pont entre la technologie de qualité et ceux qui construisent l'Afrique. Chaque système livré est une pierre de plus : un atelier qui ne s'arrête plus, une école qui reste éclairée, un commerce qui garde ses clients.",
+      steps: [
+        { num: '01', title: 'Vous commandez sur GLB', desc: 'Une seule plateforme pour tous les produits et tous les partenaires.' },
+        { num: '02', title: 'Le partenaire local vous contacte', desc: 'Il confirme votre commande, établit la facture et reçoit votre paiement.' },
+        { num: '03', title: "GLB livre depuis l'Allemagne", desc: "Achat chez les fournisseurs allemands et expédition jusqu'au port. Le partenaire dédouane et vous remet le produit." },
+      ],
+      active: 'Actif',
+      soon: 'À venir',
+      partners: [
+        { title: 'GLB Solar', desc: "Solutions d'énergie. Partenaire : GLB-Solar SARLU, Pointe-Noire." },
+        { title: 'Pneus', desc: "Ouvert dès qu'un partenaire est confirmé." },
+        { title: 'Machines agricoles', desc: "Ouvert dès qu'un partenaire est confirmé." },
+      ],
+      partnerLine: 'Partenaire au Congo : GLB-Solar SARLU, Pointe-Noire',
+    },
     how: {
       tag: 'Processus',
       title: 'Comment fonctionne GLB?',
@@ -277,6 +330,38 @@ const translations = {
       title: 'Kit solaire ya mobimba',
       subtitle: 'Powerstation, ba panneaux solaires na ba câbles na set — esili configurée mpe ntalo moke koleka na moko moko.',
       cta: 'Yeba système',
+    },
+    solar: {
+      badge: 'Partenaire ya liboso · GLB Solar, Pointe-Noire',
+      title: 'Ozali kosomba ba panneaux solaires te.',
+      titleAccent: 'Ozali kosomba bonsomi.',
+      text: 'Système solaire mobile, kozanga électricien. Otie yango, obranché yango, mpe ndako na yo ekotala lisusu coupures te.',
+      btnWhatsapp: 'Yeba mingi na WhatsApp',
+      btnKit: 'Tala biloko ya kit',
+      point1Title: 'Compte oyo esilaka te.',
+      point1Text: 'Moi etondisaka yango ntongo nyonso. Ozwaka énergie na yo kozanga frais mpe kozanga carburant.',
+      point2Title: 'Zala moto oyo abatelaka ndako.',
+      point2Text: 'Tango quartier ekufi moto, epai na yo lumière etikali mpe commerce ekobi.',
+      photoAlt: 'Installation ya projet pilote GLB Solar',
+      photoSoon: 'Ba photos ya projet pilote GLB Solar ekoya',
+    },
+    platform: {
+      tag: 'Mission ya GLB',
+      title: 'Pont esalaka eloko te. Esalaka ete nyonso ekoka kosalema.',
+      text: 'GLB ezali pont wana kati na technologie ya qualité mpe baoyo bazali kotonga Afrique. Système moko na moko oyo tokabi ezali libanga moko lisusu: atelier oyo etelemaka lisusu te, eteyelo oyo etikali na lumière, commerce oyo ebatelaka ba clients na yango.',
+      steps: [
+        { num: '01', title: 'Okomandi na GLB', desc: 'Plateforme moko pona biloko nyonso mpe ba partenaires nyonso.' },
+        { num: '02', title: 'Partenaire ya mboka akobenga yo', desc: 'Andimi commande na yo, asali facture mpe azwi paiement na yo.' },
+        { num: '03', title: 'GLB etindi banda Allemagne', desc: 'Achat epai ya ba fournisseurs ya Allemagne mpe envoi tii na port. Partenaire asali dédouanement mpe apesi yo eloko.' },
+      ],
+      active: 'Ezali kosala',
+      soon: 'Ekoya',
+      partners: [
+        { title: 'GLB Solar', desc: 'Ba solutions ya énergie. Partenaire: GLB-Solar SARLU, Pointe-Noire.' },
+        { title: 'Ba pneus', desc: 'Ekofungwama soki partenaire andimami.' },
+        { title: 'Machines ya agriculture', desc: 'Ekofungwama soki partenaire andimami.' },
+      ],
+      partnerLine: 'Partenaire na Congo: GLB-Solar SARLU, Pointe-Noire',
     },
     how: {
       tag: 'Processus',
@@ -389,6 +474,38 @@ const translations = {
       subtitle: 'Powerstation, solar panels & cables as a set — pre-configured and cheaper than buying separately.',
       cta: 'Discover the system',
     },
+    solar: {
+      badge: 'First partner · GLB Solar, Pointe-Noire',
+      title: 'You are not buying solar panels.',
+      titleAccent: 'You are buying freedom.',
+      text: 'A mobile solar system, no electrician needed. Set it down, plug it in, and your home no longer depends on power cuts.',
+      btnWhatsapp: 'Find out more on WhatsApp',
+      btnKit: 'See what is in the kit',
+      point1Title: 'An account that never runs dry.',
+      point1Text: 'The sun tops it up every morning. You withdraw your energy with no fees and no fuel.',
+      point2Title: 'Be the one who protects the home.',
+      point2Text: 'When the neighbourhood goes dark, your lights stay on and your business keeps going.',
+      photoAlt: 'Installation from the GLB Solar pilot project',
+      photoSoon: 'Photos from the GLB Solar pilot project coming soon',
+    },
+    platform: {
+      tag: 'The GLB mission',
+      title: 'A bridge produces nothing. It makes everything possible.',
+      text: 'GLB is that bridge between quality technology and the people building Africa. Every system delivered is one more stone: a workshop that no longer stops, a school that stays lit, a shop that keeps its customers.',
+      steps: [
+        { num: '01', title: 'You order on GLB', desc: 'One platform for all products and all partners.' },
+        { num: '02', title: 'The local partner contacts you', desc: 'They confirm your order, issue the invoice and receive your payment.' },
+        { num: '03', title: 'GLB delivers from Germany', desc: 'Purchasing from German suppliers and shipping to the port. The partner clears customs and hands over the product.' },
+      ],
+      active: 'Active',
+      soon: 'Coming soon',
+      partners: [
+        { title: 'GLB Solar', desc: 'Energy solutions. Partner: GLB-Solar SARLU, Pointe-Noire.' },
+        { title: 'Tires', desc: 'Opens as soon as a partner is confirmed.' },
+        { title: 'Agricultural machinery', desc: 'Opens as soon as a partner is confirmed.' },
+      ],
+      partnerLine: 'Partner in Congo: GLB-Solar SARLU, Pointe-Noire',
+    },
     how: {
       tag: 'Process',
       title: 'How does GLB work?',
@@ -473,27 +590,6 @@ const translations = {
   },
 };
 
-const FlagBar: React.FC<{ colors: string[]; size?: number }> = ({ colors, size = 5 }) => (
-  <div style={{ display: 'flex', gap: 2, marginBottom: 12 }}>
-    {colors.map((c, i) => (
-      <div key={i} style={{ width: size, height: size * 4, background: c, borderRadius: 1 }} />
-    ))}
-  </div>
-);
-
-const ColorBadge: React.FC<{ bg: string; text: string; label: string; size?: number }> = ({ bg, text, label, size = 48 }) => (
-  <div style={{
-    width: size, height: size, borderRadius: 4,
-    background: bg, color: text,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontFamily: 'Georgia, serif', fontWeight: 900,
-    fontSize: size * 0.28, letterSpacing: '0.04em',
-    flexShrink: 0,
-  }}>
-    {label}
-  </div>
-);
-
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNavigate }) => {
   const go = (view: string) => {
     if (onNavigate) {
@@ -549,7 +645,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
       </header>
 
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
-      <section style={{ minHeight: 'clamp(600px,100vh,100vh)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 4vw clamp(3rem,8vh,8vh)', position: 'relative', overflow: 'hidden', paddingTop: 80 }}>
+      <section style={{ minHeight: 'clamp(420px,68vh,68vh)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 4vw clamp(2rem,5vh,5vh)', position: 'relative', overflow: 'hidden', paddingTop: 80 }}>
         <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: 'linear-gradient(to top, rgba(7,16,32,0.98) 0%, rgba(7,16,32,0.65) 45%, rgba(7,16,32,0.25) 100%), url("https://images.unsplash.com/photo-1553413077-190dd305871c?w=1600&q=80") center/cover no-repeat' }} />
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 5, zIndex: 2, display: 'flex' }}>
           {['#000000','#DD0000','#FFCE00','#009A00','#FBDE2A','#007FFF'].map((c,i) => <div key={i} style={{ flex: 1, background: c }} />)}
@@ -581,109 +677,72 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
             {t.hero.subtitle}
           </p>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: 'clamp(1.5rem,3vw,3.5rem)' }}>
-            {/* Btn 1: Produkte kaufen */}
-            <button onClick={() => go('dashboard')} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>
-              {t.hero.btn1}
-            </button>
-            {/* Btn 2: Produkte verkaufen */}
-            <button onClick={() => go('seller')} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
-              {t.hero.btn2}
-            </button>
-            {/* Btn 3: Container versenden → ParcelPage */}
-            <button onClick={() => go('parcel')} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
-              {t.hero.btn3}
-            </button>
+        </div>
+      </section>
+
+      {/* ── GLB SOLAR · erster Partner ───────────────────────────────────────── */}
+      <section id="glb-solar" style={{ padding: 'clamp(1.5rem,4vw,3rem) 4vw', background: '#0a1628' }}>
+        <div style={{ border: '1.5px solid rgba(244,180,0,0.55)', borderRadius: 10, background: 'rgba(255,255,255,0.03)', padding: 'clamp(1.2rem,3vw,2.2rem)', display: 'flex', flexWrap: 'wrap', gap: 'clamp(1.2rem,3vw,2.2rem)', alignItems: 'stretch' }}>
+          <div style={{ flex: '1.3 1 340px', minWidth: 0 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#5dcaa5', marginBottom: '1.2rem', padding: '0.35rem 0.85rem', border: '1px solid rgba(93,202,165,0.5)', borderRadius: 999 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#5dcaa5', display: 'inline-block', flexShrink: 0 }} />
+              {t.solar.badge}
+            </div>
+
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.7rem,3.4vw,3rem)', fontWeight: 900, lineHeight: 1.12, letterSpacing: '-0.01em', marginBottom: '1rem' }}>
+              {t.solar.title}{' '}
+              <span style={{ color: '#F4B400', fontStyle: 'italic' }}>{t.solar.titleAccent}</span>
+            </h2>
+
+            <p style={{ fontSize: 'clamp(1rem,1.3vw,1.15rem)', color: '#e8edf2', lineHeight: 1.7, maxWidth: 560, marginBottom: '1.5rem' }}>
+              {t.solar.text}
+            </p>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <a
+                href={WHATSAPP_COMMUNITY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: 48, background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', borderRadius: 2, textDecoration: 'none' }}
+              >
+                {t.solar.btnWhatsapp}
+              </a>
+              <button
+                onClick={() => go('system')}
+                style={{ minHeight: 48, background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 2, cursor: 'pointer' }}
+              >
+                {t.solar.btnKit}
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', paddingTop: '1.2rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.3rem' }}>{t.solar.point1Title}</div>
+                <div style={{ fontSize: '0.88rem', color: '#b6c4d4', lineHeight: 1.6 }}>{t.solar.point1Text}</div>
+              </div>
+              <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.3rem' }}>{t.solar.point2Title}</div>
+                <div style={{ fontSize: '0.88rem', color: '#b6c4d4', lineHeight: 1.6 }}>{t.solar.point2Text}</div>
+              </div>
+            </div>
           </div>
 
-          {/* ── ENERGY DAY BANNER ── */}
-          <style>{`
-            .energyday-banner {
-              display: flex;
-              align-items: center;
-              gap: 1rem;
-            }
-            .energyday-top-row {
-              display: flex;
-              align-items: center;
-              gap: 0.75rem;
-              width: 100%;
-            }
-            .energyday-icon {
-              flex-shrink: 0;
-              width: 46px;
-              height: 46px;
-              font-size: 1.3rem;
-            }
-            .energyday-text {
-              flex: 1;
-              min-width: 0;
-            }
-            .energyday-cta {
-              flex-shrink: 0;
-              white-space: nowrap;
-            }
-            @media (max-width: 640px) {
-              .energyday-banner {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 0.75rem;
-                padding: 0.9rem 1rem !important;
-              }
-              .energyday-icon {
-                width: 34px;
-                height: 34px;
-                font-size: 1rem;
-              }
-              .energyday-subtitle {
-                font-size: 0.82rem !important;
-              }
-              .energyday-cta {
-                width: 100%;
-                text-align: center;
-                white-space: normal;
-              }
-            }
-          `}</style>
-          <button
-            onClick={() => go('system')}
-            className="energyday-banner"
-            style={{
-              width: '100%', maxWidth: 640,
-              textAlign: 'left', cursor: 'pointer',
-              background: 'linear-gradient(90deg, rgba(244,180,0,0.14) 0%, rgba(0,230,118,0.10) 100%)',
-              border: '1.5px solid rgba(244,180,0,0.45)', borderRadius: 6,
-              padding: '1rem 1.3rem',
-            }}
-          >
-            <span className="energyday-top-row">
-              <span className="energyday-icon" style={{
-                borderRadius: '50%',
-                background: '#F4B400', color: '#0a1628',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'Georgia, serif', fontWeight: 900,
-              }}>☀</span>
-              <span className="energyday-text">
-                <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#F4B400', marginBottom: 2 }}>
-                  {t.system.badge}
-                </span>
-                <span style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, color: '#f5f2eb', lineHeight: 1.3 }}>
-                  {t.system.title}
-                </span>
-              </span>
-            </span>
-            <span className="energyday-subtitle" style={{ display: 'block', fontSize: '0.85rem', color: '#e8edf2', lineHeight: 1.5 }}>
-              {t.system.subtitle}
-            </span>
-            <span className="energyday-cta" style={{
-              fontSize: '0.78rem', fontWeight: 700, color: '#0a1628',
-              background: '#F4B400', padding: '0.55rem 1rem', borderRadius: 2,
-              textTransform: 'uppercase', letterSpacing: '0.04em',
-              display: 'inline-block',
-            }}>
-              {t.system.cta}
-            </span>
-          </button>
+          {/* Bildfläche: SOLAR_PILOT_PHOTO oben in der Datei setzen, sobald das echte Foto vorliegt */}
+          <div style={{ flex: '1 1 280px', minWidth: 0, display: 'flex' }}>
+            {SOLAR_PILOT_PHOTO ? (
+              <img
+                src={SOLAR_PILOT_PHOTO}
+                alt={t.solar.photoAlt}
+                style={{ width: '100%', minHeight: 260, objectFit: 'cover', borderRadius: 8, display: 'block' }}
+                loading="lazy"
+              />
+            ) : (
+              <div style={{ flex: 1, minHeight: 260, borderRadius: 8, border: '1px dashed rgba(255,255,255,0.25)', background: 'linear-gradient(160deg, rgba(244,180,0,0.14) 0%, rgba(7,16,32,0.6) 70%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.5rem', textAlign: 'center' }}>
+                <span aria-hidden="true" style={{ width: 54, height: 54, borderRadius: '50%', background: '#F4B400', color: '#0a1628', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: '1.5rem' }}>☀</span>
+                <span style={{ fontSize: '0.85rem', color: '#b6c4d4', lineHeight: 1.5 }}>{t.solar.photoSoon}</span>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -744,152 +803,63 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
         </div>
       )}
 
-      {/* ── HOW IT WORKS ─────────────────────────────────────────────────────── */}
+      {/* ── GLB PLATTFORM · Mission, Bestellweg, Partner ─────────────────────── */}
       <section id="how" style={{ padding: 'clamp(2.5rem,6vw,6rem) 4vw', background: '#071020' }}>
-        <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.how.tag}</div>
-        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3vw,2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.how.title}</h2>
-        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>{t.how.subtitle}</p>
+        <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.platform.tag}</div>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3vw,2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.platform.title}</h2>
+        <p style={{ color: '#b6c4d4', maxWidth: 680, lineHeight: 1.7, marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>{t.platform.text}</p>
 
-        <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 4, padding: '1rem 1.5rem', marginBottom: 'clamp(1.5rem,4vw,3rem)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', fontSize: '0.83rem' }}>
-          {t.how.route.map((stop, i) => {
-            const stopColors = ['#000000','#DD0000','#009A00','#007FFF','#FBDE2A'];
-            return (
-              <React.Fragment key={i}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 2, background: stopColors[i] || '#F4B400', display: 'inline-block', flexShrink: 0 }} />
-                  {stop}
+        {/* Bestellweg in drei Schritten */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1.2rem', marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>
+          {t.platform.steps.map((step, i) => (
+            <div key={i} style={{ borderTop: '3px solid #F4B400', paddingTop: '0.9rem' }}>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: '1.2rem', fontWeight: 900, color: '#F4B400', marginBottom: '0.35rem' }}>{step.num}</div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.4rem' }}>{step.title}</h3>
+              <p style={{ fontSize: '0.88rem', color: '#b6c4d4', lineHeight: 1.6 }}>{step.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Partnerbereiche: nur der erste ist aktiv. Weitere Partner hier nach demselben Muster ergänzen. */}
+        <div id="categories" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1rem', marginBottom: 'clamp(1.5rem,4vw,2.5rem)' }}>
+          {t.platform.partners.map((partner, i) => {
+            const isActive = i === 0;
+            const content = (
+              <>
+                <span style={{ alignSelf: 'flex-start', fontSize: '0.72rem', fontWeight: 700, padding: '0.25rem 0.7rem', borderRadius: 999, background: isActive ? '#1f6b4c' : 'transparent', color: isActive ? '#fff' : '#b6c4d4', border: isActive ? 'none' : '1px solid rgba(255,255,255,0.25)' }}>
+                  {isActive ? t.platform.active : t.platform.soon}
                 </span>
-                {i < t.how.route.length - 1 && <span style={{ color: '#F4B400', opacity: 0.5 }}>→</span>}
-              </React.Fragment>
+                <span style={{ fontSize: '1.2rem', fontWeight: 700, color: isActive ? '#f5f2eb' : '#b6c4d4' }}>{partner.title}</span>
+                <span style={{ fontSize: '0.85rem', color: '#b6c4d4', lineHeight: 1.5 }}>{partner.desc}</span>
+              </>
             );
-          })}
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1px', background: 'rgba(255,255,255,0.06)' }}>
-          {t.how.steps.map((step, i) => (
-            <div key={i} style={{ background: '#071020', padding: 'clamp(1rem,3vw,2rem) 1.5rem', textAlign: 'center' }}>
-              <div style={{ width: 56, height: 56, borderRadius: '50%', background: STEP_COLORS[i], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', fontSize: '1.3rem', fontWeight: 900, color: i === 0 ? '#0a1628' : '#fff', margin: '0 auto 1.2rem', boxShadow: `0 0 0 4px rgba(${STEP_COLORS[i] === '#FFCE00' ? '255,206,0' : STEP_COLORS[i] === '#009A00' ? '0,154,0' : STEP_COLORS[i] === '#DD0000' ? '221,0,0' : '247,59,0'},0.2)` }}>
-                {step.num}
-              </div>
-              <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.5rem' }}>{step.title}</h3>
-              <p style={{ fontSize: '0.82rem', color: '#8fa3b8', lineHeight: 1.6 }}>{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── WHY GLB ──────────────────────────────────────────────────────────── */}
-      <section id="why" style={{ padding: 'clamp(2.5rem,6vw,6rem) 4vw', background: '#0a1628' }}>
-        <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.why.tag}</div>
-        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3vw,2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.why.title}</h2>
-        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>{t.why.subtitle}</p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5px', background: 'rgba(255,255,255,0.06)' }}>
-          {t.why.cards.map((card, i) => (
-            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '2.2rem 1.8rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1rem' }}>
-                <FlagBar colors={WHY_COLORS[i].colors} size={5} />
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', color: WHY_COLORS[i].colors[0] === '#007FFF' ? '#007FFF' : WHY_COLORS[i].colors[0] === '#009A00' ? '#009A00' : WHY_COLORS[i].colors[1], textTransform: 'uppercase' }}>
-                  {WHY_COLORS[i].label}
-                </span>
-              </div>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem' }}>{card.title}</h3>
-              <p style={{ fontSize: '0.83rem', color: '#8fa3b8', lineHeight: 1.7 }}>{card.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CATEGORIES ───────────────────────────────────────────────────────── */}
-      <section id="categories" style={{ padding: 'clamp(2.5rem,6vw,6rem) 4vw', background: '#071020' }}>
-        <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.cats.tag}</div>
-        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3vw,2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.cats.title}</h2>
-        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>{t.cats.subtitle}</p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '1rem' }}>
-          {t.cats.items.map((cat, i) => {
-            const c = CAT_COLORS[i];
-            const isLast = i === 5;
-            return (
-              <div
-                key={i}
-                onClick={onGetStarted}
-                style={{ border: `1px solid ${isLast ? 'rgba(244,180,0,0.35)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 4, padding: '2rem 1.5rem', background: isLast ? 'rgba(244,180,0,0.05)' : 'rgba(255,255,255,0.02)', cursor: 'pointer', transition: 'all 0.2s' }}
-              >
-                <div style={{ marginBottom: '0.9rem' }}>
-                  <ColorBadge bg={c.bg} text={c.text} label={c.abbr} size={48} />
-                </div>
-                <h3 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.35rem' }}>{cat.title}</h3>
-                <p style={{ fontSize: '0.78rem', color: '#8fa3b8', lineHeight: 1.5 }}>{cat.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ── SELLER ───────────────────────────────────────────────────────────── */}
-      <section id="seller" style={{ padding: 'clamp(2.5rem,6vw,6rem) 4vw', background: 'linear-gradient(135deg, #071a10 0%, #0a1628 50%, #071020 100%)', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -80, right: -80, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(26,143,115,0.15) 0%, transparent 70%)', zIndex: 0 }} />
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 680 }}>
-          <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#5dcaa5', fontWeight: 600, marginBottom: '0.75rem' }}>{t.seller.tag}</div>
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3vw,2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.seller.title}</h2>
-          <p style={{ color: '#8fa3b8', lineHeight: 1.7, marginBottom: '1.5rem' }}>{t.seller.subtitle}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem', marginBottom: '2rem' }}>
-            {t.seller.benefits.map((b, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem' }}>
-                <span style={{ width: 22, height: 22, borderRadius: 4, background: i % 2 === 0 ? 'rgba(0,154,0,0.25)' : 'rgba(0,127,255,0.15)', border: `1px solid ${i % 2 === 0 ? '#009A00' : '#007FFF'}`, color: i % 2 === 0 ? '#5dcaa5' : '#007FFF', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900, flexShrink: 0 }}>✓</span>
-                {b}
-              </div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <button onClick={() => go('seller')} style={{ background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.seller.btn1}</button>
-            <button onClick={() => go('how-it-works')} style={{ background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>{t.seller.btn2}</button>
-          </div>
-        </div>
-      </section>
-
-      {/* ── SOCIAL PROOF ─────────────────────────────────────────────────────── */}
-      <section id="proof" style={{ padding: 'clamp(2.5rem,6vw,6rem) 4vw', background: '#0a1628' }}>
-        <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 600, marginBottom: '0.75rem' }}>{t.proof.tag}</div>
-        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3vw,2.8rem)', fontWeight: 900, marginBottom: '0.75rem' }}>{t.proof.title}</h2>
-        <p style={{ color: '#8fa3b8', maxWidth: 480, lineHeight: 1.7, marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>{t.proof.subtitle}</p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1.5px', background: 'rgba(255,255,255,0.06)', marginBottom: 'clamp(1.5rem,4vw,3rem)' }}>
-          {t.proof.stats.map((s, i) => {
-            const barColors = ['#DD0000','#009A00','#FFCE00','#007FFF'];
-            return (
-              <div key={i} style={{ background: '#0a1628', padding: '2.2rem 1.5rem', textAlign: 'center', borderTop: `4px solid ${barColors[i]}` }}>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: '2.8rem', fontWeight: 900, color: '#F4B400', lineHeight: 1 }}>{s.num}</div>
-                <div style={{ fontSize: '0.75rem', color: '#8fa3b8', letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: '0.4rem' }}>{s.label}</div>
+            const cardStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.5rem', textAlign: 'left', borderRadius: 8, padding: '1.5rem', font: 'inherit', color: 'inherit' };
+            return isActive ? (
+              <button key={i} onClick={() => go('system')} style={{ ...cardStyle, background: 'rgba(244,180,0,0.06)', border: '1.5px solid rgba(244,180,0,0.55)', cursor: 'pointer' }}>
+                {content}
+              </button>
+            ) : (
+              <div key={i} style={{ ...cardStyle, background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.2)' }}>
+                {content}
               </div>
             );
           })}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: '1rem' }}>
-          {t.proof.testimonials.map((tm, i) => (
-            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, padding: '2rem', position: 'relative' }}>
-              <div style={{ fontFamily: 'Georgia, serif', fontSize: '3.5rem', color: '#F4B400', opacity: 0.25, position: 'absolute', top: '0.5rem', left: '1.1rem', lineHeight: 1 }}>"</div>
-              <p style={{ fontSize: '0.88rem', lineHeight: 1.7, color: '#8fa3b8', marginBottom: '1rem' }}>{tm.text}</p>
-              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#f5f2eb' }}>{tm.name}</div>
-              <div style={{ fontSize: '0.75rem', color: '#5dcaa5' }}>{tm.role}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── FINAL CTA ────────────────────────────────────────────────────────── */}
-      <section style={{ background: '#F4B400', textAlign: 'center', padding: 'clamp(2.5rem,6vw,6rem) 4vw' }}>
-        <div style={{ display: 'flex', height: 4, marginBottom: '2rem', borderRadius: 2, overflow: 'hidden', maxWidth: 300, margin: '0 auto 2rem' }}>
-          {['#000000','#DD0000','#FFCE00','#009A00','#FBDE2A','#007FFF'].map((c,i) => <div key={i} style={{ flex: 1, background: c }} />)}
-        </div>
-        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3.5vw,3rem)', fontWeight: 900, color: '#0a1628', marginBottom: '1rem' }}>{t.cta.title}</h2>
-        <p style={{ color: 'rgba(10,22,40,0.7)', maxWidth: 500, margin: '0 auto 2.5rem', lineHeight: 1.7 }}>{t.cta.subtitle}</p>
-        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <button onClick={() => go('dashboard')} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn1}</button>
-          <button onClick={() => go('seller')} style={{ background: '#0a1628', color: '#F4B400', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '1rem 2rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn2}</button>
-          <button onClick={() => go('impressum')} style={{ background: 'transparent', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '1rem 2rem', border: '2px solid #0a1628', borderRadius: 2, cursor: 'pointer' }}>{t.cta.btn3}</button>
+        {/* Die drei Hauptaktionen der Plattform */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          {/* Btn 1: Produkte kaufen */}
+          <button onClick={() => go('dashboard')} style={{ flex: '1 1 200px', minHeight: 52, background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: 'none', borderRadius: 2, cursor: 'pointer' }}>
+            {t.hero.btn1}
+          </button>
+          {/* Btn 2: Produkte verkaufen */}
+          <button onClick={() => go('seller')} style={{ flex: '1 1 200px', minHeight: 52, background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
+            {t.hero.btn2}
+          </button>
+          {/* Btn 3: Container versenden → ParcelPage */}
+          <button onClick={() => go('parcel')} style={{ flex: '1 1 200px', minHeight: 52, background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.8rem', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2, cursor: 'pointer' }}>
+            {t.hero.btn3}
+          </button>
         </div>
       </section>
 
@@ -905,11 +875,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           </div>
           <div>
             <h4 style={{ fontWeight: 700, marginBottom: '0.75rem', fontSize: '0.9rem' }}>{t.footer.contact}</h4>
-            <p style={{ fontSize: '0.82rem', color: '#8fa3b8', marginBottom: '0.75rem' }}>kizomba-global-post@web.de</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Shield size={14} color="#F4B400" />
-              <span style={{ fontSize: '0.78rem', color: '#8fa3b8' }}>Made in Germany</span>
-            </div>
+            <p style={{ fontSize: '0.82rem', color: '#b6c4d4', marginBottom: '0.5rem' }}>info@germanlinkbusiness.de</p>
+            <p style={{ fontSize: '0.82rem', color: '#b6c4d4', marginBottom: '0.75rem' }}>{t.platform.partnerLine}</p>
+            <button onClick={() => go('impressum')} style={{ background: 'none', border: 'none', padding: 0, color: '#F4B400', fontSize: '0.82rem', cursor: 'pointer', textDecoration: 'underline' }}>
+              {t.cta.btn3}
+            </button>
           </div>
         </div>
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.5rem', textAlign: 'center' }}>
@@ -931,4 +901,5 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
     </div>
   );
 };
+
 

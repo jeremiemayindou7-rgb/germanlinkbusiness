@@ -10,6 +10,28 @@ import imgHero from '../assets/system-hero.png';
 
 type Language = 'de' | 'fr' | 'ln' | 'en';
 
+// ── GLB Solar: Einstieg der Seite ─────────────────────────────────────────
+// Original-Logo von GLB Solar (für dunklen Hintergrund, transparent).
+// Datei unverändert nach /public legen und den Namen hier anpassen.
+const GLB_SOLAR_LOGO = '/glb-solar-logo.png';
+
+// WhatsApp-Community von GLB Solar
+const WHATSAPP_COMMUNITY_URL = 'https://chat.whatsapp.com/Cd56t4utPYK8ND8Bc1k6d1';
+
+// Hauptfoto der Installation aus dem Pilotprojekt (Hochformat 4:5).
+// Pfad eintragen, sobald das echte Foto vorliegt, z. B. '/glb-solar/pilot-hero.jpg'.
+const SOLAR_HERO_PHOTO = '/glb-solar/pilot-hero.png';
+
+// Weitere Fotos aus dem Pilotprojekt. Solange die Liste leer ist, wird der
+// Abschnitt "Pilotprojekt" nicht angezeigt.
+const SOLAR_PILOT_PHOTOS: string[] = [
+  '/glb-solar/pilot-1.png',
+  '/glb-solar/pilot-2.jpg',
+  '/glb-solar/pilot-3.png',
+  '/glb-solar/pilot-4.png',
+  '/glb-solar/pilot-5.png',
+];
+
 interface SystemPageProps {
   onBack: () => void;
   onGoToCart: () => void; // called after items were successfully added to the cart
@@ -96,6 +118,24 @@ const translations = {
     submitBusy: 'Einen Moment…',
     genericError: 'Etwas ist schiefgelaufen. Bitte versuche es erneut.',
     cartError: 'Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten. Bitte versuche es erneut.',
+    solar: {
+      title: 'Sie kaufen keine Solarmodule.',
+      titleAccent: 'Sie kaufen Freiheit.',
+      text: 'Ein mobiles Solarsystem, ohne Elektriker. Aufstellen, anschließen, und Ihr Haus hängt nicht mehr von Stromausfällen ab.',
+      photoAlt: 'Installation aus dem GLB-Solar-Pilotprojekt',
+      photoSoon: 'Fotos vom GLB-Solar-Pilotprojekt folgen',
+      benefits: [
+        { title: 'Mobil', desc: 'Keine Baustelle. Das System steht dort, wo Sie es brauchen, und zieht mit Ihnen um.' },
+        { title: 'Ohne Elektriker', desc: 'Aufstellen, anschließen. Ein Montagevideo führt Sie Schritt für Schritt.' },
+        { title: 'Ein Konto, das nie leer wird', desc: 'Die Sonne füllt es jeden Morgen auf. Sie heben Ihre Energie ab, ohne Gebühren und ohne Treibstoff.' },
+      ],
+      pilotTag: 'Pilotprojekt',
+      pilotTitle: 'Im Kongo installiert, vor Ihren Augen.',
+      closingTitle: 'Seien Sie der, der das Haus schützt.',
+      closingText: 'Stellen Sie GLB Solar Ihre Fragen, oder bestellen Sie Ihr System auf der GLB-Plattform.',
+      btnWhatsapp: 'Auf WhatsApp informieren',
+      btnKit: 'Kit und Preise ansehen',
+    },
     flow: [
       { step: '01 — Erzeugung', title: 'Solarmodul', desc: 'Aufstellung auf Flachdach, bis zu 4 Strings (PV1–PV4)' },
       { step: '02 — Verbindung', title: 'MC4-Solarkabel', desc: 'DC, rot / schwarz gesteckt' },
@@ -142,6 +182,24 @@ const translations = {
     submitBusy: 'Un instant…',
     genericError: "Une erreur s'est produite. Veuillez réessayer.",
     cartError: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+    solar: {
+      title: 'Vous n’achetez pas des panneaux solaires.',
+      titleAccent: 'Vous achetez la liberté.',
+      text: 'Un système solaire mobile, sans électricien. Vous le posez, vous le branchez, et votre maison ne dépend plus des coupures.',
+      photoAlt: 'Installation du projet pilote GLB Solar',
+      photoSoon: 'Photos du projet pilote GLB Solar à venir',
+      benefits: [
+        { title: 'Mobile', desc: 'Pas de chantier. Le système se pose là où vous en avez besoin et se déplace avec vous.' },
+        { title: 'Sans électricien', desc: 'Vous le posez, vous le branchez. Une vidéo de montage vous guide pas à pas.' },
+        { title: 'Un compte qui ne se vide jamais', desc: 'Le soleil le recharge chaque matin. Vous retirez votre énergie sans frais et sans carburant.' },
+      ],
+      pilotTag: 'Projet pilote',
+      pilotTitle: 'Installé au Congo, sous vos yeux.',
+      closingTitle: 'Soyez celui qui protège la maison.',
+      closingText: 'Posez vos questions à GLB Solar, ou commandez votre système sur la plateforme GLB.',
+      btnWhatsapp: 'S’informer sur WhatsApp',
+      btnKit: 'Revoir le kit et les prix',
+    },
     flow: [
       { step: '01 — Production', title: 'Panneau solaire', desc: "Installation sur toit plat, jusqu'à 4 chaînes (PV1–PV4)" },
       { step: '02 — Connexion', title: 'Câble solaire MC4', desc: 'DC, connecté rouge / noir' },
@@ -188,6 +246,24 @@ const translations = {
     submitBusy: 'Zela moke…',
     genericError: 'Likambo moko ekweyi. Meká lisusu.',
     cartError: 'Likambo moko ekweyi na koya kobakisa na panier. Meká lisusu.',
+    solar: {
+      title: 'Ozali kosomba ba panneaux solaires te.',
+      titleAccent: 'Ozali kosomba bonsomi.',
+      text: 'Système solaire mobile, kozanga électricien. Otie yango, obranché yango, mpe ndako na yo ekotala lisusu coupures te.',
+      photoAlt: 'Installation ya projet pilote GLB Solar',
+      photoSoon: 'Ba photos ya projet pilote GLB Solar ekoya',
+      benefits: [
+        { title: 'Mobile', desc: 'Chantier ezali te. Système etiamaka esika olingi mpe ekendaka na yo.' },
+        { title: 'Kozanga électricien', desc: 'Otie yango, obranché yango. Vidéo ya montage ekolakisa yo nzela.' },
+        { title: 'Compte oyo esilaka te', desc: 'Moi etondisaka yango ntongo nyonso. Ozwaka énergie na yo kozanga frais mpe kozanga carburant.' },
+      ],
+      pilotTag: 'Projet pilote',
+      pilotTitle: 'Etiami na Congo, na miso na yo.',
+      closingTitle: 'Zala moto oyo abatelaka ndako.',
+      closingText: 'Tuna GLB Solar mituna na yo, to komandá système na yo na plateforme GLB.',
+      btnWhatsapp: 'Yeba mingi na WhatsApp',
+      btnKit: 'Tala lisusu kit na ntalo',
+    },
     flow: [
       { step: '01 — Kobimisa énergie', title: 'Panneau solaire', desc: 'Installation na toit plat, tii ba strings 4 (PV1–PV4)' },
       { step: '02 — Boyokani', title: 'Câble solaire MC4', desc: 'DC, ekangami motane / moindo' },
@@ -234,6 +310,24 @@ const translations = {
     submitBusy: 'One moment…',
     genericError: 'Something went wrong. Please try again.',
     cartError: 'An error occurred while adding to the cart. Please try again.',
+    solar: {
+      title: 'You are not buying solar panels.',
+      titleAccent: 'You are buying freedom.',
+      text: 'A mobile solar system, no electrician needed. Set it down, plug it in, and your home no longer depends on power cuts.',
+      photoAlt: 'Installation from the GLB Solar pilot project',
+      photoSoon: 'Photos from the GLB Solar pilot project coming soon',
+      benefits: [
+        { title: 'Mobile', desc: 'No building work. The system sits where you need it and moves with you.' },
+        { title: 'No electrician', desc: 'Set it down, plug it in. An installation video guides you step by step.' },
+        { title: 'An account that never runs dry', desc: 'The sun tops it up every morning. You withdraw your energy with no fees and no fuel.' },
+      ],
+      pilotTag: 'Pilot project',
+      pilotTitle: 'Installed in Congo, before your eyes.',
+      closingTitle: 'Be the one who protects the home.',
+      closingText: 'Ask GLB Solar your questions, or order your system on the GLB platform.',
+      btnWhatsapp: 'Find out more on WhatsApp',
+      btnKit: 'See the kit and prices again',
+    },
     flow: [
       { step: '01 — Generation', title: 'Solar panel', desc: 'Installed on flat roof, up to 4 strings (PV1–PV4)' },
       { step: '02 — Connection', title: 'MC4 solar cable', desc: 'DC, red / black connectors' },
@@ -430,14 +524,49 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
         </button>
       </div>
 
-      {/* Header */}
+      {/* ── GLB SOLAR · Einstieg ───────────────────────────────────────────── */}
+      <section style={{ padding: '0 4vw', marginBottom: 'clamp(2.5rem,5vw,4rem)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(1.5rem,4vw,3rem)', alignItems: 'center' }}>
+          <div style={{ flex: '1 1 420px', minWidth: 0 }}>
+            {/* Original-Logo, unverändert und mit festem Seitenverhältnis */}
+            <img
+              src={GLB_SOLAR_LOGO}
+              alt="GLB Solar"
+              style={{ display: 'block', height: 'clamp(48px,7vw,72px)', width: 'auto', maxWidth: '100%', marginBottom: '1.6rem', color: '#F4B400', fontWeight: 800, fontSize: '1.4rem' }}
+            />
+            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(2rem,4.6vw,3.6rem)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.01em', margin: '0 0 1.2rem' }}>
+              {t.solar.title}{' '}
+              <span style={{ color: '#F4B400', fontStyle: 'italic' }}>{t.solar.titleAccent}</span>
+            </h1>
+            <p style={{ fontSize: 'clamp(1rem,1.4vw,1.2rem)', color: '#e8edf2', lineHeight: 1.7, maxWidth: 540, margin: 0 }}>
+              {t.solar.text}
+            </p>
+          </div>
+          <div style={{ flex: '1 1 320px', minWidth: 0 }}>
+            {SOLAR_HERO_PHOTO ? (
+              <img
+                src={SOLAR_HERO_PHOTO}
+                alt={t.solar.photoAlt}
+                style={{ display: 'block', width: '100%', aspectRatio: '4 / 5', maxHeight: 560, objectFit: 'cover', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }}
+              />
+            ) : (
+              <div style={{ width: '100%', aspectRatio: '4 / 5', maxHeight: 420, borderRadius: 10, border: '1px dashed rgba(255,255,255,0.25)', background: 'linear-gradient(160deg, rgba(244,180,0,0.14) 0%, rgba(7,16,32,0.6) 70%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', textAlign: 'center', fontSize: '0.88rem', color: '#b6c4d4' }}>
+                {t.solar.photoSoon}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Header · bestehender Kit-Bereich, unverändert */}
+      <div id="kit" />
       <div style={{ padding: '0 4vw', marginBottom: '2rem', maxWidth: 900 }}>
         <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 700, marginBottom: '0.6rem' }}>
           {t.eyebrow}
         </div>
-        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 900, marginBottom: '0.6rem' }}>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 900, marginBottom: '0.6rem' }}>
           {t.title}
-        </h1>
+        </h2>
         <p style={{ color: '#8fa3b8', lineHeight: 1.7, maxWidth: 600 }}>
           {t.subtitle}
         </p>
@@ -608,6 +737,58 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
         </div>
       </div>
 
+      {/* ── GLB SOLAR · Vorteile ───────────────────────────────────────────── */}
+      <section style={{ padding: 'clamp(2rem,5vw,4rem) 4vw', background: '#071020', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
+          {t.solar.benefits.map((b, i) => (
+            <div key={i}>
+              <div style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: '1.2rem', color: '#F4B400', marginBottom: '0.4rem' }}>{`0${i + 1}`}</div>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, margin: '0 0 0.5rem' }}>{b.title}</h2>
+              <p style={{ fontSize: '0.95rem', color: '#c9d3dc', lineHeight: 1.6, margin: 0 }}>{b.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── GLB SOLAR · Pilotprojekt (erscheint erst, wenn Fotos eingetragen sind) ── */}
+      {SOLAR_PILOT_PHOTOS.length > 0 && (
+        <section style={{ padding: 'clamp(2rem,5vw,4rem) 4vw' }}>
+          <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 700, marginBottom: '0.6rem' }}>{t.solar.pilotTag}</div>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.6rem,3vw,2.6rem)', fontWeight: 900, margin: '0 0 1.5rem' }}>{t.solar.pilotTitle}</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+            {SOLAR_PILOT_PHOTOS.map((src, i) => (
+              <img key={i} src={src} alt={t.solar.photoAlt} loading="lazy" style={{ display: 'block', width: '100%', aspectRatio: '16 / 10', objectFit: 'cover', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── GLB SOLAR · Abschluss ──────────────────────────────────────────── */}
+      <section style={{ padding: 'clamp(2rem,5vw,4rem) 4vw calc(90px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem' }}>
+          <div style={{ flex: '1 1 380px', minWidth: 0 }}>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.5rem,2.8vw,2.3rem)', fontWeight: 900, margin: '0 0 0.5rem' }}>{t.solar.closingTitle}</h2>
+            <p style={{ color: '#c9d3dc', lineHeight: 1.6, maxWidth: 520, margin: 0 }}>{t.solar.closingText}</p>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <a
+              href={WHATSAPP_COMMUNITY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: 50, background: '#F4B400', color: '#0a1628', fontWeight: 700, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', borderRadius: 2, textDecoration: 'none' }}
+            >
+              {t.solar.btnWhatsapp}
+            </a>
+            <button
+              onClick={() => document.getElementById('kit')?.scrollIntoView({ behavior: 'smooth' })}
+              style={{ minHeight: 50, background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 2, cursor: 'pointer' }}
+            >
+              {t.solar.btnKit}
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ── LOGIN / REGISTER MODAL ─────────────────────────────────────────── */}
       {showAuthModal && (
         <div
@@ -701,4 +882,5 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
     </div>
   );
 };
+
 
