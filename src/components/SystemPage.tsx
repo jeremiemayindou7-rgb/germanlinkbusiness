@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Check, ArrowLeft, ShieldCheck, Truck, Wrench, PlayCircle, X, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCartContext } from '../contexts/CartContext';
@@ -426,6 +426,54 @@ const SystemFlow: React.FC<{ steps: { step: string; title: string; desc: string 
   </div>
 );
 
+const PilotGallery: React.FC<{ photos: string[]; alt: string }> = ({ photos, alt }) => {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const handleScroll = () => {
+    const el = trackRef.current;
+    if (!el || !el.firstElementChild) return;
+    const step = (el.firstElementChild as HTMLElement).offsetWidth + 10;
+    setActive(Math.min(photos.length - 1, Math.max(0, Math.round(el.scrollLeft / step))));
+  };
+
+  const goTo = (i: number) => {
+    const el = trackRef.current;
+    const target = el?.children[i] as HTMLElement | undefined;
+    if (el && target) el.scrollTo({ left: target.offsetLeft - el.offsetLeft, behavior: 'smooth' });
+  };
+
+  return (
+    <>
+      <div
+        ref={trackRef}
+        onScroll={handleScroll}
+        className="solar-pilot-grid"
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}
+      >
+        {photos.map((src, i) => (
+          <img key={i} src={src} alt={`${alt} ${i + 1}/${photos.length}`} loading="lazy" style={{ display: 'block', width: '100%', aspectRatio: '16 / 10', objectFit: 'cover', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }} />
+        ))}
+      </div>
+      {/* Punkte nur auf dem Handy sichtbar */}
+      <div className="solar-pilot-dots" style={{ display: 'none', justifyContent: 'center', gap: 4, marginTop: '0.6rem' }}>
+        {photos.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => goTo(i)}
+            aria-label={`${i + 1} / ${photos.length}`}
+            aria-current={i === active}
+            style={{ width: 28, height: 28, padding: 0, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <span style={{ display: 'block', width: i === active ? 22 : 8, height: 8, borderRadius: 999, background: i === active ? '#F4B400' : 'rgba(255,255,255,0.35)', transition: 'width 0.2s' }} />
+          </button>
+        ))}
+      </div>
+    </>
+  );
+};
+
 export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, assemblyVideoUrl }) => {
   const { user, signIn, signUp } = useAuth();
   const { addToCart } = useCartContext();
@@ -511,9 +559,11 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
              and add extra bottom clearance so the order button is never hidden behind
              the bottom nav bar. */
           .system-price-panel { position: static; order: -1; }
-          /* Pilotfotos auf dem Handy als waagerechte Wischleiste */
-          .solar-pilot-grid { display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0.75rem !important; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
-          .solar-pilot-grid img { flex: 0 0 86%; scroll-snap-align: start; }
+          /* Pilotfotos auf dem Handy: seitlich wischen, Punkte zeigen die Anzahl */
+          .solar-pilot-grid { display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0.6rem !important; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+          .solar-pilot-grid::-webkit-scrollbar { display: none; }
+          .solar-pilot-grid img { flex: 0 0 88%; scroll-snap-align: center; }
+          .solar-pilot-dots { display: flex !important; }
         }
       `}</style>
 
@@ -679,11 +729,7 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
               <div style={{ marginTop: '2rem' }}>
                 <div style={{ fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#F4B400', fontWeight: 700, marginBottom: '0.5rem' }}>{t.solar.pilotTag}</div>
                 <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.4rem,2.6vw,2rem)', fontWeight: 900, margin: '0 0 1rem' }}>{t.solar.pilotTitle}</h2>
-                <div className="solar-pilot-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-                  {SOLAR_PILOT_PHOTOS.map((src, i) => (
-                    <img key={i} src={src} alt={t.solar.photoAlt} loading="lazy" style={{ display: 'block', width: '100%', aspectRatio: '16 / 10', objectFit: 'cover', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }} />
-                  ))}
-                </div>
+                <PilotGallery photos={SOLAR_PILOT_PHOTOS} alt={t.solar.photoAlt} />
               </div>
             )}
           </div>
