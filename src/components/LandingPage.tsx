@@ -735,12 +735,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
           </div>
 
           {/* Bildfläche: SOLAR_PILOT_PHOTO oben in der Datei setzen, sobald das echte Foto vorliegt */}
-          <div style={{ flex: '1 1 280px', minWidth: 0, display: 'flex' }}>
+          <div style={{ flex: '1 1 340px', minWidth: 0, display: 'flex', alignSelf: 'center' }}>
             {SOLAR_PILOT_PHOTO ? (
               <img
                 src={SOLAR_PILOT_PHOTO}
                 alt={t.solar.photoAlt}
-                style={{ width: '100%', minHeight: 260, objectFit: 'cover', borderRadius: 8, display: 'block' }}
+                style={{ width: '100%', height: 'auto', objectFit: 'contain', borderRadius: 8, display: 'block', border: '1px solid rgba(255,255,255,0.08)' }}
                 loading="lazy"
               />
             ) : (
@@ -908,5 +908,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
     </div>
   );
 };
+
 
 
