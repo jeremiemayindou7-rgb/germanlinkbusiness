@@ -8,8 +8,6 @@ interface LandingPageProps {
 
 type Language = 'de' | 'fr' | 'ln' | 'en';
 
-// WhatsApp-Community von GLB Solar
-const WHATSAPP_COMMUNITY_URL = 'https://chat.whatsapp.com/Cd56t4utPYK8ND8Bc1k6d1';
 
 // Foto der Installation aus dem GLB-Solar-Pilotprojekt.
 // Sobald das echte Bild vorliegt, hier den Pfad eintragen (z. B. '/glb-solar/pilot.jpg').
@@ -41,8 +39,7 @@ const translations = {
       titleAccent: 'Sie kaufen eine Maschine, die jeden Tag Energie produziert.',
       text: 'Mehr Strom für Ihr Zuhause. Mehr Sicherheit für Ihre Familie. Mehr Möglichkeiten für Ihr Geschäft.',
       text2: 'Denn wer seine eigene Energie produziert, kontrolliert seine Zukunft.',
-      btnWhatsapp: 'Auf WhatsApp informieren',
-      btnKit: 'Inhalt des Kits ansehen',
+      btnKit: 'Solarsysteme ansehen',
       point1Title: 'Ein Konto, das die Sonne jeden Tag auffüllt.',
       point1Text: 'Die Sonne füllt es jeden Morgen auf. Sie heben Ihre Energie ab, ohne Gebühren und ohne Treibstoff.',
       point2Title: 'Seien Sie der, der das Haus schützt.',
@@ -105,8 +102,7 @@ const translations = {
       titleAccent: 'Vous achetez une machine qui produit de l’énergie chaque jour.',
       text: 'Plus d’électricité pour votre maison. Plus de sécurité pour votre famille. Plus de possibilités pour votre commerce.',
       text2: 'Car celui qui produit sa propre énergie contrôle son avenir.',
-      btnWhatsapp: 'S’informer sur WhatsApp',
-      btnKit: 'Voir le contenu du kit',
+      btnKit: 'Voir les systèmes solaires',
       point1Title: 'Un compte que le soleil remplit chaque jour.',
       point1Text: 'Le soleil le recharge chaque matin. Vous retirez votre énergie sans frais et sans carburant.',
       point2Title: 'Soyez celui qui protège la maison.',
@@ -169,8 +165,7 @@ const translations = {
       titleAccent: 'Ozali kosomba machine oyo ebimisaka énergie mokolo na mokolo.',
       text: 'Courant mingi pona ndako na yo. Sécurité mingi pona libota na yo. Ba possibilités mingi pona mombongo na yo.',
       text2: 'Pamba te moto oyo abimisaka énergie na ye moko akambaka avenir na ye.',
-      btnWhatsapp: 'Yeba mingi na WhatsApp',
-      btnKit: 'Tala biloko ya kit',
+      btnKit: 'Tala ba système solaire',
       point1Title: 'Compte oyo moi etondisaka mokolo na mokolo.',
       point1Text: 'Moi etondisaka yango ntongo nyonso. Ozwaka énergie na yo kozanga frais mpe kozanga carburant.',
       point2Title: 'Zala moto oyo abatelaka ndako.',
@@ -233,8 +228,7 @@ const translations = {
       titleAccent: 'You are buying a machine that produces energy every day.',
       text: 'More power for your home. More security for your family. More opportunities for your business.',
       text2: 'Because whoever produces their own energy controls their future.',
-      btnWhatsapp: 'Find out more on WhatsApp',
-      btnKit: 'See what is in the kit',
+      btnKit: 'See the solar systems',
       point1Title: 'An account the sun refills every day.',
       point1Text: 'The sun tops it up every morning. You withdraw your energy with no fees and no fuel.',
       point2Title: 'Be the one who protects the home.',
@@ -392,14 +386,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNaviga
               >
                 {t.solar.btnKit}
               </button>
-              <a
-                href={WHATSAPP_COMMUNITY_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: 48, background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', borderRadius: 2, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.3)' }}
+              <button
+                onClick={() => go('dashboard')}
+                style={{ minHeight: 48, background: 'transparent', color: '#f5f2eb', fontWeight: 600, fontSize: '0.88rem', letterSpacing: '0.05em', textTransform: 'uppercase', padding: '0.9rem 1.6rem', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 2, cursor: 'pointer' }}
               >
-                {t.solar.btnWhatsapp}
-              </a>
+                {t.hero.btn1}
+              </button>
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', paddingTop: '1.2rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
