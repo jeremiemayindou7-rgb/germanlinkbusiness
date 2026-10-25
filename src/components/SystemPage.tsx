@@ -3,6 +3,7 @@ import { Check, ArrowLeft, ShieldCheck, Truck, Wrench, PlayCircle, X, Loader2 } 
 import { useAuth } from '../contexts/AuthContext';
 import { useCartContext } from '../contexts/CartContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { GlbSolarFooter } from './GlbSolarPage';
 import imgSolarmodul from '../assets/system-solarmodul.png';
 import imgMc4Kabel from '../assets/system-mc4-kabel.png';
 import imgR5200 from '../assets/system-r5200.png';
@@ -57,9 +58,9 @@ interface SystemVariant {
 const VARIANTS: SystemVariant[] = [
   {
     id: 'basic',
-    discountPercent: 0, // Endpreis 2.750,00 € (Stand 12.10.2026)
+    discountPercent: 0, // Endpreis 2.378,35 € ≈ 1.560.095 F CFA (Stand 25.10.2026)
     components: [
-      { productId: '88ea3936-c939-4f94-a06d-0ec2c53a619f', name: 'RUNHOOD SOMMAR R5200 — Energiespeichersystem, All-in-One', qty: 1, unitPrice: 1804.40 },
+      { productId: 'dd2708e9-4afb-4a57-b6e8-e80dd9f7c66b', name: 'RUNHOOD SOMMAR R5200-AC — Energiespeichersystem', qty: 1, unitPrice: 1432.75 },
       { productId: 'b02daf1b-4181-4885-9cd1-c06d0681e5d1', name: '500W Bifazial Solarmodul (JW500-Äquivalent)', qty: 4, unitPrice: 94.80 },
       { productId: '43490333-bb1c-4de9-907e-09317b863c1e', name: '10M MC4 Kabel', qty: 4, unitPrice: 58.80 },
       { productId: 'be39d9ae-4ea7-410d-98f5-b4ddbb77b9bb', name: 'Set Aufständerungen für ein Solarpanel 10–15° (BR5)', qty: 4, unitPrice: 82.80 },
@@ -67,10 +68,10 @@ const VARIANTS: SystemVariant[] = [
   },
   {
     id: 'pro',
-    discountPercent: 0, // Endpreis 2.378,35 € (Stand 12.10.2026)
+    discountPercent: 0, // Endpreis 2.750,00 € ≈ 1.803.882 F CFA (Stand 25.10.2026)
     highlight: true,
     components: [
-      { productId: 'dd2708e9-4afb-4a57-b6e8-e80dd9f7c66b', name: 'RUNHOOD SOMMAR R5200-AC — Energiespeichersystem', qty: 1, unitPrice: 1432.75 },
+      { productId: '88ea3936-c939-4f94-a06d-0ec2c53a619f', name: 'RUNHOOD SOMMAR R5200 — Energiespeichersystem, All-in-One', qty: 1, unitPrice: 1804.40 },
       { productId: 'b02daf1b-4181-4885-9cd1-c06d0681e5d1', name: '500W Bifazial Solarmodul (JW500-Äquivalent)', qty: 4, unitPrice: 94.80 },
       { productId: '43490333-bb1c-4de9-907e-09317b863c1e', name: '10M MC4 Kabel', qty: 4, unitPrice: 58.80 },
       { productId: 'be39d9ae-4ea7-410d-98f5-b4ddbb77b9bb', name: 'Set Aufständerungen für ein Solarpanel 10–15° (BR5)', qty: 4, unitPrice: 82.80 },
@@ -87,24 +88,25 @@ const translations = {
     subtitle: 'Powerstation, Solarmodule, Kabel und Halterung als fertig zusammengestelltes Set — Sie bestellen ein System, nicht einzelne Teile.',
     popular: 'Beliebt',
     variants: {
-      basic: { name: 'Basic', tagline: 'Mit RUNHOOD R5200 (4× 1000 W MPPT)' },
-      pro: { name: 'Pro', tagline: 'Mit RUNHOOD R5200-AC (mehr Kapazität)' },
+      basic: { name: 'Basic', tagline: 'Mit RUNHOOD R5200-AC' },
+      pro: { name: 'Pro', tagline: 'Mit RUNHOOD R5200 All-in-One (4× 1000 W MPPT)' },
     },
     youSave: (amount: string, pct: number) => `Sie sparen ${amount} (${pct}%)`,
     included: 'Das ist enthalten',
     perPiece: '/Stk.',
     features: [
-      'Deutsche Qualitätskontrolle vor Versand',
-      'Lieferung nach Kinshasa & Brazzaville',
-      'Ohne Techniker selbst montierbar',
+      'Neuware mit Herstellergarantie',
+      'Lieferung in den Kongo',
+      'Geräte direkt an der Powerstation anschließen',
     ],
-    assemblyTitle: 'Selbstmontage in Minuten',
+    assemblyTitle: 'Einfacher Aufbau',
     assemblyLink: 'Montagevideo auf YouTube ansehen',
     systemLabel: (name: string) => `System "${name}"`,
     insteadOf: (amount: string) => `statt ${amount} einzeln`,
     orderButton: 'System bestellen',
     adding: 'Wird hinzugefügt…',
     registerHint: 'Registrierung nur zum Abschluss der Bestellung nötig',
+    priceNote: 'Zzgl. Transport und Steuern. Ihre Endrechnung erhalten Sie nach der Bestellung von unserem Partner im Kongo.',
     authTitleLogin: 'Anmelden',
     authTitleRegister: 'Registrieren',
     authIntro: (name: string, price: string) => `Um das System "${name}" (${price}) zu bestellen, melde dich an oder registriere dich kurz.`,
@@ -121,13 +123,13 @@ const translations = {
     solar: {
       title: 'Sie kaufen keine Solarmodule.',
       titleAccent: 'Sie kaufen Freiheit.',
-      text: 'Ein mobiles Solarsystem, ohne Elektriker. Aufstellen, anschließen, und Ihr Haus hängt nicht mehr von Stromausfällen ab.',
+      text: 'Ein mobiles Solarsystem: aufstellen, Geräte anschließen, und Ihr Haus hat bei Stromausfall Strom, so lange der Speicher reicht.',
       photoAlt: 'Installation aus dem GLB-Solar-Pilotprojekt',
       photoSoon: 'Fotos vom GLB-Solar-Pilotprojekt folgen',
       benefits: [
         { title: 'Mobil', desc: 'Keine Baustelle. Das System steht dort, wo Sie es brauchen, und zieht mit Ihnen um.' },
-        { title: 'Ohne Elektriker', desc: 'Aufstellen, anschließen. Ein Montagevideo führt Sie Schritt für Schritt.' },
-        { title: 'Ein Konto, das nie leer wird', desc: 'Die Sonne füllt es jeden Morgen auf. Sie heben Ihre Energie ab, ohne Gebühren und ohne Treibstoff.' },
+        { title: 'Einfach anschließen', desc: 'Geräte direkt an der Powerstation anschließen, ein Video führt Schritt für Schritt. Der Anschluss an die Hausinstallation gehört in die Hand eines Elektrikers.' },
+        { title: 'Ein Konto, das die Sonne jeden Tag auffüllt', desc: 'Die Sonne füllt es jeden Morgen auf. Sie heben Ihre Energie ab, ohne Gebühren und ohne Treibstoff.' },
       ],
       pilotTag: 'Pilotprojekt',
       pilotTitle: 'Im Kongo installiert, vor Ihren Augen.',
@@ -139,9 +141,7 @@ const translations = {
     flow: [
       { step: '01 — Erzeugung', title: 'Solarmodul', desc: 'Aufstellung auf Flachdach, bis zu 4 Strings (PV1–PV4)' },
       { step: '02 — Verbindung', title: 'MC4-Solarkabel', desc: 'DC, rot / schwarz gesteckt' },
-      { step: '03 — Speicher', title: 'R5200', desc: 'Laden, Puffern, Einspeisen — per App gesteuert' },
-      { step: '04 — Verbrauch', title: 'Hausnetz', desc: 'AC-Ausgang in die Hausinstallation' },
-      { step: '05 — Netz', title: 'Stromnetz', desc: 'Einspeisung des Überschusses, bidirektional' },
+      { step: '03 — Speicher', title: 'R5200', desc: 'Laden und Speichern, per App gesteuert' },
     ],
   },
   fr: {
@@ -151,24 +151,25 @@ const translations = {
     subtitle: 'Powerstation, panneaux solaires, câbles et support en un set déjà assemblé — vous commandez un système, pas des pièces séparées.',
     popular: 'Populaire',
     variants: {
-      basic: { name: 'Basic', tagline: 'Avec RUNHOOD R5200 (4× 1000 W MPPT)' },
-      pro: { name: 'Pro', tagline: 'Avec RUNHOOD R5200-AC (plus de capacité)' },
+      basic: { name: 'Basic', tagline: 'Avec RUNHOOD R5200-AC' },
+      pro: { name: 'Pro', tagline: 'Avec RUNHOOD R5200 All-in-One (4× 1000 W MPPT)' },
     },
     youSave: (amount: string, pct: number) => `Vous économisez ${amount} (${pct}%)`,
     included: 'Ce qui est inclus',
     perPiece: '/pièce',
     features: [
-      'Contrôle qualité allemand avant expédition',
-      'Livraison à Kinshasa & Brazzaville',
-      'Montage possible sans technicien',
+      'Matériel neuf avec garantie du fabricant',
+      'Livraison au Congo',
+      'Appareils branchés directement sur la powerstation',
     ],
-    assemblyTitle: 'Montage en quelques minutes',
+    assemblyTitle: 'Montage simple',
     assemblyLink: 'Voir la vidéo de montage sur YouTube',
     systemLabel: (name: string) => `Système "${name}"`,
     insteadOf: (amount: string) => `au lieu de ${amount} à l'unité`,
     orderButton: 'Commander le système',
     adding: 'Ajout en cours…',
     registerHint: 'Inscription nécessaire uniquement pour finaliser la commande',
+    priceNote: 'Hors transport et taxes. Vous recevez la facture finale de notre partenaire au Congo après votre commande.',
     authTitleLogin: 'Connexion',
     authTitleRegister: 'Inscription',
     authIntro: (name: string, price: string) => `Pour commander le système "${name}" (${price}), connectez-vous ou inscrivez-vous rapidement.`,
@@ -185,13 +186,13 @@ const translations = {
     solar: {
       title: 'Vous n’achetez pas des panneaux solaires.',
       titleAccent: 'Vous achetez la liberté.',
-      text: 'Un système solaire mobile, sans électricien. Vous le posez, vous le branchez, et votre maison ne dépend plus des coupures.',
+      text: 'Un système solaire mobile : vous le posez, vous branchez vos appareils, et votre maison a du courant pendant les coupures, tant que la batterie le permet.',
       photoAlt: 'Installation du projet pilote GLB Solar',
       photoSoon: 'Photos du projet pilote GLB Solar à venir',
       benefits: [
         { title: 'Mobile', desc: 'Pas de chantier. Le système se pose là où vous en avez besoin et se déplace avec vous.' },
-        { title: 'Sans électricien', desc: 'Vous le posez, vous le branchez. Une vidéo de montage vous guide pas à pas.' },
-        { title: 'Un compte qui ne se vide jamais', desc: 'Le soleil le recharge chaque matin. Vous retirez votre énergie sans frais et sans carburant.' },
+        { title: 'Simple à brancher', desc: 'Branchez vos appareils directement sur la powerstation, une vidéo vous guide pas à pas. Le raccordement à l’installation de la maison doit être fait par un électricien.' },
+        { title: 'Un compte que le soleil remplit chaque jour', desc: 'Le soleil le recharge chaque matin. Vous retirez votre énergie sans frais et sans carburant.' },
       ],
       pilotTag: 'Projet pilote',
       pilotTitle: 'Installé au Congo, sous vos yeux.',
@@ -203,9 +204,7 @@ const translations = {
     flow: [
       { step: '01 — Production', title: 'Panneau solaire', desc: "Installation sur toit plat, jusqu'à 4 chaînes (PV1–PV4)" },
       { step: '02 — Connexion', title: 'Câble solaire MC4', desc: 'DC, connecté rouge / noir' },
-      { step: '03 — Stockage', title: 'R5200', desc: 'Charge, tampon, injection — piloté via l\'app' },
-      { step: '04 — Consommation', title: 'Réseau domestique', desc: "Sortie AC vers l'installation de la maison" },
-      { step: '05 — Réseau', title: 'Réseau électrique', desc: 'Injection du surplus, bidirectionnelle' },
+      { step: '03 — Stockage', title: 'R5200', desc: 'Charge et stockage, piloté via l\'app' },
     ],
   },
   ln: {
@@ -215,24 +214,25 @@ const translations = {
     subtitle: 'Powerstation, ba panneaux solaires, ba câbles na support na set moko esili kosangana — ozali kosomba système, kasu biloko na moko moko te.',
     popular: 'Eyebani mingi',
     variants: {
-      basic: { name: 'Basic', tagline: 'Na RUNHOOD R5200 (4× 1000 W MPPT)' },
-      pro: { name: 'Pro', tagline: 'Na RUNHOOD R5200-AC (capacité ya monene)' },
+      basic: { name: 'Basic', tagline: 'Na RUNHOOD R5200-AC' },
+      pro: { name: 'Pro', tagline: 'Na RUNHOOD R5200 All-in-One (4× 1000 W MPPT)' },
     },
     youSave: (amount: string, pct: number) => `Obikisi ${amount} (${pct}%)`,
     included: 'Oyo ezali kati',
     perPiece: '/moko',
     features: [
-      'Contrôle ya qualité ya Allemagne liboso ya envoi',
-      'Livraison na Kinshasa & Brazzaville',
-      'Okoki komeka yo moko, technicien esengami te',
+      'Biloko ya sika na garantie ya fabricant',
+      'Livraison na Congo',
+      'Brancher ba appareils directement na powerstation',
     ],
-    assemblyTitle: 'Montage na ba minute moke',
+    assemblyTitle: 'Montage ya pete',
     assemblyLink: 'Tala vidéo ya montage na YouTube',
     systemLabel: (name: string) => `Système "${name}"`,
     insteadOf: (amount: string) => `na esika ya ${amount} moko moko`,
     orderButton: 'Sombá système',
     adding: 'Ezali kobakisama…',
     registerHint: 'Inscription esengami kaka pona kosukisa commande',
+    priceNote: 'Transport mpe taxes ezali te na prix oyo. Partenaire na biso na Congo akopesa yo facture ya suka sima ya commande.',
     authTitleLogin: 'Kokota',
     authTitleRegister: 'Inscription',
     authIntro: (name: string, price: string) => `Pona kosomba système "${name}" (${price}), kotá to sala inscription na yo noki.`,
@@ -249,13 +249,13 @@ const translations = {
     solar: {
       title: 'Ozali kosomba ba panneaux solaires te.',
       titleAccent: 'Ozali kosomba bonsomi.',
-      text: 'Système solaire mobile, kozanga électricien. Otie yango, obranché yango, mpe ndako na yo ekotala lisusu coupures te.',
+      text: 'Système solaire mobile: otie yango, obranché ba appareils, mpe ndako na yo ezali na courant na tango ya coupure, tii batterie esila.',
       photoAlt: 'Installation ya projet pilote GLB Solar',
       photoSoon: 'Ba photos ya projet pilote GLB Solar ekoya',
       benefits: [
         { title: 'Mobile', desc: 'Chantier ezali te. Système etiamaka esika olingi mpe ekendaka na yo.' },
-        { title: 'Kozanga électricien', desc: 'Otie yango, obranché yango. Vidéo ya montage ekolakisa yo nzela.' },
-        { title: 'Compte oyo esilaka te', desc: 'Moi etondisaka yango ntongo nyonso. Ozwaka énergie na yo kozanga frais mpe kozanga carburant.' },
+        { title: 'Pete pona kobranché', desc: 'Brancher ba appareils directement na powerstation, vidéo ekolakisa yo nzela. Pona installation ya ndako, électricien asengeli kosala yango.' },
+        { title: 'Compte oyo moi etondisaka mokolo na mokolo', desc: 'Moi etondisaka yango ntongo nyonso. Ozwaka énergie na yo kozanga frais mpe kozanga carburant.' },
       ],
       pilotTag: 'Projet pilote',
       pilotTitle: 'Etiami na Congo, na miso na yo.',
@@ -267,9 +267,7 @@ const translations = {
     flow: [
       { step: '01 — Kobimisa énergie', title: 'Panneau solaire', desc: 'Installation na toit plat, tii ba strings 4 (PV1–PV4)' },
       { step: '02 — Boyokani', title: 'Câble solaire MC4', desc: 'DC, ekangami motane / moindo' },
-      { step: '03 — Bobombi', title: 'R5200', desc: 'Kotondisa, kobomba, kotinda — na app' },
-      { step: '04 — Kosalela', title: 'Réseau ya ndako', desc: 'Sortie AC na installation ya ndako' },
-      { step: '05 — Réseau', title: 'Réseau ya courant', desc: 'Kotinda oyo etikali, na ba sens mibale' },
+      { step: '03 — Bobombi', title: 'R5200', desc: 'Kotondisa mpe kobomba — na app' },
     ],
   },
   en: {
@@ -279,24 +277,25 @@ const translations = {
     subtitle: 'Powerstation, solar panels, cables and mounting as a ready-assembled set — you order one system, not separate parts.',
     popular: 'Popular',
     variants: {
-      basic: { name: 'Basic', tagline: 'With RUNHOOD R5200 (4× 1000 W MPPT)' },
-      pro: { name: 'Pro', tagline: 'With RUNHOOD R5200-AC (more capacity)' },
+      basic: { name: 'Basic', tagline: 'With RUNHOOD R5200-AC' },
+      pro: { name: 'Pro', tagline: 'With RUNHOOD R5200 All-in-One (4× 1000 W MPPT)' },
     },
     youSave: (amount: string, pct: number) => `You save ${amount} (${pct}%)`,
     included: "What's included",
     perPiece: '/unit',
     features: [
-      'German quality control before shipping',
-      'Delivery to Kinshasa & Brazzaville',
-      'Can be self-installed without a technician',
+      'New equipment with manufacturer warranty',
+      'Delivery to the Congo',
+      'Plug appliances directly into the power station',
     ],
-    assemblyTitle: 'Self-install in minutes',
+    assemblyTitle: 'Simple setup',
     assemblyLink: 'Watch the installation video on YouTube',
     systemLabel: (name: string) => `System "${name}"`,
     insteadOf: (amount: string) => `instead of ${amount} bought separately`,
     orderButton: 'Order the system',
     adding: 'Adding…',
     registerHint: 'Registration only needed to complete the order',
+    priceNote: 'Excluding transport and taxes. You receive the final invoice from our partner in the Congo after ordering.',
     authTitleLogin: 'Log in',
     authTitleRegister: 'Register',
     authIntro: (name: string, price: string) => `To order the "${name}" system (${price}), please log in or register quickly.`,
@@ -313,13 +312,13 @@ const translations = {
     solar: {
       title: 'You are not buying solar panels.',
       titleAccent: 'You are buying freedom.',
-      text: 'A mobile solar system, no electrician needed. Set it down, plug it in, and your home no longer depends on power cuts.',
+      text: 'A mobile solar system: set it down, plug in your appliances, and your home has power during outages for as long as the battery lasts.',
       photoAlt: 'Installation from the GLB Solar pilot project',
       photoSoon: 'Photos from the GLB Solar pilot project coming soon',
       benefits: [
         { title: 'Mobile', desc: 'No building work. The system sits where you need it and moves with you.' },
-        { title: 'No electrician', desc: 'Set it down, plug it in. An installation video guides you step by step.' },
-        { title: 'An account that never runs dry', desc: 'The sun tops it up every morning. You withdraw your energy with no fees and no fuel.' },
+        { title: 'Easy to connect', desc: 'Plug appliances directly into the power station, a video guides you step by step. Connecting to the home wiring must be done by an electrician.' },
+        { title: 'An account the sun refills every day', desc: 'The sun tops it up every morning. You withdraw your energy with no fees and no fuel.' },
       ],
       pilotTag: 'Pilot project',
       pilotTitle: 'Installed in Congo, before your eyes.',
@@ -331,9 +330,7 @@ const translations = {
     flow: [
       { step: '01 — Generation', title: 'Solar panel', desc: 'Installed on flat roof, up to 4 strings (PV1–PV4)' },
       { step: '02 — Connection', title: 'MC4 solar cable', desc: 'DC, red / black connectors' },
-      { step: '03 — Storage', title: 'R5200', desc: 'Charging, buffering, feeding in — controlled via app' },
-      { step: '04 — Consumption', title: 'Home network', desc: 'AC output into the home installation' },
-      { step: '05 — Grid', title: 'Power grid', desc: 'Feeding in surplus power, bidirectional' },
+      { step: '03 — Storage', title: 'R5200', desc: 'Charging and storage, controlled via app' },
     ],
   },
 };
@@ -657,11 +654,6 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
                   borderRadius: 8, padding: '1.4rem 1.5rem',
                 }}
               >
-                {v.highlight && (
-                  <span style={{ position: 'absolute', top: -10, right: 16, background: '#F4B400', color: '#0a1628', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: 3 }}>
-                    {t.popular}
-                  </span>
-                )}
                 <div style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: 4 }}>{label.name}</div>
                 <div style={{ fontSize: '0.82rem', color: '#8fa3b8', marginBottom: '0.9rem' }}>{label.tagline}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -754,9 +746,8 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
                 {' · '}
                 <span style={{ color: '#5dcaa5', fontWeight: 700 }}>−{selected.discountPercent}%</span>
               </div>
-            ) : (
-              <div style={{ marginBottom: '1.3rem' }} />
-            )}
+            ) : null}
+            <div style={{ fontSize: '0.8rem', color: '#8fa3b8', lineHeight: 1.5, marginBottom: '1.3rem' }}>{t.priceNote}</div>
 
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', marginBottom: '1.3rem', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {selected.components.map((c, i) => (
@@ -801,7 +792,7 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
       </section>
 
       {/* ── GLB SOLAR · Abschluss ──────────────────────────────────────────── */}
-      <section style={{ padding: 'clamp(2rem,5vw,4rem) 4vw calc(90px + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <section style={{ padding: 'clamp(2rem,5vw,4rem) 4vw', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem' }}>
           <div style={{ flex: '1 1 380px', minWidth: 0 }}>
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.5rem,2.8vw,2.3rem)', fontWeight: 900, margin: '0 0 0.5rem' }}>{t.solar.closingTitle}</h2>
@@ -825,6 +816,9 @@ export const SystemPage: React.FC<SystemPageProps> = ({ onBack, onGoToCart, asse
           </div>
         </div>
       </section>
+
+      {/* ── FUSSZEILE · Wer ist GLB-Solar (Inhalt nur in GlbSolarPage.tsx pflegen) ── */}
+      <GlbSolarFooter />
 
       {/* ── LOGIN / REGISTER MODAL ─────────────────────────────────────────── */}
       {showAuthModal && (

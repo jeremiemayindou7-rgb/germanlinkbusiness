@@ -20,11 +20,19 @@ const formatShipmentDate = (isoDate: string): string => {
 };
 
 export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, onCheckout }) => {
-  const { t } = useLanguage();
+  const { t, language, formatPrice } = useLanguage();
   const { cartItems, cartTotal, updateQuantity, removeFromCart } = useCart();
 
-  const shippingCost = 50;
-  const total = cartTotal + shippingCost;
+  // Transport, Zoll und Steuern werden nicht pauschal berechnet: sie stehen
+  // in der Endrechnung des Partners (z. B. GLB-Solar).
+  const total = cartTotal;
+  const PRICE_NOTE: Record<string, string> = {
+    de: 'Preise ab Deutschland. Transport und Steuern stehen in der Endrechnung unseres Partners.',
+    fr: "Prix départ Allemagne. Transport et taxes figurent sur la facture finale de notre partenaire.",
+    ln: 'Ntalo kobanda Allemagne. Transport mpe taxes ekozala na facture ya suka ya partenaire na biso.',
+    en: 'Prices ex Germany. Transport and taxes are shown on our partner\'s final invoice.',
+  };
+  const ON_INVOICE: Record<string, string> = { de: 'laut Endrechnung', fr: 'sur facture finale', ln: 'na facture ya suka', en: 'on final invoice' };
 
   const [nextShipmentDate, setNextShipmentDate] = useState<string | null>(null);
   const [loadingShipment, setLoadingShipment] = useState(true);
@@ -131,7 +139,7 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, onChe
                         {item.product?.name}
                       </h3>
                       <p className="text-[#00A86B] font-bold mb-2">
-                        {item.product?.sale_price.toFixed(2)} €
+                        {formatPrice(item.product?.sale_price ?? 0)}
                       </p>
 
                       <div className="flex items-center justify-between">
@@ -168,16 +176,17 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, onChe
               <div className="border-t p-4 space-y-3">
                 <div className="flex justify-between text-gray-600 font-medium">
                   <span>{t('subtotal')}</span>
-                  <span>{cartTotal.toFixed(2)} €</span>
+                  <span>{formatPrice(cartTotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 font-medium">
                   <span>{t('shipping')}</span>
-                  <span>{shippingCost.toFixed(2)} €</span>
+                  <span className="text-sm">{ON_INVOICE[language] ?? ON_INVOICE.fr}</span>
                 </div>
                 <div className="flex justify-between text-xl font-bold text-[#1C1C1C] pt-2 border-t">
                   <span>{t('total')}</span>
-                  <span className="text-[#00A86B]">{total.toFixed(2)} €</span>
+                  <span className="text-[#00A86B]">{formatPrice(total)}</span>
                 </div>
+                <p className="text-xs text-gray-500 leading-relaxed">{PRICE_NOTE[language] ?? PRICE_NOTE.fr}</p>
 
                 {!loadingShipment && nextShipmentDate && (
                   <div className="bg-[#0099CC] bg-opacity-10 border border-[#0099CC] p-3 rounded-lg text-sm text-center">
@@ -200,4 +209,5 @@ export const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, onChe
     </>
   );
 };
+
 

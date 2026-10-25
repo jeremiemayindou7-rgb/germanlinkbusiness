@@ -8,11 +8,23 @@ import { VerifyCode } from './VerifyCode';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // Optional: wird genau dann aufgerufen, wenn Login oder Registrierung
+  // erfolgreich war (vor onClose) — damit können Aufrufer wie SystemPage.tsx
+  // danach eine eigene Aktion anschließen (z. B. Produkt in den Warenkorb
+  // legen), ohne dass AuthModal selbst irgendetwas über Warenkörbe wissen muss.
+  // Bestehende Aufrufer, die diese Prop nicht übergeben, verhalten sich exakt
+  // wie bisher.
+  onAuthSuccess?: () => void;
+  // Optional: zusätzlicher Hinweistext, der über dem Login/Registrieren-Formular
+  // angezeigt wird (z. B. "Um das System 'Pro' zu bestellen, melde dich an …").
+  // Wird im Passwort-vergessen-Modus nicht angezeigt, da dort der Kontext
+  // (Produkt/Preis) nicht relevant ist.
+  introText?: React.ReactNode;
 }
 
 type AuthMethod = 'email' | 'phone';
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, introText }) => {
   const [showPassword, setShowPassword] = useState(false);
   const { t } = useLanguage();
   const { signIn, signUp, resetPassword, updatePassword } = useAuth();
@@ -77,9 +89,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         }, 2000);
       } else if (isLogin) {
         await signIn(formData.email, formData.password);
+        onAuthSuccess?.();
         onClose();
       } else {
         await signUp(formData.email, formData.password, formData.name);
+        onAuthSuccess?.();
         onClose();
       }
 
@@ -149,6 +163,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="p-6 space-y-4">
+
+          {!isResetMode && !isForgotPassword && introText && (
+            <div className="text-sm text-gray-600">
+              {introText}
+            </div>
+          )}
 
           {/* ── Tab-Leiste: Telefon-Login noch nicht aktiv → ausgeblendet ──
           {!isResetMode && !isForgotPassword && (
@@ -391,4 +411,5 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     </div>
   );
 };
+
 

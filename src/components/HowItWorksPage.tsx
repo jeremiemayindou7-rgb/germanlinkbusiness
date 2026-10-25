@@ -11,133 +11,131 @@ type Lang = 'de' | 'fr' | 'ln';
 const content = {
   de: {
     title: 'So funktioniert GermanLink Business',
-    subtitle: 'Der einfachste Weg, Qualitätsprodukte aus Deutschland sicher in den Congo zu bestellen.',
+    subtitle: 'Der einfache Weg, Produkte aus Deutschland in den Kongo zu bestellen.',
     badge: 'Einfach · Sicher · Transparent',
     steps: [
-      { icon: ShoppingBag, color: '#0A5EB0', bg: '#EFF6FF', title: 'Produkt auswählen', desc: 'Auf GLB findest du geprüfte Produkte aus Deutschland – mit klaren Preisen, Bildern und Beschreibungen in Deutsch, Französisch und Lingala. Wähle dein Produkt und bestätige deine Bestellung mit deiner Telefonnummer.' },
-      { icon: MessageCircle, color: '#25D366', bg: '#F0FDF4', title: 'Bestellbestätigung per WhatsApp', desc: 'Nach deiner Bestellung meldet sich ein GLB-Agent aus Brazzaville oder Kinshasa direkt bei dir.', points: ['Deine Bestellnummer', 'Den Gesamtpreis', 'Die voraussichtliche Lieferzeit', 'Alle Informationen zur Zahlung'] },
-      { icon: Building2, color: '#F59E0B', bg: '#FFFBEB', title: 'Sichere Zahlung bei der UBA-Bank', desc: 'GLB arbeitet mit der UBA-Bank zusammen, um maximale Sicherheit zu garantieren.', points: ['Du triffst den GLB-Agenten bei der UBA-Bank', 'Du zahlst direkt am Schalter oder per Mobile Money → UBA', 'Deine Zahlung wird sofort bestätigt', 'Erst danach wird dein Produkt in Deutschland gekauft'], note: '✅ Keine Betrugsgefahr – volle Transparenz.' },
-      { icon: Package, color: '#009543', bg: '#F0FDF4', title: 'Einkauf & Qualitätsprüfung in Deutschland', desc: 'Nach der Zahlung übernimmt GLB alles für dich.', points: ['Einkauf beim deutschen Händler', 'Qualitätskontrolle', 'Verpackung für den Export', 'Vorbereitung der Versandpapiere'], note: '📸 Du erhältst auf Wunsch Fotos und Updates.' },
-      { icon: Ship, color: '#0EA5E9', bg: '#F0F9FF', title: 'Versand nach Congo', desc: 'GLB organisiert den kompletten Transport.', points: ['Sammeltransport', 'Containerverladung', 'Verschiffung nach Pointe-Noire oder Matadi', 'Tracking-Updates während der Reise'], note: '📦 Du kannst jederzeit den Status deiner Bestellung einsehen.' },
-      { icon: FileText, color: '#8B5CF6', bg: '#F5F3FF', title: 'Zollabwicklung & Import', desc: 'GLB kümmert sich um:', points: ['Zollformalitäten', 'Gebühren', 'Dokumente', 'Entladung im Hafen'], note: '🛡️ Du musst dich um nichts kümmern – wir erledigen alles.' },
-      { icon: MapPin, color: '#EF4444', bg: '#FFF1F2', title: 'Lieferung im Congo', desc: 'Nach der Zollfreigabe kontaktiert dich dein GLB-Agent und vereinbart:', points: ['Abholung oder', 'Lieferung bis zu deinem Standort (je nach Stadt)'], note: '🤝 Du erhältst dein Produkt persönlich und bestätigst den Empfang.' },
-      { icon: HeadphonesIcon, color: '#F59E0B', bg: '#FFFBEB', title: 'Kundensupport & Garantie', desc: 'GLB begleitet dich auch nach der Lieferung.', points: ['Support bei Fragen', 'Garantieinformationen (falls vorhanden)', 'Hilfe bei zukünftigen Bestellungen'] },
+      { icon: ShoppingBag, color: '#0A5EB0', bg: '#EFF6FF', title: 'Produkt auswählen', desc: 'Auf GLB findest du Produkte aus Deutschland – mit Preisen, Bildern und Beschreibungen in Deutsch, Französisch und Lingala. Wähle dein Produkt und sende deine Bestellung ab.' },
+      { icon: MessageCircle, color: '#25D366', bg: '#F0FDF4', title: 'Unser Partner meldet sich', desc: 'Nach deiner Bestellung meldet sich unser Partner im Kongo per WhatsApp oder Telefon und schickt dir:', points: ['Deine Bestellnummer', 'Den Endpreis inklusive Transport und Steuern', 'Die voraussichtliche Lieferzeit', 'Die Zahlungsinformationen'] },
+      { icon: Building2, color: '#F59E0B', bg: '#FFFBEB', title: 'Sichere Zahlung', desc: 'Du zahlst an unseren Partner im Kongo – per Überweisung, Einzahlung bei der Bank (u. a. UBA) oder Mobile Money.', points: ['Zahlung immer auf ein Firmenkonto, nie an Privatpersonen', 'Deine Bestellnummer als Verwendungszweck', 'Du erhältst eine Zahlungsbestätigung', 'Danach wird deine Ware in Deutschland bestellt'], note: '✅ Zahle nie bar an Dritte.' },
+      { icon: Package, color: '#009543', bg: '#F0FDF4', title: 'Einkauf in Deutschland', desc: 'GLB kauft deine Ware bei Lieferanten in Deutschland und bereitet den Export vor.', points: ['Einkauf beim Lieferanten', 'Verpackung für den Export', 'Vorbereitung der Versandpapiere'], note: '📸 Auf Wunsch erhältst du Updates.' },
+      { icon: Ship, color: '#0EA5E9', bg: '#F0F9FF', title: 'Versand in den Kongo', desc: 'GLB organisiert den Transport in den Kongo.', points: ['Sammeltransport im Container', 'Seefracht', 'Status-Updates während der Reise'], note: '📦 Du kannst den Status deiner Bestellung jederzeit einsehen.' },
+      { icon: FileText, color: '#8B5CF6', bg: '#F5F3FF', title: 'Zoll & Import', desc: 'Unser Partner im Kongo übernimmt:', points: ['Zollformalitäten', 'Dokumente', 'Übernahme der Ware im Hafen'], note: '🛡️ Zölle und Steuern stehen in deiner Endrechnung.' },
+      { icon: MapPin, color: '#EF4444', bg: '#FFF1F2', title: 'Lieferung im Kongo', desc: 'Nach der Zollfreigabe meldet sich unser Partner und vereinbart mit dir:', points: ['Abholung oder', 'Lieferung zu deinem Standort (je nach Stadt)'], note: '🤝 Du erhältst dein Produkt persönlich und bestätigst den Empfang.' },
+      { icon: HeadphonesIcon, color: '#F59E0B', bg: '#FFFBEB', title: 'Kundensupport & Garantie', desc: 'Unser Partner und GLB begleiten dich auch nach der Lieferung.', points: ['Support bei Fragen', 'Garantie nach den Bedingungen des Herstellers', 'Hilfe bei zukünftigen Bestellungen'] },
     ],
     closing: '⭐ GLB – Einfach. Sicher. Transparent.',
-    closingDesc: 'Die direkte Brücke zwischen Deutschland und dem Congo.',
+    closingDesc: 'Die direkte Brücke zwischen Deutschland und dem Kongo.',
+    closingBadge: 'Produkte aus Deutschland',
     tabProcess: 'Ablauf',
     tabImprint: 'Impressum',
-    mediaTitle: '📸 Aktuelle Lieferungen',
-    mediaSubtitle: 'Wird regelmäßig aktualisiert',
-    mediaRoute: '🚢 Monatliche Container Hamburg → Pointe-Noire / Matadi',
+    mediaTitle: '📸 Produktbereiche',
+    mediaSubtitle: 'Beispielbilder',
+    mediaRoute: '🚢 Deutschland → Kongo',
   },
   fr: {
     title: 'Comment fonctionne GermanLink Business',
-    subtitle: 'La façon la plus simple de commander des produits de qualité depuis l\'Allemagne vers le Congo en toute sécurité.',
+    subtitle: 'La façon simple de commander des produits d’Allemagne au Congo.',
     badge: 'Simple · Sûr · Transparent',
     steps: [
-      { icon: ShoppingBag, color: '#0A5EB0', bg: '#EFF6FF', title: 'Choisir un produit', desc: 'Sur GLB, vous trouverez des produits vérifiés d\'Allemagne – avec des prix clairs, des images et des descriptions en allemand, français et lingala. Choisissez votre produit et confirmez votre commande avec votre numéro de téléphone.' },
-      { icon: MessageCircle, color: '#25D366', bg: '#F0FDF4', title: 'Confirmation de commande par WhatsApp', desc: 'Après votre commande, un agent GLB de Brazzaville ou Kinshasa vous contacte directement.', points: ['Votre numéro de commande', 'Le prix total', 'Le délai de livraison estimé', 'Toutes les informations de paiement'] },
-      { icon: Building2, color: '#F59E0B', bg: '#FFFBEB', title: 'Paiement sécurisé à la banque UBA', desc: 'GLB travaille avec la banque UBA pour garantir une sécurité maximale.', points: ['Vous retrouvez l\'agent GLB à la banque UBA', 'Vous payez directement au guichet ou par Mobile Money → UBA', 'Votre paiement est confirmé immédiatement', 'Ensuite seulement, votre produit est acheté en Allemagne'], note: '✅ Aucun risque de fraude – transparence totale.' },
-      { icon: Package, color: '#009543', bg: '#F0FDF4', title: 'Achat & contrôle qualité en Allemagne', desc: 'Après le paiement, GLB s\'occupe de tout pour vous.', points: ['Achat chez le commerçant allemand', 'Contrôle qualité', 'Emballage pour l\'export', 'Préparation des documents d\'expédition'], note: '📸 Vous recevez des photos et mises à jour sur demande.' },
-      { icon: Ship, color: '#0EA5E9', bg: '#F0F9FF', title: 'Expédition vers le Congo', desc: 'GLB organise le transport complet.', points: ['Transport groupé', 'Chargement en conteneur', 'Expédition vers Pointe-Noire ou Matadi', 'Mises à jour de suivi pendant le voyage'], note: '📦 Vous pouvez consulter le statut de votre commande à tout moment.' },
-      { icon: FileText, color: '#8B5CF6', bg: '#F5F3FF', title: 'Dédouanement & importation', desc: 'GLB s\'occupe de :', points: ['Formalités douanières', 'Frais', 'Documents', 'Déchargement au port'], note: '🛡️ Vous n\'avez rien à faire – nous nous occupons de tout.' },
-      { icon: MapPin, color: '#EF4444', bg: '#FFF1F2', title: 'Livraison au Congo', desc: 'Après le dédouanement, votre agent GLB vous contacte et convient :', points: ['D\'un enlèvement ou', 'D\'une livraison à votre adresse (selon la ville)'], note: '🤝 Vous recevez votre produit en personne et confirmez la réception.' },
-      { icon: HeadphonesIcon, color: '#F59E0B', bg: '#FFFBEB', title: 'Support client & garantie', desc: 'GLB vous accompagne même après la livraison.', points: ['Support pour vos questions', 'Informations de garantie (si disponible)', 'Aide pour les futures commandes'] },
+      { icon: ShoppingBag, color: '#0A5EB0', bg: '#EFF6FF', title: 'Choisir un produit', desc: 'Sur GLB, vous trouvez des produits d’Allemagne – avec prix, images et descriptions en allemand, français et lingala. Choisissez votre produit et envoyez votre commande.' },
+      { icon: MessageCircle, color: '#25D366', bg: '#F0FDF4', title: 'Notre partenaire vous contacte', desc: 'Après votre commande, notre partenaire au Congo vous contacte par WhatsApp ou téléphone et vous envoie :', points: ['Votre numéro de commande', 'Le prix final, transport et taxes compris', 'Le délai de livraison estimé', 'Les informations de paiement'] },
+      { icon: Building2, color: '#F59E0B', bg: '#FFFBEB', title: 'Paiement sécurisé', desc: 'Vous payez notre partenaire au Congo – par virement, versement en banque (notamment UBA) ou Mobile Money.', points: ['Paiement toujours sur un compte de société, jamais à un particulier', 'Votre numéro de commande comme référence', 'Vous recevez une confirmation de paiement', 'Ensuite, votre marchandise est commandée en Allemagne'], note: '✅ Ne payez jamais en espèces à un tiers.' },
+      { icon: Package, color: '#009543', bg: '#F0FDF4', title: 'Achat en Allemagne', desc: 'GLB achète votre marchandise auprès de fournisseurs en Allemagne et prépare l’export.', points: ['Achat auprès du fournisseur', 'Emballage pour l’export', 'Préparation des documents d’expédition'], note: '📸 Sur demande, vous recevez des mises à jour.' },
+      { icon: Ship, color: '#0EA5E9', bg: '#F0F9FF', title: 'Expédition vers le Congo', desc: 'GLB organise le transport vers le Congo.', points: ['Transport groupé en conteneur', 'Fret maritime', 'Mises à jour pendant le voyage'], note: '📦 Vous pouvez consulter le statut de votre commande à tout moment.' },
+      { icon: FileText, color: '#8B5CF6', bg: '#F5F3FF', title: 'Douane & importation', desc: 'Notre partenaire au Congo s’occupe de :', points: ['Formalités douanières', 'Documents', 'Prise en charge de la marchandise au port'], note: '🛡️ Les droits et taxes figurent sur votre facture finale.' },
+      { icon: MapPin, color: '#EF4444', bg: '#FFF1F2', title: 'Livraison au Congo', desc: 'Après le dédouanement, notre partenaire vous contacte et convient avec vous :', points: ['D’un enlèvement ou', 'D’une livraison à votre adresse (selon la ville)'], note: '🤝 Vous recevez votre produit en personne et confirmez la réception.' },
+      { icon: HeadphonesIcon, color: '#F59E0B', bg: '#FFFBEB', title: 'Support client & garantie', desc: 'Notre partenaire et GLB vous accompagnent aussi après la livraison.', points: ['Support pour vos questions', 'Garantie selon les conditions du fabricant', 'Aide pour vos prochaines commandes'] },
     ],
     closing: '⭐ GLB – Simple. Sûr. Transparent.',
-    closingDesc: 'Le pont direct entre l\'Allemagne et le Congo.',
+    closingDesc: 'Le pont direct entre l’Allemagne et le Congo.',
+    closingBadge: 'Produits d’Allemagne',
     tabProcess: 'Processus',
     tabImprint: 'Mentions légales',
-    mediaTitle: '📸 Livraisons récentes',
-    mediaSubtitle: 'Mis à jour régulièrement',
-    mediaRoute: '🚢 Conteneurs mensuels Hambourg → Pointe-Noire / Matadi',
+    mediaTitle: '📸 Domaines de produits',
+    mediaSubtitle: 'Images d’illustration',
+    mediaRoute: '🚢 Allemagne → Congo',
   },
   ln: {
     title: 'Ndenge GermanLink Business esalaka',
-    subtitle: 'Nzela ya pete koleka ya kosomba biloko ya malamu banda Allemagne na sécurité epai ya Congo.',
+    subtitle: 'Nzela ya pete ya kosomba biloko ya Allemagne pona Congo.',
     badge: 'Pete · Ya sécurité · Transparent',
     steps: [
-      { icon: ShoppingBag, color: '#0A5EB0', bg: '#EFF6FF', title: 'Pona biloko', desc: 'Na GLB, okozwa biloko oyo batalami banda Allemagne – na ba prix ya polele, ba photo mpe ba ndimbola na Allemand, Français mpe Lingala. Pona biloko na yo mpe kofirme commande na yo na numéro ya telefone na yo.' },
-      { icon: MessageCircle, color: '#25D366', bg: '#F0FDF4', title: 'Confirmation ya commande na WhatsApp', desc: 'Nsima ya commande na yo, agent ya GLB banda Brazzaville to Kinshasa akokutana na yo directement.', points: ['Numéro ya commande na yo', 'Prix mobimba', 'Ntango ya livraison oyo etalelami', 'Makambo nyonso ya paiement'] },
-      { icon: Building2, color: '#F59E0B', bg: '#FFFBEB', title: 'Paiement ya sécurité na banque UBA', desc: 'GLB esalaka na banque UBA pona kolandela sécurité ya likolo.', points: ['Okutanaka na agent ya GLB na banque UBA', 'Ofutaka directement na guichet to na Mobile Money → UBA', 'Paiement na yo ekomisama sikoyo', 'Kaka nsima, biloko na yo ezali kosomba na Allemagne'], note: '✅ Likama ya lokuta ezali te – transparence mobimba.' },
-      { icon: Package, color: '#009543', bg: '#F0FDF4', title: 'Kosomba & contrôle ya qualité na Allemagne', desc: 'Nsima ya paiement, GLB ekobeba nyonso pona yo.', points: ['Kosomba epai ya commerçant ya Allemagne', 'Contrôle ya qualité', 'Kobamba pona export', 'Kobongisa ba documents ya envoi'], note: '📸 Okozwa ba photo mpe ba mise à jour soki olingi.' },
-      { icon: Ship, color: '#0EA5E9', bg: '#F0F9FF', title: 'Envoi epai ya Congo', desc: 'GLB ebongisaka transport mobimba.', points: ['Transport ya lisanga', 'Kotia na container', 'Expédition epai ya Pointe-Noire to Matadi', 'Ba mise à jour ya tracking pendant voyage'], note: '📦 Okoki kotala état ya commande na yo ntango nyonso.' },
-      { icon: FileText, color: '#8B5CF6', bg: '#F5F3FF', title: 'Douane & import', desc: 'GLB ekobeba:', points: ['Ba formalités ya douane', 'Ba frais', 'Ba documents', 'Kobima na port'], note: '🛡️ Osengeli kosala eloko te – biso tokoloba nyonso.' },
-      { icon: MapPin, color: '#EF4444', bg: '#FFF1F2', title: 'Livraison na Congo', desc: 'Nsima ya douane, agent ya GLB na yo akokutana na yo mpe bakofuta:', points: ['Kolata to', 'Livraison epai na yo (selon ville)'], note: '🤝 Okozwa biloko na yo mpe okofirme reception.' },
-      { icon: HeadphonesIcon, color: '#F59E0B', bg: '#FFFBEB', title: 'Support ya clients & garantie', desc: 'GLB ekolanda yo mpe nsima ya livraison.', points: ['Support pona ba pertanyaan na yo', 'Makambo ya garantie (soki ezali)', 'Lisungi pona ba commande ya sima'] },
+      { icon: ShoppingBag, color: '#0A5EB0', bg: '#EFF6FF', title: 'Pona biloko', desc: 'Na GLB, okozwa biloko ya Allemagne – na ba prix, ba photo mpe ba ndimbola na Allemand, Français mpe Lingala. Pona biloko na yo mpe tinda commande na yo.' },
+      { icon: MessageCircle, color: '#25D366', bg: '#F0FDF4', title: 'Partenaire na biso akobenga yo', desc: 'Nsima ya commande na yo, partenaire na biso na Congo akobenga yo na WhatsApp to na téléphone mpe akotindela yo:', points: ['Numéro ya commande na yo', 'Prix ya suka elongo na transport mpe taxes', 'Ntango ya livraison oyo etalelami', 'Makambo ya paiement'] },
+      { icon: Building2, color: '#F59E0B', bg: '#FFFBEB', title: 'Paiement ya sécurité', desc: 'Ofutaka partenaire na biso na Congo – na virement, na banque (na kati na yango UBA) to na Mobile Money.', points: ['Paiement ntango nyonso na compte ya société, soki moke te na moto', 'Numéro ya commande na yo lokola référence', 'Okozwa confirmation ya paiement', 'Nsima, biloko na yo ekosombama na Allemagne'], note: '✅ Kofuta mbongo na maboko na moto mosusu te.' },
+      { icon: Package, color: '#009543', bg: '#F0FDF4', title: 'Kosomba na Allemagne', desc: 'GLB esombaka biloko na yo epai ya ba fournisseurs na Allemagne mpe ebongisaka export.', points: ['Kosomba epai ya fournisseur', 'Kobamba pona export', 'Kobongisa ba documents ya envoi'], note: '📸 Soki olingi, okozwa ba mise à jour.' },
+      { icon: Ship, color: '#0EA5E9', bg: '#F0F9FF', title: 'Envoi na Congo', desc: 'GLB ebongisaka transport na Congo.', points: ['Transport ya lisanga na container', 'Fret maritime', 'Ba mise à jour na nzela'], note: '📦 Okoki kotala état ya commande na yo ntango nyonso.' },
+      { icon: FileText, color: '#8B5CF6', bg: '#F5F3FF', title: 'Douane & import', desc: 'Partenaire na biso na Congo asalaka:', points: ['Ba formalités ya douane', 'Ba documents', 'Kozwa biloko na port'], note: '🛡️ Ba droits mpe taxes ezali na facture na yo ya suka.' },
+      { icon: MapPin, color: '#EF4444', bg: '#FFF1F2', title: 'Livraison na Congo', desc: 'Nsima ya douane, partenaire na biso akobenga yo mpe bokoyokana:', points: ['Kozwa yango yo moko to', 'Livraison epai na yo (selon ville)'], note: '🤝 Okozwa biloko na yo mpe okondimisa reception.' },
+      { icon: HeadphonesIcon, color: '#F59E0B', bg: '#FFFBEB', title: 'Support ya clients & garantie', desc: 'Partenaire na biso mpe GLB bakolanda yo mpe nsima ya livraison.', points: ['Support pona mituna na yo', 'Garantie na conditions ya fabricant', 'Lisungi pona ba commande ya sima'] },
     ],
     closing: '⭐ GLB – Pete. Ya sécurité. Transparent.',
-    closingDesc: 'Pont direct entre Allemagne na Congo.',
+    closingDesc: 'Pont direct kati na Allemagne mpe Congo.',
+    closingBadge: 'Biloko ya Allemagne',
     tabProcess: 'Ndenge esalaka',
     tabImprint: 'Makambo ya légal',
-    mediaTitle: '📸 Ba livraisons ya sika',
-    mediaSubtitle: 'Ebongisami ntango nyonso',
-    mediaRoute: '🚢 Ba containers ya sanza na sanza Hambourg → Pointe-Noire / Matadi',
+    mediaTitle: '📸 Ba domaines ya biloko',
+    mediaSubtitle: 'Ba photo ya ndakisa',
+    mediaRoute: '🚢 Allemagne → Congo',
   },
 };
 
-// ─── IMPRESSUM — aktualisiert gemäß Businessplan (Stand September 2026) ───
-// Zwei getrennte Rechtstraeger unter der gemeinsamen Handelsmarke "GermanLink
-// Business (GLB)": GLB-Solar (SARLU, Kongo) und KizGP (Einzelunternehmen,
-// Deutschland; ab 01.01.2027 GLB GmbH).
+// ─── IMPRESSUM — Stand Oktober 2026 ──────────────────────────────────────────
+// Plattformbetreiber: GermanLink Business GmbH i. G. (Deutschland).
+// Partner Republik Kongo: GERMANLINK BUSINESS SARLU (Geschäftsbezeichnung GLB-Solar),
+// rechtlich eigenständig.
 const impressum = {
   de: {
     title: 'Impressum',
     sections: [
       {
-        heading: '1. Allgemeine Unternehmensangaben',
+        heading: '1. Allgemeine Angaben',
         lines: [
-          'Handelsmarke: GermanLink Business (GLB)',
-          'Logistik, Import, Einkauf und Koordination Deutschland–Afrika',
-          'Betrieben durch zwei rechtlich eigenständige Partnerunternehmen:',
-          '– GLB-Solar (SARLU, Republik Kongo) — Inhaberin: Rebeca Bahoumina',
-          '– KizGP (Einzelunternehmen, Deutschland) — Inhaber: Jérémie Mayindou',
+          'Marke: GermanLink Business (GLB)',
+          'Die Plattform GLB wird von der GermanLink Business GmbH i. G. (Deutschland) betrieben.',
+          'Verkauf, Rechnung und Übergabe im Kongo übernimmt der jeweilige Partner vor Ort, ein rechtlich eigenständiges Unternehmen.',
         ],
       },
       {
-        heading: '2. Firmensitz – Republik Kongo (Congo-Brazzaville)',
+        heading: '2. Anbieter der Plattform (gemäß § 5 DDG)',
         lines: [
-          'Anbieter: GLB-Solar (Société à Responsabilité Limitée Unipersonnelle, SARLU nach kongolesischem Recht, in Gründung)',
-          'Vertreten durch: Rebeca Bahoumina, Alleingesellschafterin und Geschäftsführerin',
-          'Adresse: 68, rue Raymond-Paillet, Bacongo, Brazzaville, Republik Kongo',
-          'Telefon: +242 53312060',
-          'E-Mail: info@germanlinkbusiness.de',
-          '──────────────────────────────',
-          'Koordinatorin – Demokratische Republik Kongo: Angèle K. (Kanbongo Angel)',
-          'Telefon: +243 533320604',
-          'E-Mail: info_ak@germanlinkbusiness.de',
-        ],
-      },
-      {
-        heading: '3. Rechtliche Angaben – Deutschland (gemäß § 5 TMG)',
-        lines: [
-          'Anbieter: KizGP, Einzelunternehmen (Kleingewerbe, nicht im Handelsregister eingetragen)',
-          'Inhaber: Jérémie Mayindou',
-          'Sitz: Burgwedler Straße 156 D, 30916 Isernhagen, Deutschland',
+          'GermanLink Business GmbH i. G. (in Gründung)',
+          'Burgwedeler Str. 156D, 30916 Isernhagen, Deutschland',
+          'Vertreten durch den Geschäftsführer: Jérémie Mayindou',
+          'Handelsregister: Die Eintragung erfolgt nach Abschluss der Gründung.',
+          'USt-IdNr.: wird nach Erteilung ergänzt',
           'Mobil: +49 176 2289 6160',
           'Telefon: +49 511 4953 1791',
           'E-Mail: info_jmc@germanlinkbusiness.de',
-          '──────────────────────────────',
-          'Hinweis: Zum 01.01.2027 ist die Überführung von KizGP in die GLB GmbH vorgesehen (Gesellschafter: Jérémie Mayindou und Josias Nganga). Dieses Impressum wird zu diesem Zeitpunkt entsprechend aktualisiert.',
         ],
       },
       {
-        heading: '4. Inhaltlich Verantwortliche (gemäß § 55 Abs. 2 RStV)',
+        heading: '3. Partner in der Republik Kongo',
         lines: [
-          'Für den Inhalt der Bereiche Republik Kongo / DR Kongo / Cabinda verantwortlich: Rebeca Bahoumina (GLB-Solar)',
-          'Für den Inhalt der Bereiche Deutschland verantwortlich: Jérémie Mayindou (KizGP)',
+          'GERMANLINK BUSINESS SARLU (Geschäftsbezeichnung: GLB-Solar)',
+          'Société à Responsabilité Limitée Unipersonnelle nach kongolesischem Recht',
+          'Vertreten durch: Rebeca Bahoumina, Alleingesellschafterin und Geschäftsführerin',
+          'Sitz: 336, rue Makita, Arrondissement 2 Bacongo, Brazzaville, Republik Kongo',
+          'RCCM: wird nach Eintragung ergänzt',
+          'Telefon / WhatsApp: +242 06 789 55 09',
+          'E-Mail: info-glb-solar@gmail.com',
+        ],
+      },
+      {
+        heading: '4. Inhaltlich verantwortlich (gemäß § 18 Abs. 2 MStV)',
+        lines: [
+          'Jérémie Mayindou, Burgwedeler Str. 156D, 30916 Isernhagen, Deutschland',
         ],
       },
       {
         heading: '5. Allgemeiner Kontakt',
-        lines: ['E-Mail: info@germanlinkbusiness.de', 'Telefon: +242 53312060'],
+        lines: ['E-Mail: info@germanlinkbusiness.de', 'Telefon / WhatsApp: +242 06 789 55 09'],
       },
       {
         heading: 'Haftungsausschluss',
         lines: [
           'Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität können wir keine Gewähr übernehmen.',
-          'Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte verantwortlich.',
+          'Als Diensteanbieter sind wir für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.',
         ],
       },
       {
@@ -154,52 +152,47 @@ const impressum = {
     title: 'Mentions légales',
     sections: [
       {
-        heading: "1. Informations générales sur l'entreprise",
+        heading: '1. Informations générales',
         lines: [
-          'Marque commerciale : GermanLink Business (GLB)',
-          "Services logistiques, importation, achat et coordination Allemagne–Afrique",
-          'Exploitée par deux entités juridiquement distinctes :',
-          '– GLB-Solar (SARLU, République du Congo) — Propriétaire : Rebeca Bahoumina',
-          '– KizGP (entreprise individuelle, Allemagne) — Dirigeant : Jérémie Mayindou',
+          'Marque : GermanLink Business (GLB)',
+          'La plateforme GLB est exploitée par GermanLink Business GmbH i. G. (Allemagne).',
+          'La vente, la facturation et la remise au Congo sont assurées par le partenaire local, une entreprise juridiquement indépendante.',
         ],
       },
       {
-        heading: '2. Siège social – République du Congo (Congo-Brazzaville)',
+        heading: '2. Exploitant de la plateforme (§ 5 DDG, droit allemand)',
         lines: [
-          'Prestataire : GLB-Solar (Société à Responsabilité Limitée Unipersonnelle, SARLU de droit congolais, en cours de constitution)',
-          'Représentée par : Rebeca Bahoumina, associée unique et gérante',
-          'Adresse : 68, rue Raymond-Paillet, Bacongo, Brazzaville, République du Congo',
-          'Téléphone : +242 53312060',
-          'E-mail : info@germanlinkbusiness.de',
-          '──────────────────────────────',
-          'Coordinatrice – République Démocratique du Congo : Angèle K. (Kanbongo Angel)',
-          'Téléphone : +243 533320604',
-          'E-mail : info_ak@germanlinkbusiness.de',
-        ],
-      },
-      {
-        heading: '3. Informations légales – Allemagne (conformément au § 5 TMG)',
-        lines: [
-          'Prestataire : KizGP, entreprise individuelle (micro-entreprise, non inscrite au registre du commerce)',
-          'Dirigeant : Jérémie Mayindou',
-          'Siège : Burgwedler Straße 156 D, 30916 Isernhagen, Allemagne',
+          'GermanLink Business GmbH i. G. (en cours d’immatriculation)',
+          'Burgwedeler Str. 156D, 30916 Isernhagen, Allemagne',
+          'Représentée par le gérant : Jérémie Mayindou',
+          'Registre du commerce : l’immatriculation suivra la constitution.',
+          'N° de TVA intracommunautaire : sera ajouté après attribution',
           'Mobile : +49 176 2289 6160',
           'Téléphone : +49 511 4953 1791',
           'E-mail : info_jmc@germanlinkbusiness.de',
-          '──────────────────────────────',
-          'Remarque : au 01.01.2027, KizGP sera transformée en GLB GmbH (associés : Jérémie Mayindou et Josias Nganga). Les présentes mentions légales seront alors actualisées.',
         ],
       },
       {
-        heading: '4. Responsables du contenu (conformément au § 55 Abs. 2 RStV)',
+        heading: '3. Partenaire en République du Congo',
         lines: [
-          'Responsable du contenu pour la République du Congo / RDC / Cabinda : Rebeca Bahoumina (GLB-Solar)',
-          'Responsable du contenu pour l\'Allemagne : Jérémie Mayindou (KizGP)',
+          'GERMANLINK BUSINESS SARLU (enseigne : GLB-Solar)',
+          'Société à Responsabilité Limitée Unipersonnelle de droit congolais',
+          'Représentée par : Rebeca Bahoumina, associée unique et gérante',
+          'Siège : 336, rue Makita, arrondissement 2 Bacongo, Brazzaville, République du Congo',
+          'RCCM : sera ajouté après immatriculation',
+          'Téléphone / WhatsApp : +242 06 789 55 09',
+          'E-mail : info-glb-solar@gmail.com',
+        ],
+      },
+      {
+        heading: '4. Responsable du contenu (§ 18 al. 2 MStV)',
+        lines: [
+          'Jérémie Mayindou, Burgwedeler Str. 156D, 30916 Isernhagen, Allemagne',
         ],
       },
       {
         heading: '5. Contact général',
-        lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone : +242 53312060'],
+        lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone / WhatsApp : +242 06 789 55 09'],
       },
       {
         heading: 'Clause de non-responsabilité',
@@ -219,64 +212,59 @@ const impressum = {
     title: 'Makambo ya légal',
     sections: [
       {
-        heading: '1. Makambo ya générale ya société',
+        heading: '1. Makambo ya générale',
         lines: [
-          'Marque commerciale : GermanLink Business (GLB)',
-          'Ba services ya logistique, importation, kosomba mpe coordination Allemagne–Afrika',
-          'Etambwisami na ba entités mibale ya sépara na loi:',
-          '– GLB-Solar (SARLU, République du Congo) — Propriétaire : Rebeca Bahoumina',
-          '– KizGP (entreprise individuelle, Allemagne) — Motambwisi : Jérémie Mayindou',
+          'Marque : GermanLink Business (GLB)',
+          'Plateforme GLB etambwisami na GermanLink Business GmbH i. G. (Allemagne).',
+          'Koteka, facture mpe kopesa biloko na Congo esalemaka na partenaire ya mboka, entreprise oyo ezali na bonsomi na yango na loi.',
         ],
       },
       {
-        heading: '2. Siège ya société – République du Congo (Congo-Brazzaville)',
+        heading: '2. Motambwisi ya plateforme (§ 5 DDG, mibeko ya Allemagne)',
         lines: [
-          'Mosalisi : GLB-Solar (Société à Responsabilité Limitée Unipersonnelle, SARLU na mibeko ya Congo, ezali naino kosalema)',
-          'Emonisami na : Rebeca Bahoumina, associée unique mpe gérante',
-          'Adresse : 68, rue Raymond-Paillet, Bacongo, Brazzaville, République du Congo',
-          'Téléphone : +242 53312060',
-          'E-mail : info@germanlinkbusiness.de',
-          '──────────────────────────────',
-          'Coordinatrice – République Démocratique du Congo : Angèle K. (Kanbongo Angel)',
-          'Téléphone : +243 533320604',
-          'E-mail : info_ak@germanlinkbusiness.de',
-        ],
-      },
-      {
-        heading: '3. Makambo ya légal – Allemagne (§ 5 TMG)',
-        lines: [
-          'Mosalisi : KizGP, entreprise individuelle (micro-entreprise, ezali te na registre ya commerce)',
-          'Motambwisi : Jérémie Mayindou',
-          'Siège : Burgwedler Straße 156 D, 30916 Isernhagen, Allemagne',
+          'GermanLink Business GmbH i. G. (ezali naino kokoma na registre)',
+          'Burgwedeler Str. 156D, 30916 Isernhagen, Allemagne',
+          'Emonisami na gérant : Jérémie Mayindou',
+          'Registre ya commerce : ekosalema nsima ya constitution.',
+          'Numéro ya TVA : ekobakisama nsima',
           'Mobile : +49 176 2289 6160',
           'Téléphone : +49 511 4953 1791',
           'E-mail : info_jmc@germanlinkbusiness.de',
-          '──────────────────────────────',
-          'Liyebisi : Na 01.01.2027, KizGP ekobongwana GLB GmbH (associés: Jérémie Mayindou na Josias Nganga). Makambo oyo ekobongisama na tango wana.',
         ],
       },
       {
-        heading: '4. Ba responsables ya contenu (§ 55 Abs. 2 RStV)',
+        heading: '3. Partenaire na République du Congo',
         lines: [
-          'Responsable ya contenu mpo na République du Congo / RDC / Cabinda : Rebeca Bahoumina (GLB-Solar)',
-          'Responsable ya contenu mpo na Allemagne : Jérémie Mayindou (KizGP)',
+          'GERMANLINK BUSINESS SARLU (enseigne : GLB-Solar)',
+          'Société à Responsabilité Limitée Unipersonnelle na mibeko ya Congo',
+          'Emonisami na : Rebeca Bahoumina, associée unique mpe gérante',
+          'Siège : 336, rue Makita, arrondissement 2 Bacongo, Brazzaville, République du Congo',
+          'RCCM : ekobakisama nsima ya immatriculation',
+          'Téléphone / WhatsApp : +242 06 789 55 09',
+          'E-mail : info-glb-solar@gmail.com',
         ],
       },
       {
-        heading: '5. Contacto geral',
-        lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone : +242 53312060'],
+        heading: '4. Responsable ya contenu (§ 18 al. 2 MStV)',
+        lines: [
+          'Jérémie Mayindou, Burgwedeler Str. 156D, 30916 Isernhagen, Allemagne',
+        ],
       },
       {
-        heading: 'Limitação da responsabilidade',
-        lines: ['O conteúdo de nossas páginas foi criado com o máximo cuidado. Não podemos garantir a precisão e atualidade do conteúdo.'],
+        heading: '5. Contact',
+        lines: ['E-mail : info@germanlinkbusiness.de', 'Téléphone / WhatsApp : +242 06 789 55 09'],
       },
       {
-        heading: 'Direito de autor',
-        lines: ['O conteúdo está sujeito às leis de direitos autorais alemãs. A reprodução requer o consentimento por escrito do autor.'],
+        heading: 'Responsabilité',
+        lines: ['Makambo ya ba pages na biso esalemaki na bokebi mingi. Tokoki kondimisa te ete nyonso ezali ntango nyonso ya solo mpe ya sika.'],
       },
       {
-        heading: 'Proteção de dados',
-        lines: ['O tratamento de dados pessoais é feito em uma base voluntária.'],
+        heading: "Droit d'auteur",
+        lines: ['Makambo oyo ezali na se ya mibeko ya droit d’auteur ya Allemagne. Kozongela yango esengeli ndingisa ya écrit ya mokomi.'],
+      },
+      {
+        heading: 'Protection ya données',
+        lines: ['Traitement ya données ya bato esalemaka kaka soki bango moko balingi.'],
       },
     ],
   },
@@ -423,7 +411,7 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
               <h2 className="text-xl sm:text-2xl font-black mb-2">{c.closing}</h2>
               <p className="text-sm sm:text-lg text-white/90">{c.closingDesc}</p>
               <div className="flex justify-center gap-4 sm:gap-6 mt-4 sm:mt-6 flex-wrap">
-                <div className="flex items-center gap-2 text-sm"><Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFCE00]" /><span className="font-semibold">Made in Germany</span></div>
+                <div className="flex items-center gap-2 text-sm"><Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFCE00]" /><span className="font-semibold">{c.closingBadge}</span></div>
                 <div className="flex items-center gap-2 text-sm"><Globe className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFCE00]" /><span className="font-semibold">Congo · Allemagne</span></div>
               </div>
             </div>
@@ -456,7 +444,7 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
                 ))}
               </div>
               <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t text-center text-xs text-gray-400">
-                © {new Date().getFullYear()} GermanLink Business · info@germanlinkbusiness.de
+                © {new Date().getFullYear()} GermanLink Business GmbH i. G. · info@germanlinkbusiness.de
               </div>
             </div>
 
@@ -553,4 +541,5 @@ export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ initialTab = 'pr
     </div>
   );
 };
+
 

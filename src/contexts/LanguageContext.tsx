@@ -3,12 +3,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export type Language = 'de' | 'fr' | 'ln' | 'en';
 
 // ── Währung je Sprache ────────────────────────────────────────────────────────
-// de → Euro, fr + ln → Franc CFA, en → Nigerianischer Naira (für Kunden aus Nigeria)
+// de → Euro, fr + ln + en → Franc CFA (Republik Kongo)
 // Kurs XAF: 1 € ≈ 655.957 XAF (fester Kurs, an den Euro gekoppelt)
-// Kurs NGN: 1 € ≈ 1600 NGN (Näherungswert, NGN ist NICHT gekoppelt und schwankt
-// stark — diesen Wert regelmäßig gegen einen aktuellen Kurs prüfen/aktualisieren,
-// z.B. über https://wise.com/us/currency-converter/eur-to-ngn-rate/ oder eine
-// Wechselkurs-API).
 export const CURRENCY_CONFIG: Record<Language, {
   symbol: string;
   code: string;
@@ -18,7 +14,7 @@ export const CURRENCY_CONFIG: Record<Language, {
   de: { symbol: '€',       code: 'EUR',  rate: 1,       decimals: 2 },
   fr: { symbol: 'F CFA',   code: 'XAF',  rate: 655.957, decimals: 0 },
   ln: { symbol: 'F CFA',   code: 'XAF',  rate: 655.957, decimals: 0 },
-  en: { symbol: '₦',       code: 'NGN',  rate: 1600,    decimals: 0 },
+  en: { symbol: 'F CFA',   code: 'XAF',  rate: 655.957, decimals: 0 },
 };
 
 // Hilfsfunktion: Preis in EUR → lokale Währung formatieren
@@ -64,8 +60,8 @@ const translations: Translations = {
   cart: { de: 'Warenkorb', fr: 'Panier', ln: 'Panier', en: 'Cart' },
   profile: { de: 'Profil', fr: 'Profil', ln: 'Profil', en: 'Profile' },
   admin: { de: 'Verwaltung', fr: 'Administration', ln: 'Administration', en: 'Administration' },
-  european_quality: { de: 'Garantierte europäische Qualität', fr: 'Qualité européenne garantie', ln: 'Qualité ya Europe esimbami', en: 'Guaranteed European quality' },
-  monthly_shipping: { de: 'Sichere monatliche Lieferung', fr: 'Envoi mensuel sécurisé', ln: 'Envoi ya sanza oyo ebatelami', en: 'Secure monthly shipping' },
+  european_quality: { de: 'Neuware aus Deutschland', fr: "Produits neufs d'Allemagne", ln: 'Biloko ya sika ya Allemagne', en: 'New products from Germany' },
+  monthly_shipping: { de: 'Regelmäßige Container-Lieferung', fr: 'Envois réguliers par conteneur', ln: 'Envoi ya conteneur mbala na mbala', en: 'Regular container shipments' },
   next_shipment: { de: 'Nächste Lieferung', fr: 'Prochain envoi', ln: 'Envoi oyo elandi', en: 'Next shipment' },
   next_shipment_desc: { de: 'Ihre Bestellung wird beim nächsten monatlichen Versand verschickt', fr: 'Votre commande sera expédiée lors du prochain envoi mensuel', ln: 'Commande na yo ekotindama na envoi oyo elandi ya sanza', en: 'Your order will be shipped with the next monthly shipment' },
   condition: { de: 'Zustand', fr: 'État', ln: 'Ndenge ezali', en: 'Condition' },
@@ -84,14 +80,14 @@ const translations: Translations = {
   name: { de: 'Vollständiger Name', fr: 'Nom complet', ln: 'Nkombo mobimba', en: 'Full name' },
   phone: { de: 'Telefon', fr: 'Téléphone', ln: 'Telefone', en: 'Phone' },
   whatsapp: { de: 'WhatsApp', fr: 'WhatsApp', ln: 'WhatsApp', en: 'WhatsApp' },
-  delivery_address: { de: 'Lieferadresse in Brazzaville', fr: 'Adresse de livraison à Brazzaville', ln: 'Adresse ya livraison na Brazzaville', en: 'Delivery address in Brazzaville' },
+  delivery_address: { de: 'Lieferadresse', fr: 'Adresse de livraison', ln: 'Adresse ya livraison', en: 'Delivery address' },
   notification_preferences: { de: 'Benachrichtigungseinstellungen', fr: 'Préférences de notification', ln: 'Makambo ya koyeba', en: 'Notification preferences' },
   save: { de: 'Speichern', fr: 'Enregistrer', ln: 'Kobomba', en: 'Save' },
   cancel: { de: 'Abbrechen', fr: 'Annuler', ln: 'Kotika', en: 'Cancel' },
   close: { de: 'Schließen', fr: 'Fermer', ln: 'Kofunga', en: 'Close' },
   checkout: { de: 'Bestellen', fr: 'Commander', ln: 'Kosomba', en: 'Checkout' },
   subtotal: { de: 'Zwischensumme', fr: 'Sous-total', ln: 'Ntalo ya moke', en: 'Subtotal' },
-  shipping: { de: 'Versandkosten', fr: 'Frais de port', ln: 'Mbongo ya kotinda', en: 'Shipping cost' },
+  shipping: { de: 'Transport & Steuern', fr: 'Transport & taxes', ln: 'Transport & taxes', en: 'Transport & taxes' },
   total: { de: 'Gesamt', fr: 'Total', ln: 'Nyonso', en: 'Total' },
   to_pay_now: { de: 'Jetzt zu zahlen', fr: 'À payer maintenant', ln: 'Kofuta sikoyo', en: 'To pay now' },
   payment_options: { de: 'Zahlungsoptionen', fr: 'Options de paiement', ln: 'Ndenge ya kofuta', en: 'Payment options' },
@@ -103,18 +99,18 @@ const translations: Translations = {
   payment_method_title: { de: 'Zahlungsmethode', fr: 'Méthode de paiement', ln: 'Ndenge ya kofuta', en: 'Payment method' },
   lemfi_method_name: { de: 'Banküberweisung via LemFi', fr: 'Virement bancaire via LemFi', ln: 'Kobakisa mbongo na LemFi', en: 'Bank transfer via LemFi' },
   lemfi_method_desc: { de: 'Internationaler Banktransfer', fr: 'Virement bancaire international', ln: 'Kobakisa mbongo ya biso na biso', en: 'International bank transfer' },
-  uba_method_name: { de: 'Agent + UBA Bank (Congo)', fr: 'Agent + UBA Bank (Congo)', ln: 'Agent + UBA Bank (Congo)', en: 'Agent + UBA Bank (Congo)' },
-  uba_method_desc: { de: 'Ein Agent begleitet Sie zur Bank', fr: 'Un agent vous accompagne à la banque', ln: 'Agent akotambola na yo na banque', en: 'An agent accompanies you to the bank' },
+  uba_method_name: { de: 'Banküberweisung (UBA Congo)', fr: 'Virement bancaire (UBA Congo)', ln: 'Kobakisa mbongo (UBA Congo)', en: 'Bank transfer (UBA Congo)' },
+  uba_method_desc: { de: 'Auf das Firmenkonto von GLB-Solar', fr: 'Sur le compte de la société GLB-Solar', ln: 'Na compte ya société GLB-Solar', en: 'To the GLB-Solar company account' },
   uba_how_it_works: { de: 'So funktioniert der UBA-Prozess:', fr: 'Comment fonctionne le processus UBA :', ln: 'Ndenge ya procès ya UBA :', en: 'How the UBA process works:' },
   uba_info_step1: { de: 'GLB ruft dich an (Telefonnummer oben)', fr: 'GLB vous appelle (numéro ci-dessus)', ln: 'GLB ekobenga yo (numéro oyo ezali likolo)', en: 'GLB calls you (phone number above)' },
-  uba_info_step2: { de: 'Gemeinsam zur UBA Bank in Brazzaville / Kinshasa', fr: 'Ensemble à la UBA Bank à Brazzaville / Kinshasa', ln: 'Bokende na UBA Bank na Brazzaville / Kinshasa', en: 'Together to UBA Bank in Brazzaville / Kinshasa' },
+  uba_info_step2: { de: 'Überweisung oder Einzahlung bei UBA auf das Firmenkonto', fr: 'Virement ou versement à la UBA sur le compte de la société', ln: 'Kobakisa to kotiya mbongo na UBA na compte ya société', en: 'Transfer or deposit at UBA to the company account' },
   uba_info_step3: { de: 'Zahlung mit Bestellnummer als Referenz', fr: 'Paiement avec le numéro de commande comme référence', ln: 'Kofuta na numéro ya commande lokola référence', en: 'Payment with order number as reference' },
   uba_info_step4: { de: 'GLB bestätigt Zahlung → Logistik startet', fr: 'GLB confirme le paiement → la logistique démarre', ln: 'GLB esangisi kofuta → logistique ebandi', en: 'GLB confirms payment → logistics starts' },
   uba_next_steps_title: { de: 'Agent UBA Bank (Congo) – Nächste Schritte', fr: 'Agent UBA Bank (Congo) – Prochaines étapes', ln: 'Agent UBA Bank (Congo) – Malako oyo elandi', en: 'Agent UBA Bank (Congo) – Next steps' },
   uba_step1: { de: 'GLB kontaktiert dich innerhalb 24h', fr: 'GLB vous contacte dans les 24h', ln: 'GLB ekobenga yo na kati ya ngonga 24', en: 'GLB contacts you within 24h' },
   uba_step1_sub: { de: 'Unter der Nummer:', fr: 'Au numéro :', ln: 'Na numéro :', en: 'At the number:' },
-  uba_step2: { de: 'Gemeinsam zur UBA Bank gehen', fr: 'Aller ensemble à la UBA Bank', ln: 'Bokende na UBA Bank', en: 'Go together to UBA Bank' },
-  uba_step2_sub: { de: 'Dein Agent begleitet dich zur UBA und hilft bei der Zahlung', fr: 'Votre agent vous accompagne à la UBA et aide pour le paiement', ln: 'Agent na yo akotambola na yo na UBA mpe akosalisa na kofuta', en: 'Your agent accompanies you to UBA and helps with payment' },
+  uba_step2: { de: 'Bei UBA einzahlen oder überweisen', fr: 'Payer à la UBA (virement ou versement)', ln: 'Futa na UBA', en: 'Pay at UBA (transfer or deposit)' },
+  uba_step2_sub: { de: 'Bestellnummer als Verwendungszweck angeben', fr: 'Indiquez le numéro de commande comme référence', ln: 'Tiya numéro ya commande lokola référence', en: 'Use the order number as reference' },
   uba_step3: { de: 'Zahlung mit dieser Referenz', fr: 'Paiement avec cette référence', ln: 'Kofuta na référence oyo', en: 'Payment with this reference' },
   uba_submit_btn: { de: 'Bestellung absenden → GLB kontaktiert dich', fr: 'Envoyer la commande → GLB vous contacte', ln: 'Tinda commande → GLB ekobenga yo', en: 'Submit order → GLB contacts you' },
   pay_with_lemfi: { de: 'Mit LemFi bezahlen', fr: 'Payer avec LemFi', ln: 'Futa na LemFi', en: 'Pay with LemFi' },
@@ -223,9 +219,9 @@ const translations: Translations = {
   error_invalid_code: { de: 'Ungültiger Code. Bitte erneut versuchen.', fr: 'Code invalide. Veuillez réessayer.', ln: 'Code ya malamu te. Meka lisusu.', en: 'Invalid code. Please try again.' },
   error_too_many: { de: 'Zu viele Versuche. Bitte warten Sie 5 Minuten.', fr: 'Trop de tentatives. Attendez 5 minutes.', ln: 'Osalelaki mingi. Linga tii 5 miniti.', en: 'Too many attempts. Please wait 5 minutes.' },
   seller_apply_title: { de: 'Als Verkäufer bewerben', fr: 'Devenir vendeur', ln: 'Bimela kobika', en: 'Apply as a seller' },
-  seller_apply_desc: { de: 'Verkaufe deine Produkte nach Afrika – GLB übernimmt die Lieferung', fr: 'Vendez vos produits en Afrique – GLB gère la livraison', ln: 'Teka biloko na Afrika – GLB ezali ko-livrer', en: 'Sell your products to Africa – GLB handles delivery' },
+  seller_apply_desc: { de: 'Verkaufe deine Produkte in den Kongo – über die GLB-Plattform', fr: 'Vendez vos produits au Congo – via la plateforme GLB', ln: 'Teka biloko na yo na Congo – na plateforme GLB', en: 'Sell your products to Congo – via the GLB platform' },
   seller_apply_btn: { de: 'Bewerbung senden', fr: 'Envoyer la candidature', ln: 'Tinda candidature', en: 'Submit application' },
-  seller_germany_required: { de: 'Nur für Verkäufer in Deutschland. GLB übernimmt Versand & Lieferung nach Afrika.', fr: "Réservé aux vendeurs en Allemagne. GLB gère l'expédition vers l'Afrique.", ln: 'Pona bateki na Allemagne. GLB ezali ko-tinda na Afrika.', en: 'For sellers in Germany only. GLB handles shipping & delivery to Africa.' },
+  seller_germany_required: { de: 'Nur für Verkäufer in Deutschland. Der Versand erfolgt im GLB-Container.', fr: "Réservé aux vendeurs en Allemagne. L'envoi se fait dans le conteneur GLB.", ln: 'Pona bateki na Allemagne. Envoi esalemaka na conteneur ya GLB.', en: 'Only for sellers in Germany. Shipping is done in the GLB container.' },
   seller_city: { de: 'Stadt (in Deutschland)', fr: 'Ville (en Allemagne)', ln: 'Ville (na Allemagne)', en: 'City (in Germany)' },
   seller_business_type: { de: 'Art des Verkäufers', fr: 'Type de vendeur', ln: 'Type ya moteki', en: 'Type of seller' },
   seller_private: { de: 'Privatperson', fr: 'Particulier', ln: 'Personne privée', en: 'Private individual' },
@@ -240,17 +236,17 @@ const translations: Translations = {
   seller_rejected_desc: { de: 'Leider können wir deine Bewerbung nicht genehmigen.', fr: 'Nous ne pouvons malheureusement pas approuver votre candidature.', ln: 'Tolingi te, tokoki te kozua candidature na yo.', en: 'Unfortunately, we cannot approve your application.' },
   seller_approved_badge: { de: 'Genehmigter Verkäufer', fr: 'Vendeur approuvé', ln: 'Moteki azuami', en: 'Approved seller' },
   seller_dashboard_title: { de: 'Mein Verkäufer-Bereich', fr: 'Mon espace vendeur', ln: 'Esika na ngai ya moteki', en: 'My seller area' },
-  seller_dashboard_desc: { de: 'Verwalte deine Inserate für den afrikanischen Markt', fr: 'Gérez vos annonces pour le marché africain', ln: 'Leka ba-annonces na yo pona marché ya Afrique', en: 'Manage your listings for the African market' },
+  seller_dashboard_desc: { de: 'Verwalte deine Inserate für den Kongo', fr: 'Gérez vos annonces pour le Congo', ln: 'Leka ba-annonces na yo pona Congo', en: 'Manage your listings for Congo' },
   seller_no_products: { de: 'Noch keine Produkte inseriert', fr: 'Aucun produit encore annoncé', ln: 'Eloko moko te elongami', en: 'No products listed yet' },
   seller_no_application: { de: 'Keine Bewerbung gefunden', fr: 'Aucune candidature trouvée', ln: 'Candidature moko te', en: 'No application found' },
   seller_new_product: { de: 'Neues Produkt inserieren', fr: 'Ajouter une nouvelle annonce', ln: 'Bakisa eloko ya sika', en: 'List a new product' },
-  seller_shipping_notice: { de: 'GLB übernimmt die Lieferung nach Kinshasa/Brazzaville. Keine Direktzahlung an dich.', fr: 'GLB gère la livraison vers Kinshasa/Brazzaville. Pas de paiement direct.', ln: 'GLB ezali ko-livrer na Kinshasa/Brazzaville. Mbongo na biso.', en: 'GLB handles delivery to Kinshasa/Brazzaville. No direct payment to you.' },
+  seller_shipping_notice: { de: 'Der Versand erfolgt im GLB-Container in den Kongo. Keine Direktzahlung des Käufers an dich.', fr: "L'envoi se fait dans le conteneur GLB vers le Congo. Pas de paiement direct de l'acheteur.", ln: 'Envoi esalemaka na conteneur ya GLB na Congo. Mosombi akofuta yo direct te.', en: 'Shipping is done in the GLB container to Congo. No direct payment from the buyer to you.' },
   seller_image_hint: { de: 'Link zu einem Bild deines Produkts (z.B. aus Google Drive, Dropbox)', fr: 'Lien vers une image de votre produit', ln: 'Lien ya image ya eloko na yo', en: 'Link to an image of your product (e.g. from Google Drive, Dropbox)' },
   seller_publish: { de: 'Inserat veröffentlichen', fr: "Publier l'annonce", ln: 'Longola annonce', en: 'Publish listing' },
   become_seller: { de: 'Anbieter werden', fr: 'Devenir vendeur', ln: 'Koma moteki', en: 'Become a seller' },
   my_seller_area: { de: 'Mein Anbieter-Bereich', fr: 'Mon espace vendeur', ln: 'Esika ya moteki', en: 'My seller area' },
   marketplace_title: { de: 'Marktplätze durchsuchen', fr: 'Rechercher sur les marchés', ln: 'Luka na ba-marché', en: 'Browse marketplaces' },
-  marketplace_subtitle: { de: 'Produkt suchen — GLB liefert nach Congo', fr: 'Chercher un produit — GLB livre au Congo', ln: 'Luka eloko — GLB ekobakisa na Congo', en: 'Search for a product — GLB delivers to Congo' },
+  marketplace_subtitle: { de: 'Produkt suchen — Lieferung in den Kongo', fr: 'Chercher un produit — livraison au Congo', ln: 'Luka eloko — livraison na Congo', en: 'Search for a product — delivery to Congo' },
   marketplace_tab_search: { de: 'Marktplätze durchsuchen', fr: 'Parcourir les marchés', ln: 'Luka na ba-marché', en: 'Browse marketplaces' },
   marketplace_tab_link: { de: 'Link einreichen', fr: 'Soumettre un lien', ln: 'Tinda lien', en: 'Submit a link' },
   marketplace_search_placeholder: { de: 'Suchbegriff eingeben… z.B. iPhone, Sofa, Nike', fr: 'Entrez un mot-clé… ex: iPhone, Canapé, Nike', ln: 'Tiya liloba… ex: iPhone, Sofa, Nike', en: 'Enter a keyword… e.g. iPhone, Sofa, Nike' },
@@ -258,12 +254,12 @@ const translations: Translations = {
   marketplace_how_it_works: { de: 'So funktioniert es', fr: 'Comment ça marche', ln: 'Ndenge esalema', en: 'How it works' },
   marketplace_step1: { de: 'Suchbegriff eingeben & Marktplatz wählen', fr: 'Entrer un mot-clé & choisir un marché', ln: 'Tiya liloba & pona marché', en: 'Enter a keyword & choose a marketplace' },
   marketplace_step2: { de: 'Produkt finden & Link kopieren', fr: 'Trouver le produit & copier le lien', ln: 'Yeba eloko & kopia lien', en: 'Find the product & copy the link' },
-  marketplace_step3: { de: 'Link einreichen → GLB liefert nach Congo', fr: 'Soumettre le lien → GLB livre au Congo', ln: 'Tinda lien → GLB ekobakisa na Congo', en: 'Submit the link → GLB delivers to Congo' },
+  marketplace_step3: { de: 'Link einreichen → Lieferung in den Kongo', fr: 'Soumettre le lien → livraison au Congo', ln: 'Tinda lien → livraison na Congo', en: 'Submit the link → delivery to Congo' },
   marketplace_choose: { de: 'Marktplatz wählen', fr: 'Choisir un marché', ln: 'Pona marché', en: 'Choose a marketplace' },
   marketplace_open: { de: 'Öffnen', fr: 'Ouvrir', ln: 'Fungola', en: 'Open' },
   marketplace_search_on: { de: 'suchen', fr: 'rechercher', ln: 'luka', en: 'search' },
   marketplace_found: { de: 'Produkt gefunden?', fr: 'Produit trouvé?', ln: 'Ozwi eloko?', en: 'Found a product?' },
-  marketplace_found_desc: { de: 'Link kopieren → oben auf „Link einreichen" klicken → GLB kauft und liefert nach Congo.', fr: 'Copiez le lien → cliquez sur „Soumettre un lien" → GLB achète et livre au Congo.', ln: 'Kopia lien → penza „Tinda lien" → GLB esomba mpe ekobakisa na Congo.', en: 'Copy the link → click "Submit a link" above → GLB buys and delivers to Congo.' },
+  marketplace_found_desc: { de: 'Link kopieren → oben auf „Link einreichen" klicken → du erhältst ein Angebot inkl. Transport und Steuern.', fr: 'Copiez le lien → cliquez sur „Soumettre un lien" → vous recevez une offre transport et taxes inclus.', ln: 'Kopia lien → penza „Tinda lien" → okozwa offre na transport mpe taxes.', en: 'Copy the link → click „Submit a link" → you receive an offer incl. transport and taxes.' },
   marketplace_submit_link: { de: 'Jetzt Link einreichen →', fr: 'Soumettre le lien maintenant →', ln: 'Tinda lien sikoyo →', en: 'Submit link now →' },
   marketplace_supported: { de: 'Unterstützte Marktplätze', fr: 'Marchés supportés', ln: 'Ba-marché oyo tozali kosalela', en: 'Supported marketplaces' },
   marketplace_tip: { de: 'Öffnen Sie den Marktplatz, suchen Sie Ihr Produkt, kopieren Sie den Link und reichen Sie ihn ein.', fr: 'Ouvrez le marché, trouvez votre produit, copiez le lien et soumettez-le.', ln: 'Fungola marché, luka eloko, kopia lien mpe tinda yango.', en: 'Open the marketplace, find your product, copy the link and submit it.' },
@@ -292,9 +288,9 @@ const translations: Translations = {
   order_accept: { de: 'Akzeptieren →', fr: 'Accepter →', ln: 'Ndima →', en: 'Accept →' },
   order_payment_title: { de: 'Zahlung — UBA Congo', fr: 'Paiement — UBA Congo', ln: 'Kofuta — UBA Congo', en: 'Payment — UBA Congo' },
   order_payment_instruction_title: { de: 'Zahlungsanweisung', fr: 'Instructions de paiement', ln: 'Ndenge ya kofuta', en: 'Payment instructions' },
-  order_payment_step1: { de: 'Ein GLB-Agent begleitet Sie zur UBA-Filiale', fr: 'Un agent GLB vous accompagne à la filiale UBA', ln: 'Agent ya GLB akotambola na yo na UBA', en: 'A GLB agent will accompany you to the UBA branch' },
-  order_payment_step2: { de: 'Zahlung in CDF oder USD möglich', fr: 'Paiement en CDF ou USD possible', ln: 'Kofuta na CDF to USD ekoki', en: 'Payment in CDF or USD possible' },
-  order_payment_step3: { de: 'Sofortige offizielle Quittung', fr: 'Reçu officiel immédiat', ln: 'Reçu ya sika mbangu', en: 'Immediate official receipt' },
+  order_payment_step1: { de: 'Sie erhalten die Endrechnung von GLB-Solar', fr: 'Vous recevez la facture finale de GLB-Solar', ln: 'Okozwa facture ya suka ya GLB-Solar', en: 'You receive the final invoice from GLB-Solar' },
+  order_payment_step2: { de: 'Zahlung in F CFA auf das Firmenkonto', fr: 'Paiement en F CFA sur le compte de la société', ln: 'Kofuta na F CFA na compte ya société', en: 'Payment in F CFA to the company account' },
+  order_payment_step3: { de: 'Offizielle Quittung', fr: 'Reçu officiel', ln: 'Reçu ya sika', en: 'Official receipt' },
   order_payment_step4: { de: 'Tracking-Nummer per WhatsApp', fr: 'Numéro de suivi par WhatsApp', ln: 'Numéro ya tracking na WhatsApp', en: 'Tracking number via WhatsApp' },
   order_to_pay: { de: 'Zu zahlen', fr: 'À payer', ln: 'Kofuta', en: 'To pay' },
   order_customs_label: { de: 'Verzollung', fr: 'Dédouanement', ln: 'Douane', en: 'Customs clearance' },
@@ -303,10 +299,10 @@ const translations: Translations = {
   order_saving: { de: 'Wird gespeichert…', fr: 'Enregistrement…', ln: 'Ezali kobomba…', en: 'Saving…' },
   order_confirm_payment: { de: 'Zahlung bestätigt ✓', fr: 'Paiement confirmé ✓', ln: 'Kofuta esangisami ✓', en: 'Payment confirmed ✓' },
   order_next_step: { de: 'GLB kauft Produkt', fr: 'GLB achète le produit', ln: 'GLB esomba eloko', en: 'GLB purchases product' },
-  order_delivery_time: { de: '3–6 Wochen', fr: '3–6 semaines', ln: 'Mposo 3–6', en: '3–6 weeks' },
+  order_delivery_time: { de: 'ca. 4–8 Wochen', fr: 'env. 4–8 semaines', ln: 'pene mposo 4–8', en: 'approx. 4–8 weeks' },
   order_next_steps_title: { de: 'Nächste Schritte', fr: 'Prochaines étapes', ln: 'Malako oyo elandi', en: 'Next steps' },
   order_process_1: { de: 'GLB kauft Produkt beim Verkäufer', fr: 'GLB achète le produit au vendeur', ln: 'GLB esomba eloko epai ya moteki', en: 'GLB buys the product from the seller' },
-  order_process_2: { de: 'Qualitätskontrolle & Verpackung', fr: 'Contrôle qualité & emballage', ln: 'Kotala qualité & kobomba', en: 'Quality control & packaging' },
+  order_process_2: { de: 'Prüfung & Verpackung', fr: 'Vérification & emballage', ln: 'Kotala & kobomba', en: 'Inspection & packaging' },
   order_process_3: { de: 'Containerverladung & Verschiffung', fr: 'Chargement container & expédition', ln: 'Kotya na container & kotinda', en: 'Container loading & shipping' },
   order_process_4: { de: 'Verzollung & Inland-Lieferung', fr: 'Dédouanement & livraison intérieure', ln: 'Douane & kokaba na kati', en: 'Customs clearance & domestic delivery' },
   order_process_5: { de: 'Übergabe in', fr: 'Remise à', ln: 'Kopesa na', en: 'Handover in' },
@@ -378,4 +374,5 @@ export const useLanguage = () => {
   }
   return context;
 };
+
 

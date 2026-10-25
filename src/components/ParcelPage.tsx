@@ -36,16 +36,17 @@ const getLanguage = (): Lang => {
 const T = {
   de: {
     title: 'GLB Paketversand',
-    subtitle: 'Sende deine Pakete sicher nach Congo Brazzaville.',
-    containerInfo: 'Container fährt am',
+    subtitle: 'Sende deine Pakete in den Kongo.',
+    containerInfo: 'Geplante Abfahrt am',
     containerDate: '15. jeden Monats',
-    containerAb: 'ab — Lieferzeit max. 4 Wochen.',
+    containerAb: '— Lieferzeit ca. 4 Wochen.',
     btnBook: '+ Paket anmelden', btnTrack: 'Paket verfolgen',
-    statDepart: 'Abfahrt jeden Monat', statDelivery: 'Max. Lieferzeit',
+    statDepart: 'Abfahrt jeden Monat', statDelivery: 'Lieferzeit ca.',
+    statRoute: 'Deutschland → Kongo', statTracking: 'Schritte Tracking',
     step1Title: 'Anmelden',    step1Desc: 'Maße & Empfänger eingeben',
     step2Title: 'Bezahlen',    step2Desc: 'Kreditkarte, PayPal oder Sofortüberweisung',
     step3Title: 'GLB holt ab', step3Desc: '1× im Monat in deiner Stadt',
-    step4Title: 'Zugestellt',  step4Desc: 'In BZV oder Pointe-Noire',
+    step4Title: 'Zugestellt',  step4Desc: 'Im Kongo, durch unseren Partner',
     stepLabel: 'Schritt',
     myParcels: 'Meine Pakete', refresh: 'Aktualisieren',
     noParcels: 'Noch keine Pakete angemeldet',
@@ -71,12 +72,12 @@ const T = {
     priceTitle: 'Preisübersicht',
     basePrice: 'Basispreis', pnrSurcharge: 'Pointe-Noire Aufschlag',
     insuranceLine: 'Versicherung (3%)', total: 'Gesamt',
-    containerNote: 'Container wird am 15. des Monats verschifft. Lieferzeit max. 4 Wochen.',
+    containerNote: 'Geplante Verschiffung am 15. des Monats, Lieferzeit ca. 4 Wochen. Zölle und Abgaben im Kongo sind nicht enthalten.',
     submitBtn: 'Weiter zur Zahlung',
     successTitle: 'Zahlung erfolgreich & Paket angemeldet!',
     successSub: 'Deine Tracking-Nummer:',
     successNote: 'GLB kontaktiert dich zur Abholung.',
-    successContainer: 'Container fährt am 15. des Monats.',
+    successContainer: 'Geplante Abfahrt am 15. des Monats.',
     successDelivery: 'Lieferzeit ca. 4 Wochen.',
     btnMyParcels: 'Meine Pakete', btnAnother: 'Weiteres Paket',
     trackTitle: 'Paket verfolgen',
@@ -86,6 +87,8 @@ const T = {
     currentLabel: 'Aktuell', steps: 'Schritte',
     alertLogin: 'Bitte zuerst einloggen!',
     alertFields: 'Bitte alle Pflichtfelder ausfüllen!',
+    contentConfirm: 'Ich bestätige, dass das Paket keine verbotenen oder gefährlichen Waren enthält (z. B. Waffen, Drogen, Bargeld, lose Lithium-Akkus, Flüssigkeiten über 1 Liter) und dass die Angaben stimmen. *',
+    alertContent: 'Bitte bestätige den Paketinhalt.',
     alertSaveError: 'Fehler beim Speichern', saving: 'Wird gespeichert...',
     // Checkout
     checkoutTitle: 'Zahlung — Paketversand',
@@ -103,16 +106,17 @@ const T = {
   },
   fr: {
     title: 'GLB Envoi de colis',
-    subtitle: 'Envoyez vos colis en toute sécurité au Congo Brazzaville.',
-    containerInfo: 'Le conteneur part le',
+    subtitle: 'Envoyez vos colis au Congo.',
+    containerInfo: 'Départ prévu le',
     containerDate: '15 de chaque mois',
-    containerAb: '— délai max. 4 semaines.',
+    containerAb: '— délai indicatif 4 semaines.',
     btnBook: '+ Enregistrer un colis', btnTrack: 'Suivre un colis',
-    statDepart: 'Départ chaque mois', statDelivery: 'Délai max.',
+    statDepart: 'Départ chaque mois', statDelivery: 'Délai indicatif',
+    statRoute: 'Allemagne → Congo', statTracking: 'étapes de suivi',
     step1Title: "S'inscrire",   step1Desc: 'Entrer dimensions & destinataire',
     step2Title: 'Payer',        step2Desc: 'Carte, PayPal ou virement instantané',
     step3Title: 'GLB collecte', step3Desc: '1× par mois dans votre ville',
-    step4Title: 'Livré',        step4Desc: 'À BZV ou Pointe-Noire',
+    step4Title: 'Livré',        step4Desc: 'Au Congo, par notre partenaire',
     stepLabel: 'Étape',
     myParcels: 'Mes colis', refresh: 'Actualiser',
     noParcels: 'Aucun colis enregistré',
@@ -138,12 +142,12 @@ const T = {
     priceTitle: 'Récapitulatif',
     basePrice: 'Prix de base', pnrSurcharge: 'Supplément Pointe-Noire',
     insuranceLine: 'Assurance (3%)', total: 'Total',
-    containerNote: 'Le conteneur part le 15 du mois. Délai max. 4 semaines.',
+    containerNote: 'Expédition prévue le 15 du mois, délai indicatif 4 semaines. Les droits et taxes au Congo ne sont pas inclus.',
     submitBtn: 'Procéder au paiement',
     successTitle: 'Paiement réussi & colis enregistré !',
     successSub: 'Votre numéro de suivi :',
     successNote: 'GLB vous contactera pour la collecte.',
-    successContainer: 'Le conteneur part le 15 du mois.',
+    successContainer: 'Départ prévu le 15 du mois.',
     successDelivery: 'Livraison en env. 4 semaines.',
     btnMyParcels: 'Mes colis', btnAnother: 'Autre colis',
     trackTitle: 'Suivre un colis',
@@ -153,6 +157,8 @@ const T = {
     currentLabel: 'En cours', steps: 'étapes',
     alertLogin: 'Veuillez vous connecter !',
     alertFields: 'Veuillez remplir tous les champs obligatoires !',
+    contentConfirm: 'Je confirme que le colis ne contient aucune marchandise interdite ou dangereuse (p. ex. armes, drogues, espèces, batteries lithium non emballées, liquides de plus de 1 litre) et que les informations sont exactes. *',
+    alertContent: 'Veuillez confirmer le contenu du colis.',
     alertSaveError: 'Erreur lors de la sauvegarde', saving: 'Enregistrement...',
     checkoutTitle: 'Paiement — Envoi colis',
     payMethodTitle: 'Choisir le mode de paiement',
@@ -169,16 +175,17 @@ const T = {
   },
   ln: {
     title: 'GLB Kotinda Colis',
-    subtitle: 'Tinda ba colis na yo na sécurité na Congo Brazzaville.',
-    containerInfo: 'Container ekei na',
+    subtitle: 'Tinda ba colis na yo na Congo.',
+    containerInfo: 'Container ekokende na',
     containerDate: '15 ya sanza nyonso',
-    containerAb: '— livraison max. malembe 4.',
+    containerAb: '— livraison pene na mposo 4.',
     btnBook: '+ Kokeba colis', btnTrack: 'Luka colis na yo',
-    statDepart: 'Departure sanza na sanza', statDelivery: 'Max. ya koleka',
+    statDepart: 'Départ sanza na sanza', statDelivery: 'Délai pene',
+    statRoute: 'Allemagne → Congo', statTracking: 'ba étapes ya suivi',
     step1Title: 'Kokeba',      step1Desc: 'Tia dimensions & moto ya kozwa',
     step2Title: 'Kofuta',      step2Desc: 'Carte, PayPal to virement',
     step3Title: 'GLB ekanga',  step3Desc: '1× na sanza na ville na yo',
-    step4Title: 'Ekabola',     step4Desc: 'Na BZV to Pointe-Noire',
+    step4Title: 'Ekabola',     step4Desc: 'Na Congo, na partenaire na biso',
     stepLabel: 'Etape',
     myParcels: 'Ba colis na ngai', refresh: 'Refresher',
     noParcels: 'Ezali na colis te',
@@ -204,13 +211,13 @@ const T = {
     priceTitle: 'Résumé ya prix',
     basePrice: 'Prix ya base', pnrSurcharge: 'Supplément Pointe-Noire',
     insuranceLine: 'Assurance (3%)', total: 'Mobimba',
-    containerNote: 'Container ekei na 15 ya sanza. Livraison max. malembe 4.',
+    containerNote: 'Container ekokende na 15 ya sanza, livraison pene na mposo 4. Ba droits mpe taxes na Congo ezali te na prix oyo.',
     submitBtn: 'Kokende na paiement',
     successTitle: 'Paiement eleki malamu & colis ekebisami!',
     successSub: 'Numéro ya suivi na yo:',
     successNote: 'GLB akobeta yo pona kozwa colis.',
-    successContainer: 'Container ekei na 15 ya sanza.',
-    successDelivery: 'Livraison na malembe 4.',
+    successContainer: 'Container ekokende na 15 ya sanza.',
+    successDelivery: 'Livraison pene na mposo 4.',
     btnMyParcels: 'Ba colis na ngai', btnAnother: 'Colis mosusu',
     trackTitle: 'Luka colis na yo',
     trackPh: 'Numéro ya suivi (ex. GLB-ABC123)',
@@ -219,6 +226,8 @@ const T = {
     currentLabel: "Sik'oyo", steps: 'Etapes',
     alertLogin: 'Kota compte liboso!',
     alertFields: 'Tia makambo nyonso ya obligatoire!',
+    contentConfirm: 'Nandimi ete colis ezali na biloko oyo epekisami to ya likama te (ndakisa: mondoki, drogue, mbongo, batterie lithium ya polele, mai koleka litre 1) mpe ete makambo nyonso ezali ya solo. *',
+    alertContent: 'Ndimisa contenu ya colis liboso.',
     alertSaveError: 'Erreur na kosalva', saving: 'Ezali kosalva...',
     checkoutTitle: 'Kofuta — Colis',
     payMethodTitle: 'Pona ndenge ya kofuta',
@@ -576,6 +585,7 @@ export const ParcelPage: React.FC = () => {
   const [newTotalPrice, setNewTotalPrice] = useState(0);
   const [newDestination, setNewDestination] = useState('');
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [contentConfirmed, setContentConfirmed] = useState(false);
 
   const emptyForm: ParcelForm = {
     length: '', width: '', height: '', weight: '',
@@ -613,6 +623,7 @@ export const ParcelPage: React.FC = () => {
         !form.origin_city || !form.recipient_name || !form.recipient_phone) {
       alert(t.alertFields); return;
     }
+    if (!contentConfirmed) { alert(t.alertContent); return; }
     setSubmitting(true);
     try {
       const tracking = 'GLB-' + Date.now().toString(36).toUpperCase();
@@ -689,7 +700,7 @@ export const ParcelPage: React.FC = () => {
           className="px-6 py-3 bg-[#0A5EB0] text-white rounded-xl font-bold">
           {t.btnMyParcels}
         </button>
-        <button onClick={() => { setForm(emptyForm); setView('book'); }}
+        <button onClick={() => { setForm(emptyForm); setContentConfirmed(false); setView('book'); }}
           className="px-6 py-3 border border-gray-200 rounded-xl font-bold text-gray-700">
           {t.btnAnother}
         </button>
@@ -825,6 +836,14 @@ export const ParcelPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Inhaltsbestätigung */}
+          <label className="flex items-start gap-3 cursor-pointer bg-white border border-gray-200 rounded-2xl p-5">
+            <input type="checkbox" checked={contentConfirmed}
+              onChange={e => setContentConfirmed(e.target.checked)}
+              className="w-5 h-5 mt-0.5 rounded accent-[#0A5EB0] flex-shrink-0" />
+            <span className="text-sm text-gray-700">{t.contentConfirm}</span>
+          </label>
+
           {/* Preisübersicht */}
           <div className="bg-[#0A5EB0] text-white rounded-2xl p-5">
             <h3 className="font-bold mb-3">{t.priceTitle}</h3>
@@ -908,8 +927,8 @@ export const ParcelPage: React.FC = () => {
             {[
               { num: '15.', label: t.statDepart },
               { num: '4W',  label: t.statDelivery },
-              { num: 'BZV', label: 'Brazzaville' },
-              { num: 'PNR', label: 'Pointe-Noire' },
+              { num: 'DE→CG', label: t.statRoute },
+              { num: '10', label: t.statTracking },
             ].map((s, i) => (
               <div key={i} className="bg-white/10 rounded-xl px-3 py-2">
                 <p className="text-lg font-bold">{s.num}</p>
@@ -1075,4 +1094,5 @@ const ParcelStatusCard: React.FC<{
     </div>
   );
 };
+
 

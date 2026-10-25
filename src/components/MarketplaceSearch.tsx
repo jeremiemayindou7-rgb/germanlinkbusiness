@@ -13,10 +13,12 @@ import { sendOrderConfirmation } from '../lib/email';
 type OrderStep = 1 | 2 | 3 | 4;
 
 interface OrderDetails {
+  customerType: 'private' | 'company';
+  companyName:  string;
   qty:     number;
   variant: string;
   note:    string;
-  city:    'Brazzaville' | 'Kinshasa' | 'Pointe-Noire';
+  city:    'Brazzaville' | 'Pointe-Noire';
   customs: 'with' | 'without';
 }
 
@@ -89,9 +91,9 @@ function OccasionProductModal({
   const description = getDescription(product);
 
   const labels = {
-    de: { title: 'Produktdetails', priceLabel: 'Preis Deutschland', condition: 'Zustand', source: 'Original-Angebot ansehen', add: 'In den Warenkorb', adding: 'Wird hinzugefügt...', added: 'In den Warenkorb!', desc: 'Beschreibung', noDesc: 'Keine Beschreibung verfügbar.' },
-    fr: { title: 'Détails du produit', priceLabel: 'Prix Allemagne', condition: 'État', source: "Voir l'annonce d'origine", add: 'Ajouter au panier', adding: '...', added: 'Ajouté au panier!', desc: 'Description', noDesc: 'Aucune description disponible.' },
-    ln: { title: 'Ba détails ya eloko', priceLabel: 'Prix Allemagne', condition: 'Ezalela', source: "Talá annonce ya ebandeli", add: 'Tyá na panier', adding: '...', added: 'Ebakisami na panier!', desc: 'Description', noDesc: 'Description ezali te.' },
+    de: { title: 'Produktdetails', priceLabel: 'Preis ab Deutschland', priceNote: 'Zzgl. Transport und Steuern. Die Endrechnung erhalten Sie nach der Bestellung von unserem Partner im Kongo.', condition: 'Zustand', source: 'Original-Angebot ansehen', add: 'In den Warenkorb', adding: 'Wird hinzugefügt...', added: 'In den Warenkorb!', desc: 'Beschreibung', noDesc: 'Keine Beschreibung verfügbar.' },
+    fr: { title: 'Détails du produit', priceLabel: 'Prix départ Allemagne', priceNote: 'Hors transport et taxes. Vous recevez la facture finale de notre partenaire au Congo après votre commande.', condition: 'État', source: "Voir l'annonce d'origine", add: 'Ajouter au panier', adding: '...', added: 'Ajouté au panier!', desc: 'Description', noDesc: 'Aucune description disponible.' },
+    ln: { title: 'Ba détails ya eloko', priceLabel: 'Prix banda Allemagne', priceNote: 'Transport mpe taxes ezali te na prix oyo. Partenaire na biso na Congo akopesa yo facture ya suka sima ya commande.', condition: 'Ezalela', source: "Talá annonce ya ebandeli", add: 'Tyá na panier', adding: '...', added: 'Ebakisami na panier!', desc: 'Description', noDesc: 'Description ezali te.' },
   }[lang];
 
   return (
@@ -142,6 +144,8 @@ function OccasionProductModal({
               GLB
             </div>
           </div>
+
+          <p className="text-xs text-gray-400 -mt-2 mb-4">{labels.priceNote}</p>
 
           {/* État */}
           <div className="flex justify-between px-3 py-2.5 bg-gray-50 rounded-xl mb-3">
@@ -290,7 +294,7 @@ function OccasionEuropeSection({
               🇩🇪 {lang === 'de' ? 'Occasion Allemagne' : lang === 'ln' ? 'Occasion Allemagne' : 'Occasion Allemagne'}
             </span>
             <span className="bg-white/10 text-white text-xs px-3 py-1 rounded-full">
-              {lang === 'de' ? 'GLB-geprüft & versichert' : lang === 'ln' ? 'GLB esaleli & ebatelami' : 'Vérifié & assuré par GLB'}
+              {lang === 'de' ? 'Zustand & Fotos dokumentiert' : lang === 'ln' ? 'Ezalela mpe ba photos ekomami' : 'État et photos documentés'}
             </span>
           </div>
         </div>
@@ -388,10 +392,13 @@ function OccasionEuropeSection({
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-xs text-gray-400 mb-0.5">
-                        {lang === 'de' ? 'Preis Deutschland' : lang === 'ln' ? 'Prix Allemagne' : 'Prix Allemagne'}
+                        {lang === 'de' ? 'Preis ab Deutschland' : lang === 'ln' ? 'Prix banda Allemagne' : 'Prix départ Allemagne'}
                       </p>
                       <p className="text-lg font-bold text-green-700">
                         {p.sale_price > 0 ? formatPrice(p.sale_price) : '—'}
+                      </p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        {lang === 'de' ? 'zzgl. Transport & Steuern' : lang === 'ln' ? 'transport mpe taxes ezali te' : 'hors transport et taxes'}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
@@ -447,7 +454,7 @@ function OccasionEuropeSection({
 // ─── Le reste du fichier est identique ───────────────────────────────────────
 
 const FEES = { pickup: 25, shipping: 45, service: 15 };
-const WHATSAPP_NUMBER = '4915xxxxxxxxx';
+const WHATSAPP_NUMBER = '4915735169452';
 
 const MARKETPLACES = [
   { id: 'ebay',         name: 'eBay.de',       color: 'bg-yellow-400', badgeBg: 'bg-yellow-100 text-yellow-800', logo: '🛒', descKey: 'mp_ebay_desc',   searchUrl: (q: string) => `https://www.ebay.de/sch/i.html?_nkw=${encodeURIComponent(q)}`,                    domain: 'ebay.de' },
@@ -484,14 +491,15 @@ function isValidMarketplaceUrl(url: string): boolean {
 
 function buildWhatsAppMessage(tracking: string, url: string, marketplace: string, details: OrderDetails, total: number, lang: 'de' | 'fr' | 'ln'): string {
   const labels = {
-    de: { title: 'Neue GLB Bestellung', link: 'Produktlink', market: 'Marktplatz', qty: 'Menge', variant: 'Variante', note: 'Hinweis', city: 'Stadt', customs: 'Verzollung', yes: 'Ja (Haustür)', no: 'Nein (Hafen)', total: 'Gesamtbetrag', tracking: 'Tracking-Nr.' },
-    fr: { title: 'Nouvelle commande GLB', link: 'Lien produit', market: 'Marché', qty: 'Quantité', variant: 'Variante', note: 'Remarque', city: 'Ville', customs: 'Dédouanement', yes: 'Oui (domicile)', no: 'Non (port)', total: 'Montant total', tracking: 'N° de suivi' },
-    ln: { title: 'Commande ya sika GLB', link: 'Lien ya eloko', market: 'Marché', qty: 'Motango', variant: 'Variante', note: 'Liloba', city: 'Ville', customs: 'Douane', yes: 'Iyo (ndako)', no: 'Te (port)', total: 'Prix mobimba', tracking: 'Numéro ya tracking' },
+    de: { customer: 'Kunde', priv: 'Privat', comp: 'Firma', title: 'Neue GLB Bestellung', link: 'Produktlink', market: 'Marktplatz', qty: 'Menge', variant: 'Variante', note: 'Hinweis', city: 'Stadt', customs: 'Verzollung', yes: 'Ja (Haustür)', no: 'Nein (Hafen)', total: 'Gesamtbetrag', tracking: 'Tracking-Nr.' },
+    fr: { customer: 'Client', priv: 'Particulier', comp: 'Entreprise', title: 'Nouvelle commande GLB', link: 'Lien produit', market: 'Marché', qty: 'Quantité', variant: 'Variante', note: 'Remarque', city: 'Ville', customs: 'Dédouanement', yes: 'Oui (domicile)', no: 'Non (port)', total: 'Montant total', tracking: 'N° de suivi' },
+    ln: { customer: 'Client', priv: 'Moto', comp: 'Entreprise', title: 'Commande ya sika GLB', link: 'Lien ya eloko', market: 'Marché', qty: 'Motango', variant: 'Variante', note: 'Liloba', city: 'Ville', customs: 'Douane', yes: 'Iyo (ndako)', no: 'Te (port)', total: 'Prix mobimba', tracking: 'Numéro ya tracking' },
   }[lang];
   const lines = [
     `🛍️ *${labels.title}*`, ``,
     `🔗 *${labels.link}:* ${url}`,
     `🏪 *${labels.market}:* ${marketplace}`, ``,
+    `• ${labels.customer}: ${details.customerType === 'company' ? `${labels.comp} – ${details.companyName}` : labels.priv}`,
     `• ${labels.qty}: ${details.qty}`,
     details.variant ? `• ${labels.variant}: ${details.variant}` : '',
     details.note    ? `• ${labels.note}: ${details.note}` : '',
@@ -527,6 +535,14 @@ function StepIndicator({ current, t }: { current: OrderStep; t: (k: string) => s
   );
 }
 
+type FirmaLang = 'de' | 'fr' | 'ln' | 'en';
+const FIRMA_TEXT: Record<FirmaLang, { label: string; priv: string; comp: string; name: string; note: string }> = {
+  de: { label: 'Bestellung als', priv: 'Privat', comp: 'Firma', name: 'Name der Firma *', note: 'Dieser Name erscheint auf der Rechnung.' },
+  fr: { label: 'Commande en tant que', priv: 'Particulier', comp: 'Entreprise', name: "Nom de l'entreprise *", note: 'Ce nom figurera sur la facture.' },
+  ln: { label: 'Kosomba lokola', priv: 'Moto', comp: 'Entreprise', name: 'Nkombo ya entreprise *', note: 'Nkombo oyo ekozala na facture.' },
+  en: { label: 'Ordering as', priv: 'Private', comp: 'Company', name: 'Company name *', note: 'This name will appear on the invoice.' },
+};
+
 interface OrderModalProps { product: ParsedProduct; onClose: () => void; }
 
 function OrderModal({ product, onClose }: OrderModalProps) {
@@ -536,9 +552,10 @@ function OrderModal({ product, onClose }: OrderModalProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [trackingNo, setTrackingNo] = useState('');
   const [estimatedPrice, setEstimatedPrice] = useState<number>(0);
-  const [details, setDetails] = useState<OrderDetails>({ qty: 1, variant: '', note: '', city: 'Brazzaville', customs: 'with' });
+  const [details, setDetails] = useState<OrderDetails>({ customerType: 'private', companyName: '', qty: 1, variant: '', note: '', city: 'Brazzaville', customs: 'with' });
 
   const grandTotal = estimatedPrice * details.qty + FEES.pickup + FEES.shipping + FEES.service;
+  const ft = FIRMA_TEXT[language as FirmaLang] ?? FIRMA_TEXT.fr;
   const set = <K extends keyof OrderDetails>(k: K, v: OrderDetails[K]) => setDetails(d => ({ ...d, [k]: v }));
 
   const handleConfirmPayment = async () => {
@@ -549,6 +566,8 @@ function OrderModal({ product, onClose }: OrderModalProps) {
       const { error } = await supabase.from('marketplace_orders').insert({
         tracking_number: tracking, product_title: 'Produkt via Link', product_url: product.url,
         product_price: estimatedPrice, marketplace: product.marketplace, condition: 'unknown',
+        customer_type: details.customerType,
+        company_name: details.customerType === 'company' ? details.companyName.trim() : null,
         quantity: details.qty, variant: details.variant || null, note: details.note || null,
         delivery_city: details.city, customs_included: details.customs === 'with',
         fee_pickup: FEES.pickup, fee_shipping: FEES.shipping, fee_service: FEES.service,
@@ -630,11 +649,30 @@ function OrderModal({ product, onClose }: OrderModalProps) {
                   placeholder={t('order_variant_placeholder')}
                   className="w-40 px-3 py-1.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
+              <div>
+                <label className="text-sm text-gray-600 block mb-1">{ft.label}</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['private', 'company'] as const).map(opt => (
+                    <button key={opt} type="button" onClick={() => set('customerType', opt)}
+                      className={`py-2 rounded-xl text-sm font-semibold border transition ${details.customerType === opt ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-400'}`}>
+                      {opt === 'private' ? ft.priv : ft.comp}
+                    </button>
+                  ))}
+                </div>
+                {details.customerType === 'company' && (
+                  <div className="mt-2">
+                    <input type="text" value={details.companyName} onChange={e => set('companyName', e.target.value)}
+                      placeholder={ft.name}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <p className="text-xs text-gray-400 mt-1">{ft.note}</p>
+                  </div>
+                )}
+              </div>
               <div className="flex items-center justify-between">
                 <label className="text-sm text-gray-600">{t('order_delivery_city')}</label>
                 <select value={details.city} onChange={e => set('city', e.target.value as OrderDetails['city'])}
                   className="w-40 px-3 py-1.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option>Brazzaville</option><option>Kinshasa</option><option>Pointe-Noire</option>
+                  <option>Brazzaville</option><option>Pointe-Noire</option>
                 </select>
               </div>
               <div>
@@ -651,7 +689,7 @@ function OrderModal({ product, onClose }: OrderModalProps) {
               )}
               <div className="flex gap-2 pt-1">
                 <button onClick={onClose} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">{t('order_cancel')}</button>
-                <button onClick={() => setStep(2)} disabled={estimatedPrice === 0}
+                <button onClick={() => setStep(2)} disabled={estimatedPrice === 0 || (details.customerType === 'company' && !details.companyName.trim())}
                   className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-40 flex items-center justify-center gap-1">
                   {t('order_next')} <ChevronRight size={16} />
                 </button>
@@ -964,4 +1002,5 @@ export default function MarketplaceSearch() {
     </div>
   );
 }
+
 

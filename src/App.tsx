@@ -27,6 +27,42 @@ import { ParcelPage } from './components/ParcelPage';
 import { AdemaxImportPage } from './components/ademax-import/AdemaxImportPage';
 import { SystemPage } from './components/SystemPage';
 import { GlbPage } from './components/GlbPage';
+import { GlbSolarPage, GLB_SOLAR_PATH } from './components/GlbSolarPage';
+
+// ── Seller-Programm: Texte in allen Sprachen ─────────────────────────────────
+type SellerLang = 'de' | 'fr' | 'ln';
+const SELLER_TEXT: Record<SellerLang, { title: string; subtitle: string; apply: string; cards: { title: string; desc: string }[] }> = {
+  de: {
+    title: '🇩🇪 Seller-Programm',
+    subtitle: 'Verkaufe Produkte aus Deutschland in den Kongo – GLB übernimmt den Versand.',
+    apply: '+ Bewerben',
+    cards: [
+      { title: '🌍 Zugang zum Markt im Kongo', desc: 'Erreiche Käufer im Kongo über die GLB-Plattform.' },
+      { title: '📦 Du verkaufst – GLB versendet', desc: 'GLB kümmert sich um Abholung und Versand. Abrechnung und Auszahlung regeln die Seller-Bedingungen.' },
+      { title: '🏢 Privat oder Unternehmen', desc: 'Ob Privatperson oder Händler – verkaufe in den Kongo, weitere Länder folgen.' },
+    ],
+  },
+  fr: {
+    title: '🇩🇪 Programme vendeurs',
+    subtitle: 'Vendez des produits d’Allemagne au Congo – GLB s’occupe de l’expédition.',
+    apply: '+ Postuler',
+    cards: [
+      { title: '🌍 Accès au marché congolais', desc: 'Touchez des acheteurs au Congo via la plateforme GLB.' },
+      { title: '📦 Vous vendez – GLB expédie', desc: 'GLB s’occupe de l’enlèvement et de l’expédition. La facturation et le versement sont régis par les conditions vendeurs.' },
+      { title: '🏢 Particulier ou entreprise', desc: 'Particulier ou commerçant – vendez au Congo, d’autres pays suivront.' },
+    ],
+  },
+  ln: {
+    title: '🇩🇪 Programme ya ba vendeurs',
+    subtitle: 'Teka biloko ya Allemagne na Congo – GLB esalaka envoi.',
+    apply: '+ Kosenga',
+    cards: [
+      { title: '🌍 Nzela ya zando ya Congo', desc: 'Kutana na basombi na Congo na plateforme GLB.' },
+      { title: '📦 Oteki – GLB etindi', desc: 'GLB ekozwa biloko mpe ekotinda yango. Facture mpe kofuta ezali na conditions ya ba vendeurs.' },
+      { title: '🏢 Moto to entreprise', desc: 'Ozala moto to commerçant – teka na Congo, ba mboka misusu ekoya.' },
+    ],
+  },
+};
 
 function AppContent() {
   const { user } = useAuth();
@@ -76,7 +112,7 @@ function AppContent() {
   React.useEffect(() => {
     const path = window.location.pathname;
     setCurrentRoute(path);
-    if (path === '/auth/confirm' || path === '/agb' || path === '/glb') return;
+    if (path === '/auth/confirm' || path === '/agb' || path === '/glb' || path === GLB_SOLAR_PATH) return;
 
     if (path === '/how-it-works') {
       setShowLanding(false);
@@ -105,6 +141,11 @@ function AppContent() {
   if (currentRoute === '/glb') {
     return (
       <GlbPage onBack={() => { window.history.pushState(null, '', '/'); window.location.reload(); }} />
+    );
+  }
+  if (currentRoute === GLB_SOLAR_PATH) {
+    return (
+      <GlbSolarPage onBack={() => { window.history.pushState(null, '', '/'); window.location.reload(); }} />
     );
   }
 
@@ -183,26 +224,22 @@ function AppContent() {
       />
     );
     if (activeView === 'marketplace') return <MarketplaceSearch />;
-    if (activeView === 'seller') return (
+    if (activeView === 'seller') {
+      const st = SELLER_TEXT[language as SellerLang] ?? SELLER_TEXT.fr;
+      return (
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="bg-gradient-to-r from-[#0A5EB0] to-[#1a7fd4] rounded-2xl p-6 mb-6 text-white shadow-lg">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div className="flex-1">
-              <h1 className="text-2xl font-bold mb-1">🇩🇪 Seller-Programm</h1>
-              <p className="text-blue-100 text-sm mb-5">Verkaufe Produkte aus Deutschland nach Afrika – GLB liefert</p>
+              <h1 className="text-2xl font-bold mb-1">{st.title}</h1>
+              <p className="text-blue-100 text-sm mb-5">{st.subtitle}</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white/10 rounded-xl px-4 py-3">
-                  <p className="text-white font-semibold text-sm mb-1">🌍 Zugang zum afrikanischen Markt</p>
-                  <p className="text-blue-100 text-xs leading-relaxed">Erreiche Käufer in Kinshasa, Brazzaville, Matadi und Pointe-Noire.</p>
-                </div>
-                <div className="bg-white/10 rounded-xl px-4 py-3">
-                  <p className="text-white font-semibold text-sm mb-1">💶 Du verkaufst — wir zahlen dich aus</p>
-                  <p className="text-blue-100 text-xs leading-relaxed">GLB übernimmt Abholung, Verpackung, Transport und Lieferung bis nach Afrika.</p>
-                </div>
-                <div className="bg-white/10 rounded-xl px-4 py-3">
-                  <p className="text-white font-semibold text-sm mb-1">🏢 Privat oder Unternehmen</p>
-                  <p className="text-blue-100 text-xs leading-relaxed">Ob Privatperson oder Händler — verkaufe zuverlässig nach Kongo und ganz Afrika.</p>
-                </div>
+                {st.cards.map((c, i) => (
+                  <div key={i} className="bg-white/10 rounded-xl px-4 py-3">
+                    <p className="text-white font-semibold text-sm mb-1">{c.title}</p>
+                    <p className="text-blue-100 text-xs leading-relaxed">{c.desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
             {user && (
@@ -211,7 +248,7 @@ function AppContent() {
                   onClick={() => setShowSellerApply(true)}
                   className="px-5 py-2.5 bg-white text-[#0A5EB0] rounded-xl font-bold hover:bg-blue-50 transition shadow-md text-sm whitespace-nowrap"
                 >
-                  + Bewerben
+                  {st.apply}
                 </button>
               </div>
             )}
@@ -219,7 +256,8 @@ function AppContent() {
         </div>
         <SellerDashboard />
       </div>
-    );
+      );
+    }
 
     return <ProductCatalog onCartOpen={() => setCartOpen(true)} />;
   };
@@ -295,6 +333,14 @@ function App() {
     );
   }
 
+  if (currentRoute === GLB_SOLAR_PATH) {
+    return (
+      <LanguageProvider>
+        <GlbSolarPage onBack={() => { window.history.pushState(null, '', '/'); window.location.reload(); }} />
+      </LanguageProvider>
+    );
+  }
+
   if (currentRoute === '/glb') {
     return (
       <LanguageProvider>
@@ -317,4 +363,5 @@ function App() {
 }
 
 export default App;
+
 

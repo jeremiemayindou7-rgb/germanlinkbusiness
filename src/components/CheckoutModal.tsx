@@ -46,14 +46,14 @@ const CT: Record<string, Record<CheckoutLang, string>> = {
   payment_method_title: { fr: 'Méthode de paiement', ln: 'Ndenge ya kofuta', en: 'Payment method' },
   payment_method_hint_title: { fr: 'Remarque pour le choix :', ln: 'Liloba pona kopona :', en: 'Note on which to choose:' },
   payment_method_hint_body: {
-    fr: 'Clients en RD Congo (RDC) : utilisez « Virement bancaire (LemFi) ». Clients en République du Congo / Congo-Brazzaville : utilisez « Virement bancaire (UBA Brazzaville) ».',
-    ln: 'Ba client ya RD Congo (RDC) : bosalela « Kobakisa mbongo (LemFi) ». Ba client ya République du Congo / Congo-Brazzaville : bosalela « Kobakisa mbongo (UBA Brazzaville) ».',
-    en: 'Customers in DR Congo (DRC): use "Bank transfer (LemFi)". Customers in the Republic of Congo / Congo-Brazzaville: use "Bank transfer (UBA Brazzaville)".',
+    fr: 'Le paiement se fait uniquement sur le compte de la société GLB-Solar, après réception de la facture finale. Ne payez jamais en espèces à un tiers.',
+    ln: 'Kofuta esalemaka kaka na compte ya société GLB-Solar, nsima ya kozwa facture ya suka. Kofuta mbongo na maboko na moto mosusu te.',
+    en: 'Payment is made only to the GLB-Solar company account, after receiving the final invoice. Never pay cash to a third party.',
   },
   lemfi_option_label: { fr: 'Virement bancaire (LemFi) — pour les clients en RD Congo (RDC)', ln: 'Kobakisa mbongo (LemFi) — pona ba client ya RD Congo (RDC)', en: 'Bank transfer (LemFi) — for customers in DR Congo (DRC)' },
   lemfi_option_sub: { fr: 'Virement effectué par vous-même, avec numéro de référence.', ln: 'Yo moko otindaka mbongo, na numéro ya référence.', en: 'Transfer made by yourself, with a reference number.' },
-  uba_option_label: { fr: 'Virement bancaire (UBA Brazzaville) — pour les clients au Congo-Brazzaville (RC)', ln: 'Kobakisa mbongo (UBA Brazzaville) — pona ba client ya Congo-Brazzaville (RC)', en: 'Bank transfer (UBA Brazzaville) — for customers in Congo-Brazzaville (RC)' },
-  uba_option_sub: { fr: 'Virement effectué par vous-même sur notre compte transitoire chez UBA, avec numéro de référence.', ln: 'Yo moko otindaka mbongo na compte na biso ya ntango moke na UBA, na numéro ya référence.', en: 'Transfer made by yourself to our transitional account at UBA, with a reference number.' },
+  uba_option_label: { fr: 'Virement ou versement bancaire (UBA Congo)', ln: 'Kobakisa mbongo na banque (UBA Congo)', en: 'Bank transfer or deposit (UBA Congo)' },
+  uba_option_sub: { fr: 'Sur le compte de la société GERMANLINK BUSINESS SARLU, avec le numéro de commande comme référence.', ln: 'Na compte ya société GERMANLINK BUSINESS SARLU, na numéro ya commande lokola référence.', en: 'To the GERMANLINK BUSINESS SARLU company account, with the order number as reference.' },
   transitional_account_notice_title: { fr: 'Remarque importante :', ln: 'Liloba ya ntina :', en: 'Important note:' },
   transitional_account_notice_body: {
     fr: "Ce compte est un compte transitoire de {holderRole}, tant que GermanLink Business n'a pas encore de compte professionnel propre au Congo-Brazzaville. Votre paiement sera enregistré en interne au nom de GermanLink Business.",
@@ -107,7 +107,7 @@ const CT: Record<string, Record<CheckoutLang, string>> = {
   },
   lemfi_button_banner: { fr: 'Virement bancaire (LemFi)', ln: 'Kobakisa mbongo (LemFi)', en: 'Bank transfer (LemFi)' },
   uba_button_banner: { fr: 'Virement bancaire (UBA)', ln: 'Kobakisa mbongo (UBA)', en: 'Bank transfer (UBA)' },
-  submit_button_label: { fr: 'Passer la commande & recevoir les infos de virement', ln: 'Tinda commande & zwa makambo ya kofuta', en: 'Place order & receive transfer details' },
+  submit_button_label: { fr: 'Passer la commande', ln: 'Tinda commande', en: 'Place order' },
   shipping_small_package: { fr: 'Petit colis — forfait de livraison.', ln: 'Colis ya moke — ntalo ya kotinda ya fixe.', en: 'Small package — flat shipping rate.' },
   shipping_being_calculated: { fr: 'En cours de calcul', ln: 'Ezali kotangama', en: 'Being calculated' },
   shipping_calc_by_volume: { fr: 'Les frais de port seront calculés selon le volume.', ln: 'Mbongo ya kotinda ekotangama na volume.', en: 'Shipping costs will be calculated based on volume.' },
@@ -116,11 +116,26 @@ const CT: Record<string, Record<CheckoutLang, string>> = {
   shipping_cbm_hint: { fr: 'Calculé selon le volume', ln: 'Etangami na volume', en: 'Calculated by volume' },
   shipping_cbm_note: { fr: 'Conteneur groupé · délai 8–12 semaines', ln: 'Container ya bango nyonso · ngonga 8–12 semaine', en: 'Groupage container · 8–12 weeks delivery time' },
   shipping_quote_note: { fr: 'Vous recevrez une offre personnalisée après réception de votre commande.', ln: 'Okozwa prix ya sika soki commande na yo eyaki.', en: 'You will receive a personalized offer after your order is received.' },
-  phone_placeholder: { fr: '+243 XXX XXX XXX ou +242 XXX XXX XXX', ln: '+243 XXX XXX XXX to +242 XXX XXX XXX', en: '+234 XXX XXX XXXX (Nigeria) or +243/+242 (Congo)' },
+  phone_placeholder: { fr: '+242 06 XXX XX XX', ln: '+242 06 XXX XX XX', en: '+242 06 XXX XX XX' },
   delivery_address_label: { fr: 'Adresse de livraison', ln: 'Adresse ya livraison', en: 'Delivery address' },
   delivery_address_placeholder: { fr: 'ex : 44, rue Massina Munkondo, Brazzaville', ln: 'ex: 44, rue Massina Munkondo, Brazzaville', en: 'e.g. 44, rue Massina Munkondo, Brazzaville' },
   delivery_address_note: { fr: 'Adresse complète où la commande doit être livrée.', ln: 'Adresse ya mobimba esika commande esengeli kokoma.', en: 'Full address where the order should be delivered.' },
   delivery_address_required: { fr: "Veuillez indiquer l'adresse de livraison", ln: 'Tiya adresse ya livraison', en: 'Please provide a delivery address' },
+  customer_type_label: { fr: 'Vous commandez en tant que', ln: 'Ozali kosomba lokola', en: 'You are ordering as' },
+  customer_private: { fr: 'Particulier', ln: 'Moto', en: 'Private individual' },
+  customer_company: { fr: 'Entreprise', ln: 'Entreprise', en: 'Company' },
+  company_name_label: { fr: "Nom de l'entreprise", ln: 'Nkombo ya entreprise', en: 'Company name' },
+  company_name_placeholder: { fr: 'ex : Boulangerie du Centre SARL', ln: 'ex: Boulangerie du Centre SARL', en: 'e.g. Boulangerie du Centre SARL' },
+  company_name_note: { fr: 'Ce nom figurera sur la facture.', ln: 'Nkombo oyo ekozala na facture.', en: 'This name will appear on the invoice.' },
+  company_name_required: { fr: "Veuillez indiquer le nom de l'entreprise", ln: 'Tiya nkombo ya entreprise', en: 'Please enter the company name' },
+  company_niu_label: { fr: 'NIU / RCCM (facultatif)', ln: 'NIU / RCCM (soki ozali na yango)', en: 'Tax ID / RCCM (optional)' },
+  seller_label: { fr: 'Vendeur', ln: 'Moteki', en: 'Seller' },
+  seller_value: { fr: 'GERMANLINK BUSINESS SARLU (GLB-Solar), Brazzaville', ln: 'GERMANLINK BUSINESS SARLU (GLB-Solar), Brazzaville', en: 'GERMANLINK BUSINESS SARLU (GLB-Solar), Brazzaville' },
+  taxes_label: { fr: 'Taxes et droits de douane', ln: 'Taxes mpe droits ya douane', en: 'Taxes and customs duties' },
+  taxes_value: { fr: 'sur la facture finale', ln: 'na facture ya suka', en: 'on the final invoice' },
+  final_invoice_title: { fr: 'Prochaine étape : votre facture finale', ln: 'Etape oyo elandi: facture na yo ya suka', en: 'Next step: your final invoice' },
+  final_invoice_body: { fr: "Notre partenaire GLB-Solar vous contacte par WhatsApp ou téléphone avec la facture finale (transport et taxes inclus). Veuillez payer uniquement après réception de cette facture, sur le compte de la société indiqué ci-dessous.", ln: 'Partenaire na biso GLB-Solar akobenga yo na WhatsApp to téléphone na facture ya suka (transport mpe taxes elongo). Futa kaka nsima ya kozwa facture yango, na compte ya société oyo ezali awa na nse.', en: 'Our partner GLB-Solar will contact you via WhatsApp or phone with the final invoice (transport and taxes included). Please pay only after receiving this invoice, to the company account shown below.' },
+  estimated_amount_label: { fr: 'Montant estimé :', ln: 'Mbongo ya estimation :', en: 'Estimated amount:' },
 };
 
 const ct = (lang: CheckoutLang, key: keyof typeof CT, vars?: Record<string, string>): string => {
@@ -180,13 +195,21 @@ type PaymentMethod = 'lemfi' | 'uba_brazzaville' | 'cinetpay';
 
 const UBA_ACCOUNT = {
   bankName: 'UBA Congo (United Bank for Africa)',
-  accountHolder: 'BAHOUMINA MANOU Roberta Belvine',
-  codeBanque: 'BJIQ4KB0RA',
+  accountHolder: 'GERMANLINK BUSINESS SARLU',
+  codeBanque: '',
   codeGuichet: '',
   numeroCompte: '',
   ribKey: '',
   swift: 'UNAFCGCG',
   branchAddress: '37 Av. William Guynet, Rond point City-Center, B.P. 13534, Brazzaville',
+};
+
+// Nächster 15. eines Monats (geplante Abfahrt) als YYYY-MM-DD
+const nextShipmentDate = (): string => {
+  const d = new Date();
+  const y = d.getFullYear(), m = d.getMonth();
+  const target = d.getDate() < 15 ? new Date(Date.UTC(y, m, 15)) : new Date(Date.UTC(y, m + 1, 15));
+  return target.toISOString().split('T')[0];
 };
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, singleProduct }) => {
@@ -195,7 +218,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
   const { cartItems, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
   const [paymentOption, setPaymentOption] = useState<'full' | 'deposit'>('full');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('lemfi');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('uba_brazzaville');
+  const [customerType, setCustomerType] = useState<'private' | 'company'>('private');
+  const [companyName, setCompanyName] = useState('');
+  const [companyNiu, setCompanyNiu] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [orderCompleted, setOrderCompleted] = useState(false);
@@ -274,6 +300,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
     if (!agbAccepted) { setAgbError(true); return; }
     if (!customerPhone.trim()) { alert(ct(lang, 'phone_required')); return; }
     if (!deliveryAddress.trim()) { alert(ct(lang, 'delivery_address_required')); return; }
+    if (customerType === 'company' && !companyName.trim()) { alert(ct(lang, 'company_name_required')); return; }
 
     setLoading(true);
     setAgbError(false);
@@ -304,10 +331,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
         payment_method:     paymentMethod,
         customer_phone:     customerPhone,
         delivery_address:   deliveryAddress,
+        customer_type:      customerType,
+        company_name:       customerType === 'company' ? companyName.trim() : null,
+        company_niu:        customerType === 'company' && companyNiu.trim() ? companyNiu.trim() : null,
         payment_status:     'pending',
         order_status:       'awaiting_payment',
         source_type:        'own',
-        next_shipment_date: '2026-02-15',
+        next_shipment_date: nextShipmentDate(),
         agb_accepted:       true,
         agb_accepted_at:    new Date().toISOString(),
       }).select().single();
@@ -351,6 +381,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
     setAgbAccepted(false);
     setAgbError(false);
     setShowShippingInfo(false);
+    setCustomerType('private');
+    setCompanyName('');
+    setCompanyNiu('');
     onClose();
   };
 
@@ -402,20 +435,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 </div>
               )}
 
-              {paymentMethod === 'lemfi' && (
-                <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
-                  <h4 className="font-bold text-yellow-900 mb-3 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5" />
-                    {ct(lang, 'payment_instruction_lemfi_title')}
-                  </h4>
-                  <div className="space-y-2 text-sm text-yellow-900 bg-white rounded p-3">
-                    <p><strong>{ct(lang, 'amount_to_pay_label')}</strong> {formatPrice(amountToPay)}</p>
-                    <p><strong>{ct(lang, 'recipient_label')}</strong> GermanLink Business GmbH</p>
-                    <p><strong>IBAN:</strong> DE89 3704 0044 0532 0130 00</p>
-                    <p className="text-red-700 font-bold"><strong>{ct(lang, 'reference_mandatory_label')}</strong> {orderNumber}</p>
-                  </div>
-                </div>
-              )}
+              <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4">
+                <p className="font-bold text-green-900 text-sm mb-1">{ct(lang, 'final_invoice_title')}</p>
+                <p className="text-green-800 text-xs">{ct(lang, 'final_invoice_body')}</p>
+              </div>
 
               {paymentMethod === 'uba_brazzaville' && (
                 <div className="bg-blue-50 border-2 border-blue-400 rounded-lg p-4">
@@ -424,7 +447,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                     {ct(lang, 'payment_instruction_uba_title')}
                   </h4>
                   <div className="space-y-2 text-sm text-blue-900 bg-white rounded p-3">
-                    <p><strong>{ct(lang, 'amount_to_pay_label')}</strong> {formatPrice(amountToPay)}</p>
+                    <p><strong>{ct(lang, 'estimated_amount_label')}</strong> {formatPrice(amountToPay)}</p>
                     <p><strong>{ct(lang, 'bank_label')}</strong> {UBA_ACCOUNT.bankName}</p>
                     <p><strong>{ct(lang, 'account_holder_label')}</strong> {UBA_ACCOUNT.accountHolder}</p>
                     <p><strong>{ct(lang, 'code_banque_label')}</strong> {UBA_ACCOUNT.codeBanque || ct(lang, 'pending_field')}</p>
@@ -433,12 +456,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                     <p><strong>{ct(lang, 'rib_key_label')}</strong> {UBA_ACCOUNT.ribKey || ct(lang, 'pending_field')}</p>
                     <p><strong>{ct(lang, 'swift_label')}</strong> {UBA_ACCOUNT.swift}</p>
                     <p className="text-red-700 font-bold"><strong>{ct(lang, 'reference_mandatory_label')}</strong> {orderNumber}</p>
-                    <div className="mt-2 pt-2 border-t border-blue-200 bg-amber-50 -mx-3 -mb-3 px-3 pb-3 rounded-b">
-                      <p className="text-xs text-amber-900">
-                        <strong>{ct(lang, 'transitional_account_notice_title')}</strong>{' '}
-                        {ct(lang, 'transitional_account_notice_body', { holderRole: ct(lang, 'holder_role') })}
-                      </p>
-                    </div>
                   </div>
                 </div>
               )}
@@ -476,6 +493,37 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                   <p className="font-bold text-[#0A5EB0] text-lg">{formatPrice(singleProduct.sale_price)}</p>
                 </div>
               )}
+
+              <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 space-y-3">
+                <p className="text-sm font-bold text-gray-900">{ct(lang, 'customer_type_label')}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['private', 'company'] as const).map(opt => (
+                    <button key={opt} type="button" onClick={() => setCustomerType(opt)}
+                      className={`py-2.5 rounded-lg text-sm font-semibold border-2 transition ${customerType === opt ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-blue-200 hover:border-blue-400'}`}>
+                      {opt === 'private' ? ct(lang, 'customer_private') : ct(lang, 'customer_company')}
+                    </button>
+                  ))}
+                </div>
+                {customerType === 'company' && (
+                  <div className="space-y-3">
+                    <label className="block">
+                      <span className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-2">
+                        {ct(lang, 'company_name_label')}
+                        <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">{ct(lang, 'required_field')}</span>
+                      </span>
+                      <input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)}
+                        placeholder={ct(lang, 'company_name_placeholder')}
+                        className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                      <p className="text-xs text-blue-600 mt-1">{ct(lang, 'company_name_note')}</p>
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-bold text-gray-900 mb-2 block">{ct(lang, 'company_niu_label')}</span>
+                      <input type="text" value={companyNiu} onChange={e => setCompanyNiu(e.target.value)}
+                        className="w-full px-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                    </label>
+                  </div>
+                )}
+              </div>
 
               <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
                 <label className="block">
@@ -540,7 +588,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                 </div>
 
                 {[
-                  { val: 'lemfi', label: ct(lang, 'lemfi_option_label'), sub: ct(lang, 'lemfi_option_sub') },
                   { val: 'uba_brazzaville', label: ct(lang, 'uba_option_label'), sub: ct(lang, 'uba_option_sub') },
                 ].map(m => (
                   <label key={m.val} className="flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50">
@@ -555,12 +602,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                   </label>
                 ))}
 
-                {paymentMethod === 'uba_brazzaville' && (
-                  <div className="ml-4 bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs text-amber-900">
-                    <strong>{ct(lang, 'transitional_account_notice_title')}</strong>{' '}
-                    {ct(lang, 'transitional_account_notice_body', { holderRole: ct(lang, 'holder_role') })}
-                  </div>
-                )}
               </div>
 
 
@@ -609,6 +650,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                   </div>
                 )}
 
+                <div className="flex justify-between text-gray-600">
+                  <span>{ct(lang, 'taxes_label')}</span>
+                  <span className="text-sm">{ct(lang, 'taxes_value')}</span>
+                </div>
+
                 <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t">
                   <span>{ct(lang, 'total')}</span>
                   <div className="text-right">
@@ -617,6 +663,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                       <span className="text-xs text-orange-500 block font-normal">{ct(lang, 'total_incl_estimate')}</span>
                     )}
                   </div>
+                </div>
+
+                <div className="flex justify-between text-xs text-gray-500 pt-1">
+                  <span>{ct(lang, 'seller_label')}</span>
+                  <span className="text-right">{ct(lang, 'seller_value')}</span>
                 </div>
 
                 <div className="flex justify-between text-xl font-bold text-[#DC241F] pt-2 border-t-2 border-[#DC241F]">
@@ -650,20 +701,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                   </div>
                 )}
 
-                {paymentMethod === 'lemfi' && (
-                  <>
-                    <div className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
-                      <CreditCard className="w-8 h-8 text-white" />
-                      <span className="text-2xl font-bold text-white">{ct(lang, 'lemfi_button_banner')}</span>
-                    </div>
-                    <button onClick={handlePayment}
-                      disabled={loading || !agbAccepted || !customerPhone.trim() || !deliveryAddress.trim()}
-                      className="w-full py-4 bg-[#009543] text-white rounded-lg font-bold text-lg disabled:opacity-50">
-                      {loading ? ct(lang, 'processing_btn') : ct(lang, 'submit_button_label')}
-                    </button>
-                  </>
-                )}
-
                 {paymentMethod === 'uba_brazzaville' && (
                   <>
                     <div className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-blue-700 to-blue-500 rounded-lg">
@@ -671,7 +708,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
                       <span className="text-2xl font-bold text-white">{ct(lang, 'uba_button_banner')}</span>
                     </div>
                     <button onClick={handlePayment}
-                      disabled={loading || !agbAccepted || !customerPhone.trim() || !deliveryAddress.trim()}
+                      disabled={loading || !agbAccepted || !customerPhone.trim() || !deliveryAddress.trim() || (customerType === 'company' && !companyName.trim())}
                       className="w-full py-4 bg-[#009543] text-white rounded-lg font-bold text-lg disabled:opacity-50">
                       {loading ? ct(lang, 'processing_btn') : ct(lang, 'submit_button_label')}
                     </button>
@@ -689,4 +726,5 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
     </div>
   );
 };
+
 
