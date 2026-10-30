@@ -19,14 +19,15 @@ interface AdminDashboardProps {
   isOpen: boolean;
   onClose: () => void;
   onEbayImport?: () => void;
-  onAdemaxImport?: () => void; // ← NEU
+  onAdemaxImport?: () => void; 
+  onSunshareImport?: () => void; // ← NEU
 }
 
 type TabType = 'dashboard' | 'products' | 'orders' | 'containers' | 'statistics' | 'customers' | 'sellers' | 'quotes';
 type UserRole = 'admin' | 'staff' | null;
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
-  isOpen, onClose, onEbayImport, onAdemaxImport,
+  isOpen, onClose, onEbayImport, onAdemaxImport, onSunshareImport,
 }) => {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -194,6 +195,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <span className="text-[9px] font-medium leading-none">ADEMAX</span>
           </button>
         )}
+        {/* Sunshare Import — Mobile */}
+        {isAdmin && onSunshareImport && (
+          <button
+            onClick={() => { onClose(); onSunshareImport?.(); }}
+            className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg hover:bg-white/10 transition"
+          >
+            <span className="text-base">☀️</span>
+            <span className="text-[9px] font-medium leading-none">Solar</span>
+          </button>
+        )}
       </div>
 
       {/* ── DESKTOP: Sidebar ── */}
@@ -248,7 +259,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </nav>
 
         {/* ── Import Buttons — Desktop Sidebar unten ── */}
-        {isAdmin && (onEbayImport || onAdemaxImport) && (
+        {isAdmin && (onEbayImport || onAdemaxImport || onSunshareImport) && (
           <div className="p-3 border-t border-white border-opacity-20 space-y-2">
 
             {/* eBay Import */}
@@ -270,6 +281,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               >
                 <Download className="w-5 h-5 flex-shrink-0" />
                 {!sidebarCollapsed && <span className="text-sm font-semibold">ADEMAX Import</span>}
+              </button>
+            )}
+            {/* Sunshare Import */}
+            {onSunshareImport && (
+              <button
+                onClick={() => { onClose(); onSunshareImport?.(); }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-yellow-900 transition ${sidebarCollapsed ? 'justify-center' : ''}`}
+              >
+                <span className="text-lg flex-shrink-0">☀️</span>
+                {!sidebarCollapsed && <span className="text-sm font-semibold">Sunshare Import</span>}
               </button>
             )}
           </div>
@@ -308,6 +329,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               >
                 <Download className="w-4 h-4" />
                 ADEMAX Import
+              </button>
+            )}
+
+            {/* Sunshare Import Button — Desktop Header */}
+            {isAdmin && onSunshareImport && (
+              <button
+                onClick={() => { onClose(); onSunshareImport?.(); }}
+                className="flex items-center gap-2 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 rounded-lg transition text-sm font-semibold"
+              >
+                ☀️ Sunshare Import
               </button>
             )}
 

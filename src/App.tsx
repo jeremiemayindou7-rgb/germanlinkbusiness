@@ -28,6 +28,7 @@ import { AdemaxImportPage } from './components/ademax-import/AdemaxImportPage';
 import { SystemPage } from './components/SystemPage';
 import { GlbPage } from './components/GlbPage';
 import { GlbSolarPage, GLB_SOLAR_PATH } from './components/GlbSolarPage';
+import SunshareImportPage from './components/SunshareImportPage';
 
 // ── Seller-Programm: Texte in allen Sprachen ─────────────────────────────────
 type SellerLang = 'de' | 'fr' | 'ln';
@@ -71,7 +72,7 @@ function AppContent() {
   // ── Hash-basiertes Routing ─────────────────────────────────────────────────
   const getInitialView = () => {
     const hash = window.location.hash.replace('#', '');
-    const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import', 'about', 'parcel', 'ademax-import', 'system'];
+    const validViews = ['dashboard', 'marketplace', 'seller', 'how-it-works', 'impressum', 'ebay-import', 'about', 'parcel', 'ademax-import', 'system', 'sunshare-import'];
     return validViews.includes(hash) ? hash : 'dashboard';
   };
 
@@ -223,6 +224,12 @@ function AppContent() {
         onSaved={() => navigateTo('dashboard')}
       />
     );
+    if (activeView === 'sunshare-import') return (
+      <SunshareImportPage
+        onBack={() => setActiveView('dashboard')}
+        onSaved={() => setActiveView('dashboard')}
+      />
+    );
     if (activeView === 'marketplace') return <MarketplaceSearch />;
     if (activeView === 'seller') {
       const st = SELLER_TEXT[language as SellerLang] ?? SELLER_TEXT.fr;
@@ -300,6 +307,7 @@ function AppContent() {
           navigateTo('ebay-import');
         }}
         onAdemaxImport={() => { setAdminDashboardOpen(false); navigateTo('ademax-import'); }} 
+        onSunshareImport={() => { setAdminDashboardOpen(false); navigateTo('sunshare-import'); }}
       />
       <OrderTracking isOpen={ordersOpen} onClose={() => setOrdersOpen(false)} />
       <Notifications isOpen={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
