@@ -3,26 +3,21 @@ import { ImportState, SunshareProduct } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-// Mock-Daten für Fallback wenn Backend nicht erreichbar
-const MOCK_PRODUCT: SunshareProduct = {
-  title: 'Balkonkraftwerk 800W – Komplettset mit Wechselrichter',
-  title_de: 'Balkonkraftwerk 800W – Komplettset mit Wechselrichter',
-  title_fr: 'Centrale électrique de balcon 800W – Kit complet avec onduleur',
-  title_ln: 'Centrale électrique 800W – Kit complet na onduleur',
-  description: 'Plug & Play Solaranlage für Ihren Balkon oder Garten. Inkl. 2× 400W Solarmodul, 800W Mikrowechselrichter, Kabel und Halterung. Sofort einsatzbereit.',
-  description_de: 'Plug & Play Solaranlage für Ihren Balkon oder Garten. Inkl. 2× 400W Solarmodul, 800W Mikrowechselrichter, Kabel und Halterung. Sofort einsatzbereit.',
-  description_fr: 'Système solaire plug & play pour votre balcon ou jardin. Incl. 2× panneaux solaires 400W, micro-onduleur 800W, câbles et fixations. Prêt à l\'emploi immédiatement.',
-  description_ln: 'Système solaire plug & play mpo na balcon to jardin na yo. Ezali na 2× panneaux solaires 400W, micro-onduleur 800W, câbles mpe fixations.',
-  price_eur: 549.00,
-  glb_price_eur: 658.80,
-  images: [
-    'https://images.weserv.nl/?url=sunshare.de/cdn/shop/products/balkonkraftwerk-800w.jpg&output=jpg&w=600',
-  ],
-  url: 'https://sunshare.de/products/balkonkraftwerk-800w',
-  wattage: '800W',
-  category: 'solar_energie',
-  source_type: 'sunshare',
-};
+/**
+ * Bereinigt eine URL von unsichtbaren Sonderzeichen.
+ * Soft Hyphen (U+00AD / 0xAD) und andere unsichtbare Zeichen
+ * werden beim Kopieren aus Browsern manchmal eingefügt.
+ */
+function sanitizeUrl(url: string): string {
+  return url
+    .replace(/­/g, '')   // Soft Hyphen entfernen
+    .replace(/​/g, '')   // Zero Width Space entfernen
+    .replace(/‌/g, '')   // Zero Width Non-Joiner entfernen
+    .replace(/‍/g, '')   // Zero Width Joiner entfernen
+    .replace(/﻿/g, '')   // BOM entfernen
+    .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '') // Steuerzeichen
+    .trim();
+}
 
 export function useSunshareImport() {
   const [state, setState] = useState<ImportState>({
@@ -31,8 +26,11 @@ export function useSunshareImport() {
     error: null,
   });
 
-  const importProduct = useCallback(async (url: string) => {
-    if (!url.trim()) return;
+  const importProduct = useCallback(async (rawUrl: string) => {
+    if (!rawUrl.trim()) return;
+
+    // URL bereinigen BEVOR Validierung und API-Aufruf
+    const url = sanitizeUrl(rawUrl);
 
     // Validate it's a sunshare URL
     if (!url.includes('sunshare.de')) {
@@ -48,10 +46,11 @@ export function useSunshareImport() {
 
     try {
       console.log(`[SunshareImport] Calling: ${API_URL}/api/import-sunshare`);
+      console.log(`[SunshareImport] URL (bereinigt): ${url}`);
 
       const response = await fetch(`${API_URL}/api/import-sunshare`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
         body: JSON.stringify({ url }),
         signal: AbortSignal.timeout(60000), // 60s für Render Cold Start
       });
@@ -66,7 +65,6 @@ export function useSunshareImport() {
       setState({ status: 'success', product: data, error: null });
     } catch (err: any) {
       console.error('[SunshareImport] Error:', err.message, err.name);
-      // Kein Mock-Fallback mehr – echter Fehler anzeigen
       setState({
         status: 'error',
         product: null,
